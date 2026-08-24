@@ -1,0 +1,2432 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MedsCheck session — Kevin O'Brien — Agile Pharmas</title>
+<meta name="description" content="MedsCheck Annual session workspace — Lakeview Pharmacy, synced with Fillware." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          ink:     '#0F172A',
+          muted:   '#64748B',
+          brand:   { blue:'#2563EB', blue2:'#1D4FD8', teal:'#12BEA6', teal2:'#0BA891', sky:'#7CC8FF' },
+          surface: { soft:'#F6F8FC', line:'#E7ECF4' },
+        },
+        fontFamily: { sans: ['Inter','system-ui','-apple-system','Segoe UI','sans-serif'] },
+        boxShadow: {
+          card:      '0 1px 2px rgba(16,42,84,.04), 0 10px 28px -14px rgba(16,42,84,.20)',
+          cardhover: '0 2px 6px rgba(16,42,84,.06), 0 22px 48px -18px rgba(37,99,235,.30)',
+          float:     '0 26px 70px -24px rgba(37,99,235,.40)',
+          soft:      '0 1px 2px rgba(16,42,84,.05), 0 6px 18px -10px rgba(16,42,84,.18)',
+        },
+      },
+    },
+  };
+</script>
+<script>
+  // Apply saved theme before first paint (no flash of light mode)
+  (function () {
+    try {
+      var t = localStorage.getItem('agilerx-theme');
+      if (!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      document.documentElement.classList.toggle('dark', t === 'dark');
+    } catch (e) {}
+  })();
+</script>
+<style>
+  :root { --ease-spring: cubic-bezier(.16,1,.3,1); }
+  html, body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  body { background:#fff; color:#0F172A; overflow-x:hidden; }
+  .h-display { letter-spacing:-.03em; line-height:1.05; }
+  .lead { line-height:1.7; }
+  .brand-grad   { background-image:linear-gradient(100deg,#12BEA6 0%,#2563EB 60%); }
+  .brand-text   { background-image:linear-gradient(100deg,#0BA891 0%,#2563EB 55%); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  /* grain/noise for depth */
+  .noise::before{ content:""; position:absolute; inset:0; pointer-events:none; opacity:.5; mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.035'/%3E%3C/svg%3E"); }
+  /* buttons */
+  .btn { transition:transform .25s var(--ease-spring), box-shadow .25s var(--ease-spring), background-color .2s ease, color .2s ease; will-change:transform; }
+  .btn:hover  { transform:translateY(-2px); }
+  .btn:active { transform:translateY(0) scale(.985); }
+  .btn:focus-visible { outline:2px solid #2563EB; outline-offset:3px; }
+  .navlink { position:relative; transition:color .2s ease; }
+  .navlink::after{ content:""; position:absolute; left:0; bottom:-6px; height:2px; width:0; border-radius:2px; background:linear-gradient(90deg,#12BEA6,#2563EB); transition:width .3s var(--ease-spring); }
+  .navlink:hover::after, .navlink[aria-current="page"]::after{ width:100%; }
+  .navlink:hover, .navlink[aria-current="page"]{ color:#0F172A; }
+  .card-lift { transition:transform .35s var(--ease-spring), box-shadow .35s var(--ease-spring); will-change:transform; }
+  .card-lift:hover { transform:translateY(-6px); }
+  .icn-tile { transition:transform .3s var(--ease-spring), box-shadow .3s var(--ease-spring); }
+  .icn-tile:hover { transform:translateY(-4px); }
+  /* reveal on scroll */
+  .reveal { opacity:0; transform:translateY(22px); transition:opacity .7s var(--ease-spring), transform .7s var(--ease-spring); }
+  .reveal.in { opacity:1; transform:none; }
+  @media (prefers-reduced-motion: reduce){ .reveal{opacity:1;transform:none;transition:none;} .btn,.card-lift,.icn-tile,.step-tab{transition:none;} html{scroll-behavior:auto;} }
+  ::selection{ background:#c9e3ff; color:#0b2c66; }
+  /* sidebar nav items — same active/inactive states as the hero dashboard mock */
+  .side-item { transition:color .2s ease, background-color .2s ease; }
+  .side-item:hover { color:#0F172A; background-color:#F6F8FC; }
+  .side-item:focus-visible { outline:2px solid #2563EB; outline-offset:-2px; }
+
+  /* ---- top bar: theme segmented toggle ---- */
+  .theme-seg { transition:background-color .2s ease, color .2s ease, transform .25s var(--ease-spring); }
+  .theme-seg:hover { color:#0F172A; }
+  .theme-seg:active { transform:scale(.92); }
+  .theme-seg:focus-visible { outline:2px solid #12BEA6; outline-offset:2px; }
+  .theme-seg[aria-pressed="true"] { background:#fff; color:#0F172A; box-shadow:0 1px 2px rgba(16,42,84,.10); }
+  .topbar-search:focus { outline:none; border-color:#0BA891; box-shadow:0 0 0 3px rgba(18,190,166,.20); }
+  .topbar-search::-webkit-search-cancel-button { -webkit-appearance:none; }
+
+  /* ============================================================
+     DARK MODE — derived only from tokens already in this config:
+     the ink (#0F172A) family for surfaces/text, brand teal + sky
+     for accents. Same hues, re-weighted for contrast on dark.
+     Applied as a scoped override layer so no existing markup changes.
+     ============================================================ */
+  html.dark { color-scheme:dark; }
+  html.dark body { background:#0B1220; color:#E8EDF6; }
+  html.dark .bg-surface-soft            { background-color:#0B1220; }
+  html.dark .bg-surface-soft\/60        { background-color:rgba(15,23,42,.72); }
+  html.dark .bg-white                   { background-color:#141C2B; }
+  html.dark .bg-white\/80               { background-color:rgba(20,28,43,.84); }
+  html.dark .border-surface-line        { border-color:#26314A; }
+  html.dark .border-white\/60           { border-color:rgba(255,255,255,.08); }
+  html.dark .text-ink                   { color:#E8EDF6; }
+  html.dark .text-muted                 { color:#95A3B8; }
+  html.dark .text-muted\/70             { color:rgba(149,163,184,.78); }
+  html.dark .bg-ink\/30                 { background-color:rgba(2,6,18,.62); }
+  html.dark .hover\:bg-surface-soft:hover { background-color:rgba(255,255,255,.05); }
+  html.dark .side-item:hover            { color:#E8EDF6; background-color:rgba(255,255,255,.06); }
+  html.dark .theme-seg:hover            { color:#E8EDF6; }
+  html.dark .theme-seg[aria-pressed="true"] { background:#26314A; color:#E8EDF6; box-shadow:0 1px 2px rgba(0,0,0,.5); }
+  html.dark .topbar-search:focus        { border-color:#12BEA6; box-shadow:0 0 0 3px rgba(18,190,166,.28); }
+  /* accents — hue preserved, lightness raised to clear AA on dark */
+  html.dark .text-brand-blue    { color:#7CC8FF; }
+  html.dark .bg-brand-blue\/10  { background-color:rgba(124,200,255,.14); }
+  html.dark .text-brand-teal2   { color:#2FD9C0; }
+  html.dark .bg-brand-teal\/10  { background-color:rgba(18,190,166,.16); }
+  html.dark .hover\:bg-brand-teal\/20:hover { background-color:rgba(18,190,166,.26); }
+  html.dark .text-emerald-600   { color:#34D399; }
+  html.dark .bg-emerald-50      { background-color:rgba(52,211,153,.14); }
+  html.dark .text-amber-600     { color:#FBBF24; }
+  html.dark .bg-amber-50        { background-color:rgba(251,191,36,.11); }
+  html.dark .border-amber-400   { border-color:rgba(251,191,36,.55); }
+  html.dark .ring-amber-400     { --tw-ring-color:rgba(251,191,36,.45); }
+  html.dark .ring-white         { --tw-ring-color:#141C2B; }
+  html.dark .bg-slate-300       { background-color:#3A4A63; }
+  html.dark .bg-gradient-to-br  { background-image:linear-gradient(to bottom right,#11302B,#141C2B); }
+  /* shadows: override the token, not box-shadow, so ring utilities still compose */
+  html.dark .shadow-soft { --tw-shadow:0 1px 2px rgba(0,0,0,.45), 0 6px 18px -10px rgba(0,0,0,.65); --tw-shadow-colored:var(--tw-shadow); }
+  html.dark .shadow-card { --tw-shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 28px -14px rgba(0,0,0,.75); --tw-shadow-colored:var(--tw-shadow); }
+  html.dark .hover\:shadow-cardhover:hover { --tw-shadow:0 2px 6px rgba(0,0,0,.5), 0 22px 48px -18px rgba(18,190,166,.30); --tw-shadow-colored:var(--tw-shadow); }
+  html.dark ::selection { background:#12BEA6; color:#04211C; }
+
+  /* ============================================================
+     MedsCheck SESSION WORKSPACE — page-specific additions.
+     ============================================================ */
+  /* the [hidden] attribute must beat Tailwind display utilities (e.g. a hidden .flex note) */
+  [hidden]{ display:none !important; }
+  /* step strip */
+  .step-tab { transition:background-color .2s ease, color .2s ease, transform .2s var(--ease-spring); }
+  .step-tab:hover { transform:translateY(-1px); }
+  .step-tab:focus-visible { outline:2px solid #2563EB; outline-offset:2px; }
+  .step-tab.is-active { background:#0BA891; color:#fff; }
+  html.dark .step-tab.is-active { background:#0BA891; color:#fff; }
+
+  /* medication reconciliation segmented toggle (teal = confirmed, amber = flagged issue) */
+  .recon-seg { transition:background-color .2s ease, color .2s ease; }
+  .recon-seg:focus-visible { outline:2px solid #2563EB; outline-offset:-2px; position:relative; z-index:1; }
+  .recon-seg[aria-pressed="true"][data-recon="ok"]    { background:#0BA891; color:#fff; }
+  .recon-seg[aria-pressed="true"][data-recon="issue"] { background:#FEF3C7; color:#B45309; }
+  html.dark .recon-seg[aria-pressed="true"][data-recon="issue"] { background:rgba(251,191,36,.16); color:#FBBF24; }
+
+  /* AI DRAFT — the ONE approved violet/purple exception. AI-generated content ONLY. */
+  .ai-badge   { background:linear-gradient(100deg,rgba(139,92,246,.14),rgba(124,58,237,.20)); border:1px solid rgba(139,92,246,.34); color:#6D28D9; }
+  .text-ai    { color:#6D28D9; }
+  .ai-drafted { border-color:#C4B5FD !important; background:linear-gradient(180deg,rgba(139,92,246,.05),transparent); box-shadow:0 0 0 3px rgba(139,92,246,.10); }
+  html.dark .ai-badge   { background:linear-gradient(100deg,rgba(139,92,246,.24),rgba(124,58,237,.30)); border-color:rgba(167,139,250,.5); color:#C4B5FD; }
+  html.dark .text-ai    { color:#C4B5FD; }
+  html.dark .ai-drafted { border-color:rgba(167,139,250,.55) !important; background:linear-gradient(180deg,rgba(139,92,246,.12),transparent); }
+
+  /* inline worksheet form controls — same radius/spacing/focus as the rest of the app */
+  .w-in { width:100%; border-radius:.65rem; border:1px solid #E7ECF4; background:#F6F8FC; padding:.55rem .7rem; font-size:.8125rem; color:#0F172A; transition:border-color .15s ease, box-shadow .15s ease; }
+  .w-in::placeholder { color:#9AA6BC; }
+  .w-in:focus { outline:none; border-color:#0BA891; box-shadow:0 0 0 3px rgba(18,190,166,.16); }
+  html.dark .w-in { background:#0E1626; border-color:#26314A; color:#E8EDF6; }
+
+  /* "needs action / record this" — the app's amber token at solid button strength (not a new orange) */
+  .btn-amber { background:#D97706; color:#fff; }
+  .btn-amber:hover { background:#B45309; }
+
+  /* OTC / Natural type toggle — teal selected, matching the app's positive-selection colour */
+  .otc-seg { transition:background-color .2s ease, color .2s ease; }
+  .otc-seg:focus-visible { outline:2px solid #2563EB; outline-offset:-2px; position:relative; z-index:1; }
+  .otc-seg[aria-pressed="true"] { background:#0BA891; color:#fff; }
+
+  /* intake/assessment segmented toggles — same teal positive-selection as recon/otc */
+  .seg { transition:background-color .2s ease, color .2s ease; }
+  .seg:focus-visible { outline:2px solid #2563EB; outline-offset:-2px; position:relative; z-index:1; }
+  .seg[aria-pressed="true"] { background:#0BA891; color:#fff; }
+
+  /* intake checkbox / radio accent + selected-row tint (teal), driven by JS .is-on */
+  .ix-check { accent-color:#0BA891; width:1.05rem; height:1.05rem; flex-shrink:0; }
+  .ix-check:focus-visible { outline:2px solid #2563EB; outline-offset:2px; }
+  .ix-row.is-on { border-color:rgba(11,168,145,.45); background:rgba(18,190,166,.06); }
+  html.dark .ix-row.is-on { border-color:rgba(18,190,166,.5); background:rgba(18,190,166,.12); }
+
+  /* Notify decision cards — teal outline + tint when chosen (same positive-selection token) */
+  .notify-opt { transition:border-color .2s ease, background-color .2s ease, box-shadow .2s ease; }
+  .notify-opt:focus-visible { outline:2px solid #2563EB; outline-offset:2px; }
+  .notify-opt[aria-pressed="true"] { border-color:#0BA891; background:rgba(18,190,166,.06); box-shadow:inset 0 0 0 1px #0BA891; }
+  html.dark .notify-opt[aria-pressed="true"] { background:rgba(18,190,166,.12); }
+
+  /* side-effect severity segmented control — locked meanings: Mild = neutral, Moderate = amber, Severe = red */
+  .sev-seg { transition:background-color .2s ease, color .2s ease; }
+  .sev-seg:focus-visible { outline:2px solid #2563EB; outline-offset:-2px; position:relative; z-index:1; }
+  .sev-seg[aria-pressed="true"][data-sev="mild"]     { background:#E7ECF4; color:#0F172A; }
+  .sev-seg[aria-pressed="true"][data-sev="moderate"] { background:#FEF3C7; color:#B45309; }
+  .sev-seg[aria-pressed="true"][data-sev="severe"]   { background:#FEE2E2; color:#B91C1C; }
+  html.dark .sev-seg[aria-pressed="true"][data-sev="mild"]     { background:#26314A; color:#E8EDF6; }
+  html.dark .sev-seg[aria-pressed="true"][data-sev="moderate"] { background:rgba(251,191,36,.16); color:#FBBF24; }
+  html.dark .sev-seg[aria-pressed="true"][data-sev="severe"]   { background:rgba(248,113,113,.18); color:#FCA5A5; }
+
+  /* quick-pick observation chips (shortcut into the side-effect field) */
+  .qp-chip { transition:background-color .2s ease, color .2s ease, border-color .2s ease; }
+  .qp-chip:hover { border-color:#0BA891; color:#0F172A; }
+  .qp-chip:focus-visible { outline:2px solid #2563EB; outline-offset:2px; }
+
+  /* red / urgent token — dark-mode variants (Severe severity + High interactions) */
+  html.dark .text-red-600   { color:#F87171; }
+  html.dark .bg-red-50      { background-color:rgba(248,113,113,.12); }
+  html.dark .bg-red-100     { background-color:rgba(248,113,113,.24); }
+  html.dark .border-red-200 { border-color:rgba(248,113,113,.42); }
+  /* severity badge tints — keep the -100 chips legible on dark */
+  html.dark .bg-amber-100   { background-color:rgba(251,191,36,.24); }
+
+  /* signature pad — a "paper" surface so the drawn ink stays legible in either theme */
+  .sig-pad { background:#fff; cursor:crosshair; touch-action:none; }
+  html.dark .sig-pad { background:#0E1626; }
+
+  /* voice dictation "listening" pulse (teal — an active state, never red) */
+  @keyframes recpulse { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:.35; transform:scale(.65); } }
+  .rec-dot { display:inline-block; width:.5rem; height:.5rem; border-radius:9999px; background:#0BA891; animation:recpulse 1s ease-in-out infinite; }
+
+  /* step tabs scroll horizontally on mobile with a soft right-edge fade cue */
+  @media (max-width:1023px){
+    .tabs-scroll { -webkit-mask-image:linear-gradient(to right,#000 88%,transparent); mask-image:linear-gradient(to right,#000 88%,transparent); }
+    .tabs-scroll::-webkit-scrollbar { display:none; }
+  }
+  /* custom select arrow — inset chevron instead of the far-edge native one */
+  select[class]{ -webkit-appearance:none; -moz-appearance:none; appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 0.7rem center; background-size:15px 15px; padding-right:2.2rem; }
+  html.dark select[class]{ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2395A3B8' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); }
+</style>
+</head>
+<body class="font-sans antialiased bg-surface-soft">
+
+<div class="relative min-h-screen lg:flex">
+  <div class="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(60%_50%_at_15%_0%,rgba(18,190,166,.10),transparent),radial-gradient(55%_50%_at_100%_10%,rgba(37,99,235,.12),transparent)]"></div>
+
+  <!-- ============ SIDEBAR (copied verbatim from the shared shell; MedsCheck active) ============ -->
+  <aside data-side class="fixed inset-y-0 left-0 z-50 hidden w-64 shrink-0 overflow-y-auto border-r border-surface-line bg-white p-4 backdrop-blur-md lg:sticky lg:top-0 lg:block lg:h-screen">
+    <div class="mb-5 flex items-center gap-2 px-1">
+      <span class="grid h-7 w-7 place-items-center rounded-lg brand-grad text-[11px] font-bold text-white">A</span>
+      <span class="text-sm font-bold text-ink">Agile Pharmas</span>
+      <button data-side-close class="ml-auto grid h-8 w-8 place-items-center rounded-lg border border-surface-line text-muted lg:hidden" aria-label="Close menu">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <p class="px-2 pb-2 text-[10px] font-semibold uppercase tracking-wider text-muted/70">Menu</p>
+    <nav class="space-y-1 text-[13px]">
+      <a href="dashboard.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Dashboard</a>
+    </nav>
+
+    <p class="mt-5 px-2 pb-2 text-[10px] font-semibold uppercase tracking-wider text-muted/70">Clinical Services</p>
+    <nav class="space-y-1 text-[13px]">
+      <a href="medscheck.html" aria-current="page" class="side-item flex items-center gap-2.5 rounded-lg bg-brand-blue/10 px-3 py-2 font-semibold text-brand-blue"><span class="h-2 w-2 rounded-full bg-brand-blue"></span>MedsCheck</a>
+      <a href="minor-ailments.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Minor Ailments</a>
+      <a href="vaccinations-injections.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Vaccinations &amp; Injections</a>
+    </nav>
+
+    <p class="mt-5 px-2 pb-2 text-[10px] font-semibold uppercase tracking-wider text-muted/70">Operations</p>
+    <nav class="space-y-1 text-[13px]">
+      <a href="billing.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Billing</a>
+      <a href="billing-guard.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Billing Guard</a>
+      <a href="incidents.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Incidents</a>
+      <a href="filing-worklist.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Filing Worklist</a>
+      <a href="calendar.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Calendar</a>
+    </nav>
+
+    <p class="mt-5 px-2 pb-2 text-[10px] font-semibold uppercase tracking-wider text-muted/70">Records</p>
+    <nav class="space-y-1 text-[13px]">
+      <a href="patients.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Patients</a>
+    </nav>
+
+  </aside>
+  <div data-side-overlay class="fixed inset-0 z-40 hidden bg-ink/30 backdrop-blur-sm lg:hidden"></div>
+
+  <!-- ============ MAIN ============ -->
+  <div class="min-w-0 flex-1">
+    <div class="mx-auto max-w-none px-4 py-4 sm:px-6 lg:px-8 lg:py-6 2xl:px-10">
+
+      <!-- (the shared top utility bar is intentionally omitted on this session screen) -->
+
+      <!-- ================= SESSION WORKSPACE ================= -->
+      <!-- breadcrumb: back link (+ mobile menu) sits above the banner, on the page canvas -->
+      <div class="reveal mb-3 flex items-center gap-2">
+        <button data-side-btn class="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-surface-line bg-white text-ink shadow-soft lg:hidden" aria-label="Open menu">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+        <a href="medscheck.html" class="btn inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-[13px] font-semibold text-muted hover:text-ink">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+          Back to MedsCheck
+        </a>
+      </div>
+
+      <!-- header banner — branded sky image. Fixed dark/teal text (not theme tokens) as the image is always light.
+           Left→right white wash keeps the name crisp on the left while the sky/clouds show through on the right. -->
+      <section class="reveal relative isolate mb-4 overflow-hidden rounded-2xl border border-white/60 shadow-soft">
+        <img src="brand.assets/cta-bg.jpg" alt="" aria-hidden="true" class="absolute inset-0 -z-10 h-full w-full object-cover object-center" />
+        <div class="absolute inset-0 -z-10 bg-gradient-to-r from-white/85 via-white/45 to-transparent"></div>
+        <div class="flex items-center justify-between gap-4 p-5 sm:px-6 sm:py-6">
+          <div class="flex min-w-0 items-center gap-3.5">
+            <span class="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-white/85 text-[15px] font-extrabold text-[#0B7C6B] shadow-soft ring-1 ring-white/70 backdrop-blur">KO</span>
+            <div class="min-w-0">
+              <p class="text-[11px] font-bold uppercase tracking-wider text-[#0B7C6B]">MedsCheck Annual<span class="sm:hidden"> · Jul 19, 2026</span></p>
+              <h1 class="h-display text-2xl font-extrabold text-[#0F172A] sm:text-[28px]">Kevin O'Brien</h1>
+            </div>
+          </div>
+          <span class="hidden shrink-0 items-center gap-1.5 rounded-full border border-white/70 bg-white/80 px-3 py-1.5 text-[12.5px] font-semibold text-[#0F172A] shadow-soft backdrop-blur sm:inline-flex">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg>
+            Jul 19, 2026
+          </span>
+        </div>
+      </section>
+
+      <!-- step strip -->
+      <div role="tablist" aria-label="MedsCheck steps" class="reveal tabs-scroll -mx-1 mt-4 flex gap-1.5 overflow-x-auto px-1 lg:mx-0 lg:flex-wrap lg:overflow-visible lg:px-0">
+            <button type="button" role="tab" data-step="preflight" data-state="current" aria-selected="true" aria-controls="panel-preflight" class="step-tab is-active shrink-0 inline-flex items-center gap-1.5 rounded-xl bg-brand-teal/10 px-4 py-2.5 text-[13px] font-semibold text-brand-teal2">
+              Pre-flight
+            </button>
+            <button type="button" role="tab" data-step="ack" data-state="upcoming" aria-selected="false" aria-controls="panel-ack" class="step-tab shrink-0 inline-flex items-center gap-1.5 rounded-xl border border-surface-line bg-white px-4 py-2.5 text-[13px] font-semibold text-muted shadow-soft hover:text-ink">
+              Acknowledgement
+            </button>
+            <button type="button" role="tab" data-step="worksheet" data-state="upcoming" aria-selected="false" aria-controls="panel-worksheet" class="step-tab shrink-0 inline-flex items-center gap-1.5 rounded-xl border border-surface-line bg-white px-4 py-2.5 text-[13px] font-semibold text-muted shadow-soft hover:text-ink">
+              Worksheet
+            </button>
+            <button type="button" role="tab" data-step="notify" data-state="upcoming" aria-selected="false" aria-controls="panel-notify" class="step-tab shrink-0 inline-flex items-center gap-1.5 rounded-xl border border-surface-line bg-white px-4 py-2.5 text-[13px] font-semibold text-muted shadow-soft hover:text-ink">
+              Notify
+            </button>
+            <button type="button" role="tab" data-step="bill" data-state="upcoming" aria-selected="false" aria-controls="panel-bill" class="step-tab shrink-0 inline-flex items-center gap-1.5 rounded-xl border border-surface-line bg-white px-4 py-2.5 text-[13px] font-semibold text-muted shadow-soft hover:text-ink">
+              Document
+            </button>
+          </div>
+
+      <!-- ================= worksheet panels + patient rail split ================= -->
+      <div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3 lg:items-start">
+
+        <!-- ---------- LEFT: step panels ---------- -->
+        <div class="space-y-4 lg:col-span-2">
+
+          <!-- ============ PANEL: Worksheet (fully built) ============ -->
+          <div id="panel-worksheet" role="tabpanel" data-step-panel="worksheet" hidden class="space-y-4">
+
+            <!-- Medication reconciliation -->
+            <section class="reveal rounded-2xl border border-surface-line bg-white p-4 shadow-card sm:p-5">
+              <h2 class="text-sm font-semibold text-ink">Medication reconciliation</h2>
+              <p class="mt-0.5 text-[12px] text-muted">From the Fillware profile — confirm how each is actually being taken.</p>
+
+              <!-- combination-driven warnings (scan the whole list) — rendered above the rows since they
+                   apply to the combination, not one drug. Amber = required documentation step. -->
+              <div class="mt-3 space-y-2.5" data-combo-callouts></div>
+
+              <!-- rows rendered by the worksheet controller; "Issue" reveals an inline note + AI draft + Save -->
+              <div class="mt-2" data-recon-list></div>
+
+              <!-- Add OTC / natural product — dashed prompt expands into an inline form -->
+              <div class="mt-3" data-otc-slot>
+                <button type="button" data-otc-open class="btn w-full rounded-xl border border-dashed border-surface-line py-3 text-sm font-semibold text-muted hover:border-brand-teal2 hover:text-ink">
+                  + Add OTC / natural product the patient takes
+                </button>
+
+                <div data-otc-form hidden class="rounded-xl border border-surface-line bg-surface-soft p-3.5 sm:p-4">
+                  <div class="grid gap-3 sm:grid-cols-2">
+                    <div>
+                      <label class="mb-1 block text-[12px] font-medium text-ink">Product name</label>
+                      <input data-otc-name class="w-in" placeholder="e.g., Vitamin D3">
+                    </div>
+                    <div>
+                      <label class="mb-1 block text-[12px] font-medium text-ink">Strength <span class="text-muted">(optional)</span></label>
+                      <input data-otc-strength class="w-in" placeholder="e.g., 1000 IU">
+                    </div>
+                  </div>
+                  <div class="mt-3">
+                    <label class="mb-1 block text-[12px] font-medium text-ink">How the patient takes it</label>
+                    <input data-otc-dir class="w-in" placeholder="e.g., 1 capsule daily with food">
+                  </div>
+                  <div class="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                      <span class="mb-1 block text-[12px] font-medium text-ink">Type</span>
+                      <div class="inline-flex overflow-hidden rounded-lg border border-surface-line" role="group" aria-label="Product type">
+                        <button type="button" data-otc-kind="OTC" aria-pressed="true" class="otc-seg px-4 py-2 text-[13px] font-semibold text-ink">OTC</button>
+                        <button type="button" data-otc-kind="NATURAL" aria-pressed="false" class="otc-seg border-l border-surface-line px-4 py-2 text-[13px] font-semibold text-ink">Natural</button>
+                      </div>
+                    </div>
+                    <div class="flex gap-2">
+                      <button type="button" data-otc-cancel class="btn rounded-xl border border-surface-line bg-white px-4 py-2 text-[13px] font-semibold text-ink hover:bg-surface-soft">Cancel</button>
+                      <button type="button" data-otc-add disabled class="btn rounded-xl bg-brand-teal/10 px-4 py-2 text-[13px] font-semibold text-brand-teal2">Add</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Interactions — auto-detected across the reviewed medications (rules-based, prototype dataset) -->
+            <section class="reveal rounded-2xl border border-surface-line bg-white p-4 shadow-card sm:p-5">
+              <div class="flex items-center justify-between gap-3">
+                <h2 class="text-sm font-semibold text-ink">Interactions</h2>
+                <span data-ix-count class="rounded-full bg-surface-soft px-2 py-0.5 text-[11px] font-semibold text-muted"></span>
+              </div>
+              <p class="mt-0.5 text-[12px] text-muted">Detected automatically among the medications under review.</p>
+
+              <!-- high-severity acknowledgment gate banner -->
+              <div data-ix-gate hidden class="mt-3"></div>
+
+              <!-- High / Moderate interaction cards -->
+              <div class="mt-3 space-y-2.5" data-ix-list></div>
+
+              <!-- empty state -->
+              <p data-ix-empty hidden class="mt-3 rounded-xl border border-dashed border-surface-line bg-surface-soft px-3.5 py-3 text-[12.5px] text-muted">No drug-drug interactions detected among the reviewed medications.</p>
+
+              <!-- minor interactions, collapsed by default to keep low-value items out of the way -->
+              <div data-ix-minor-wrap hidden class="mt-3">
+                <button type="button" data-ix-minor-toggle aria-expanded="false" class="btn inline-flex items-center gap-1.5 text-[12px] font-semibold text-muted hover:text-ink">
+                  <svg data-ix-minor-chev width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform"><path d="m6 9 6 6 6-6"/></svg>
+                  <span data-ix-minor-label>Show minor interactions</span>
+                </button>
+                <div data-ix-minor-list hidden class="mt-2.5 space-y-2.5"></div>
+              </div>
+            </section>
+
+            <!-- Drug therapy problems -->
+            <section class="reveal rounded-2xl border border-surface-line bg-white p-4 shadow-card sm:p-5">
+              <h2 class="text-sm font-semibold text-ink">Drug therapy problems</h2>
+              <p class="mt-0.5 text-[12px] text-muted">Every DTP must be resolved or have a documented plan before the record can be released.</p>
+
+              <!-- completeness checklist — quick questions to ask before logging problems -->
+              <div data-dtp-checklist class="mt-3 rounded-xl border border-surface-line bg-surface-soft p-3.5 sm:p-4">
+                <div class="mb-2 flex items-center justify-between gap-2">
+                  <p class="text-[12.5px] font-semibold text-ink">Quick checks before logging</p>
+                  <span data-cl-done hidden class="inline-flex items-center gap-1 rounded-full bg-brand-teal/10 px-2 py-0.5 text-[11px] font-semibold text-brand-teal2">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> All checks done
+                  </span>
+                </div>
+                <div class="space-y-2.5">
+
+                  <!-- OTC -->
+                  <div class="rounded-lg border border-surface-line bg-white p-3">
+                    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                      <span class="text-[12.5px] font-medium text-ink">Over-the-counter medicines taken?</span>
+                      <div class="flex w-full overflow-hidden rounded-lg border border-surface-line sm:inline-flex sm:w-auto" role="group" aria-label="Over-the-counter medicines taken">
+                        <button type="button" data-cl="otc" data-v="yes" aria-pressed="false" class="seg inline-flex min-h-[44px] flex-1 items-center justify-center px-5 text-[13px] font-semibold text-ink sm:flex-none">Yes</button>
+                        <button type="button" data-cl="otc" data-v="no" aria-pressed="false" class="seg inline-flex min-h-[44px] flex-1 items-center justify-center border-l border-surface-line px-5 text-[13px] font-semibold text-ink sm:flex-none">No</button>
+                      </div>
+                    </div>
+                    <div data-cl-field="otc" hidden class="mt-2.5">
+                      <input data-cl-text="otcList" class="w-in min-h-[44px]" placeholder="List them — e.g., Tylenol, Advil PRN for headache">
+                    </div>
+                  </div>
+
+                  <!-- Herbal / natural -->
+                  <div class="rounded-lg border border-surface-line bg-white p-3">
+                    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                      <span class="text-[12.5px] font-medium text-ink">Herbal / natural products used?</span>
+                      <div class="flex w-full overflow-hidden rounded-lg border border-surface-line sm:inline-flex sm:w-auto" role="group" aria-label="Herbal or natural products used">
+                        <button type="button" data-cl="herbal" data-v="yes" aria-pressed="false" class="seg inline-flex min-h-[44px] flex-1 items-center justify-center px-5 text-[13px] font-semibold text-ink sm:flex-none">Yes</button>
+                        <button type="button" data-cl="herbal" data-v="no" aria-pressed="false" class="seg inline-flex min-h-[44px] flex-1 items-center justify-center border-l border-surface-line px-5 text-[13px] font-semibold text-ink sm:flex-none">No</button>
+                      </div>
+                    </div>
+                    <div data-cl-field="herbal" hidden class="mt-2.5">
+                      <input data-cl-text="herbalList" class="w-in min-h-[44px]" placeholder="List them — e.g., Vitamin D3, fish oil, St John's wort">
+                    </div>
+                  </div>
+
+                  <!-- Free samples -->
+                  <div class="rounded-lg border border-surface-line bg-white p-3">
+                    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                      <span class="text-[12.5px] font-medium text-ink">Free samples from another prescriber?</span>
+                      <div class="flex w-full overflow-hidden rounded-lg border border-surface-line sm:inline-flex sm:w-auto" role="group" aria-label="Free samples from another prescriber">
+                        <button type="button" data-cl="samples" data-v="yes" aria-pressed="false" class="seg inline-flex min-h-[44px] flex-1 items-center justify-center px-5 text-[13px] font-semibold text-ink sm:flex-none">Yes</button>
+                        <button type="button" data-cl="samples" data-v="no" aria-pressed="false" class="seg inline-flex min-h-[44px] flex-1 items-center justify-center border-l border-surface-line px-5 text-[13px] font-semibold text-ink sm:flex-none">No</button>
+                      </div>
+                    </div>
+                    <div data-cl-field="samples" hidden class="mt-2.5">
+                      <input data-cl-text="samplesNote" class="w-in min-h-[44px]" placeholder="Which medication / prescriber?">
+                    </div>
+                  </div>
+
+                  <!-- Last antibiotic use -->
+                  <div class="rounded-lg border border-surface-line bg-white p-3">
+                    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                      <span class="text-[12.5px] font-medium text-ink">Date of last antibiotic use</span>
+                      <div class="flex flex-wrap items-center gap-2">
+                        <input type="date" data-cl-abx-date class="min-h-[44px] rounded-lg border border-surface-line bg-surface-soft px-3 text-[13px] text-ink focus:border-brand-teal2 focus:outline-none">
+                        <label class="inline-flex min-h-[44px] cursor-pointer items-center gap-1.5 rounded-lg border border-surface-line bg-white px-3 text-[12.5px] font-medium text-ink">
+                          <input type="checkbox" data-cl-abx-na class="ix-check"> N/A
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Flu vaccine -->
+                  <div class="rounded-lg border border-surface-line bg-white p-3">
+                    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                      <span class="text-[12.5px] font-medium text-ink">Flu vaccine this season?</span>
+                      <div class="flex w-full overflow-hidden rounded-lg border border-surface-line sm:inline-flex sm:w-auto" role="group" aria-label="Flu vaccine this season">
+                        <button type="button" data-cl="flu" data-v="yes" aria-pressed="false" class="seg inline-flex min-h-[44px] flex-1 items-center justify-center px-5 text-[13px] font-semibold text-ink sm:flex-none">Yes</button>
+                        <button type="button" data-cl="flu" data-v="no" aria-pressed="false" class="seg inline-flex min-h-[44px] flex-1 items-center justify-center border-l border-surface-line px-5 text-[13px] font-semibold text-ink sm:flex-none">No</button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- COVID vaccine -->
+                  <div class="rounded-lg border border-surface-line bg-white p-3">
+                    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                      <span class="text-[12.5px] font-medium text-ink">COVID-19 vaccine received?</span>
+                      <div class="flex w-full overflow-hidden rounded-lg border border-surface-line sm:inline-flex sm:w-auto" role="group" aria-label="COVID-19 vaccine received">
+                        <button type="button" data-cl="covid" data-v="yes" aria-pressed="false" class="seg inline-flex min-h-[44px] flex-1 items-center justify-center px-5 text-[13px] font-semibold text-ink sm:flex-none">Yes</button>
+                        <button type="button" data-cl="covid" data-v="no" aria-pressed="false" class="seg inline-flex min-h-[44px] flex-1 items-center justify-center border-l border-surface-line px-5 text-[13px] font-semibold text-ink sm:flex-none">No</button>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- system-suggested (auto-flagged) DTPs — distinct from pharmacist-logged ones -->
+              <div data-dtp-suggest class="mt-3 space-y-2.5"></div>
+
+              <!-- non-blocking status flag for unresolved DTPs -->
+              <div data-dtp-warn hidden class="mt-3"></div>
+
+              <!-- logged DTPs (chips) -->
+              <div data-dtp-list class="mt-3 space-y-2"></div>
+
+              <div class="mt-3" data-dtp-slot>
+                <button type="button" data-dtp-open class="btn w-full rounded-xl border border-dashed border-amber-400 py-3 text-sm font-semibold text-amber-600 hover:bg-amber-50">
+                  + Log a drug therapy problem
+                </button>
+
+                <div data-dtp-form hidden class="rounded-xl border border-surface-line bg-surface-soft p-3.5 sm:p-4">
+                  <div class="grid gap-3 sm:grid-cols-2">
+                    <div>
+                      <label class="mb-1 block text-[12px] font-medium text-ink">Problem category <span class="text-amber-600">*</span></label>
+                      <select data-dtp-cat class="w-in">
+                        <option value="">Select category…</option>
+                        <option>Untreated indication</option>
+                        <option>Dose too low</option>
+                        <option>Dose too high</option>
+                        <option>Adverse drug reaction</option>
+                        <option>Drug interaction</option>
+                        <option>Non-adherence</option>
+                        <option>Unnecessary drug therapy</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="mb-1 block text-[12px] font-medium text-ink">Drug <span class="text-muted">(optional)</span></label>
+                      <select data-dtp-drug class="w-in">
+                        <option value="">Select drug…</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="mt-3">
+                    <div class="mb-1 flex items-center justify-between gap-3">
+                      <label class="text-[12px] font-medium text-ink">Describe the problem</label>
+                      <button type="button" data-dtp-ai class="btn ai-badge inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9Z"/></svg>
+                        AI draft
+                      </button>
+                    </div>
+                    <textarea data-dtp-desc rows="2" class="w-in" placeholder="Assessment and plan…"></textarea>
+                  </div>
+                  <div class="mt-3 flex gap-2 sm:justify-end">
+                    <button type="button" data-dtp-cancel class="btn rounded-xl border border-surface-line bg-white px-4 py-2 text-[13px] font-semibold text-ink hover:bg-surface-soft">Cancel</button>
+                    <button type="button" data-dtp-log class="btn btn-amber rounded-xl px-4 py-2 text-[13px] font-semibold">Log DTP</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Personal Medication Record -->
+            <section class="reveal rounded-2xl border border-surface-line bg-white p-4 shadow-card sm:p-5">
+              <h2 class="text-sm font-semibold text-ink">Personal Medication Record</h2>
+
+              <!-- auto-populated, read-only per-medication summary (name/strength, indication, how it works, how to take it) -->
+              <div class="mt-3">
+                <div class="mb-1.5 flex flex-wrap items-center gap-2">
+                  <span class="text-sm font-medium text-ink">Medication summary</span>
+                  <span class="inline-flex items-center gap-1 rounded-full bg-surface-soft px-2 py-0.5 text-[10.5px] font-semibold text-muted">Auto-filled · read-only</span>
+                </div>
+                <div data-pmr-summary class="space-y-2"></div>
+              </div>
+
+              <div class="mt-4 flex items-center justify-between gap-3">
+                <label for="reco" class="text-sm font-medium text-ink">Pharmacist recommendations</label>
+                <div class="flex items-center gap-2">
+                  <button type="button" data-voice class="btn inline-flex items-center gap-1.5 rounded-full border border-surface-line px-2.5 py-1 text-[11.5px] font-semibold text-ink hover:bg-surface-soft">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+                    Dictate
+                  </button>
+                  <button type="button" data-ai-draft class="btn ai-badge inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11.5px] font-semibold">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9Z"/><path d="M19 15.5 19.7 17l1.5.7-1.5.7-.7 1.5-.7-1.5-1.5-.7 1.5-.7Z"/></svg>
+                    AI draft
+                  </button>
+                </div>
+              </div>
+              <textarea id="reco" data-reco rows="4" class="mt-2 w-full rounded-xl border border-surface-line bg-surface-soft p-3 text-sm text-ink transition-shadow placeholder:text-muted focus:outline-none focus:border-brand-teal2" placeholder="Type, dictate with the mic, or start from an AI draft — recommendations, education provided, follow-up plan..."></textarea>
+              <p data-ai-note hidden class="mt-1.5 flex items-center gap-1.5 text-[11.5px] font-medium text-ai">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9Z"/></svg>
+                AI-drafted — review and edit before signing.
+              </p>
+              <p data-voice-status hidden class="mt-1.5 text-[11.5px] font-medium text-muted"></p>
+
+              <div class="mt-4 flex items-center justify-between gap-3">
+                <label class="text-sm font-medium text-ink">Pharmacist signature</label>
+                <button type="button" data-pmr-sig-clear class="btn text-[12px] font-semibold text-muted hover:text-ink">Clear signature</button>
+              </div>
+              <canvas data-pmr-sig class="sig-pad mt-2 h-28 w-full touch-none rounded-xl border border-dashed border-surface-line" aria-label="Pharmacist signature"></canvas>
+              <p data-pmr-sig-hint hidden class="mt-1.5 text-[11.5px] font-medium text-amber-600">Please sign to generate the Personal Medication Record.</p>
+
+              <!-- delivery confirmation — legally distinct from the Acknowledgement signature; required before signing -->
+              <label data-pmr-delivery-row class="ix-row mt-4 flex min-h-[44px] w-full cursor-pointer items-center gap-3 rounded-xl border border-surface-line bg-surface-soft px-3.5 py-2.5 transition-colors">
+                <input type="checkbox" data-pmr-delivery class="ix-check">
+                <span class="text-[12.5px] font-medium text-ink">I confirm a copy of this Personal Medication Record was given to the patient.</span>
+              </label>
+              <p data-pmr-delivery-hint hidden class="mt-1.5 text-[11.5px] font-medium text-amber-600">Please confirm the copy was given to the patient before signing.</p>
+
+              <div class="mt-4 flex flex-col gap-2.5 sm:flex-row sm:items-center">
+                <button type="button" data-clear class="btn rounded-xl border border-surface-line px-4 py-2.5 text-sm font-semibold text-ink hover:bg-surface-soft sm:w-auto">Clear</button>
+                <button type="button" data-pmr-sign class="btn inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-brand-teal2 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_24px_-12px_rgba(11,168,145,.9)] hover:bg-brand-teal">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/></svg>
+                  Sign &amp; generate Personal Medication Record
+                </button>
+              </div>
+            </section>
+          </div>
+
+          <!-- ============ PANEL: Pre-flight — intake / assessment (checks → interview → lifestyle → reasons → acknowledgement) ============ -->
+          <div id="panel-preflight" role="tabpanel" data-step-panel="preflight" class="space-y-4">
+
+            <!-- eligibility checks -->
+            <section class="reveal rounded-2xl border border-surface-line bg-white p-4 shadow-card sm:p-5">
+              <h2 class="text-sm font-semibold text-ink">Pre-flight checks</h2>
+
+              <ul class="mt-3 space-y-2.5">
+                <li class="flex items-center gap-2.5 text-[13px] text-ink">
+                  <span class="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-emerald-50 text-emerald-600">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                  </span>
+                  4 chronic prescription medications
+                </li>
+                <li class="flex items-center gap-2.5 text-[13px] text-ink">
+                  <span class="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-emerald-50 text-emerald-600">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                  </span>
+                  Not a long-term care resident
+                </li>
+                <li data-ack-check class="flex items-center gap-2.5 text-[13px] font-semibold text-amber-600">
+                  <span data-ack-icon class="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-amber-50 text-amber-600">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v6"/><path d="M12 17h.01"/></svg>
+                  </span>
+                  <span data-ack-label>Patient acknowledgement required (sign below)</span>
+                </li>
+              </ul>
+            </section>
+
+            <!-- interview logistics: modality, location, prescriber, caregiver -->
+            <section class="reveal rounded-2xl border border-surface-line bg-white p-4 shadow-card sm:p-5">
+              <h2 class="text-sm font-semibold text-ink">Interview</h2>
+              <p class="mt-0.5 text-[12px] text-muted">How and with whom this MedsCheck is being conducted.</p>
+
+              <!-- modality -->
+              <div class="mt-4">
+                <span class="mb-1.5 block text-[12px] font-medium text-ink">How is this MedsCheck being conducted?</span>
+                <div class="flex w-full overflow-hidden rounded-lg border border-surface-line" role="group" aria-label="Interview modality">
+                  <button type="button" data-modality="in-person" aria-pressed="true" class="seg inline-flex min-h-[44px] flex-1 items-center justify-center px-4 text-[13px] font-semibold text-ink">In-person</button>
+                  <button type="button" data-modality="phone" aria-pressed="false" class="seg inline-flex min-h-[44px] flex-1 items-center justify-center border-l border-surface-line px-4 text-[13px] font-semibold text-ink">Over the phone</button>
+                </div>
+                <p data-modality-loc class="mt-2 flex items-start gap-1.5 rounded-lg bg-surface-soft px-3 py-2 text-[12px] text-muted">
+                  <svg width="13" height="13" class="mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                  <span>Location <span class="font-medium text-ink">Lakeview Pharmacy · 218 Lakeshore Rd E, Oakville ON</span></span>
+                </p>
+              </div>
+
+              <!-- prescriber for this session -->
+              <div class="mt-5">
+                <span class="mb-1.5 block text-[12px] font-medium text-ink">Which prescriber is this MedsCheck for?</span>
+                <div data-doctor-list class="space-y-2"></div>
+                <div data-doctor-contact hidden class="mt-2 rounded-lg bg-surface-soft px-3 py-2.5"></div>
+              </div>
+
+              <!-- caregiver -->
+              <div class="mt-5">
+                <span class="mb-1.5 block text-[12px] font-medium text-ink">Is a caregiver present for this session?</span>
+                <div class="flex w-full overflow-hidden rounded-lg border border-surface-line sm:w-auto sm:inline-flex" role="group" aria-label="Caregiver present">
+                  <button type="button" data-caregiver="yes" aria-pressed="false" class="seg inline-flex min-h-[44px] flex-1 items-center justify-center px-6 text-[13px] font-semibold text-ink sm:flex-none">Yes</button>
+                  <button type="button" data-caregiver="no" aria-pressed="true" class="seg inline-flex min-h-[44px] flex-1 items-center justify-center border-l border-surface-line px-6 text-[13px] font-semibold text-ink sm:flex-none">No</button>
+                </div>
+
+                <div data-caregiver-fields hidden class="mt-3 space-y-3 rounded-xl border border-surface-line bg-surface-soft p-3.5">
+                  <div>
+                    <label class="mb-1 block text-[12px] font-medium text-ink">Caregiver name</label>
+                    <input data-cg-name class="w-in min-h-[44px]" placeholder="e.g., Sarah O'Brien">
+                  </div>
+                  <div>
+                    <label class="mb-1 block text-[12px] font-medium text-ink">Relationship to patient</label>
+                    <select data-cg-rel class="w-in min-h-[44px]">
+                      <option value="">Select relationship…</option>
+                      <option>Spouse / Partner</option>
+                      <option>Parent</option>
+                      <option>Child</option>
+                      <option>Sibling</option>
+                      <option>Friend</option>
+                      <option>Other</option>
+                    </select>
+                  </div>
+                  <label class="ix-row flex min-h-[44px] cursor-pointer items-center gap-3 rounded-lg border border-surface-line bg-white px-3.5 py-2.5 transition-colors">
+                    <input type="checkbox" data-cg-manages class="ix-check">
+                    <span class="text-[13px] font-medium text-ink">Caregiver manages this patient's medications at home</span>
+                  </label>
+                </div>
+              </div>
+            </section>
+
+            <!-- lifestyle assessment -->
+            <section class="reveal rounded-2xl border border-surface-line bg-white p-4 shadow-card sm:p-5">
+              <h2 class="text-sm font-semibold text-ink">Lifestyle assessment</h2>
+              <p class="mt-0.5 text-[12px] text-muted">Captured as part of the medication review.</p>
+
+              <div class="mt-4 space-y-4">
+                <!-- smoking -->
+                <div>
+                  <label class="mb-1.5 block text-[12px] font-medium text-ink">Smoking status</label>
+                  <div class="flex w-full flex-wrap gap-2 sm:flex-nowrap sm:gap-0 sm:overflow-hidden sm:rounded-lg sm:border sm:border-surface-line" role="group" aria-label="Smoking status">
+                    <button type="button" data-smoking="Non-smoker" aria-pressed="false" class="seg inline-flex min-h-[44px] flex-1 items-center justify-center rounded-lg border border-surface-line px-3 text-[13px] font-semibold text-ink sm:rounded-none sm:border-0">Non-smoker</button>
+                    <button type="button" data-smoking="Smoker" aria-pressed="false" class="seg inline-flex min-h-[44px] flex-1 items-center justify-center rounded-lg border border-surface-line px-3 text-[13px] font-semibold text-ink sm:rounded-none sm:border-0 sm:border-l sm:border-surface-line">Smoker</button>
+                    <button type="button" data-smoking="Former smoker" aria-pressed="false" class="seg inline-flex min-h-[44px] flex-1 items-center justify-center rounded-lg border border-surface-line px-3 text-[13px] font-semibold text-ink sm:rounded-none sm:border-0 sm:border-l sm:border-surface-line">Former smoker</button>
+                  </div>
+                  <div data-cessation-wrap hidden class="mt-3">
+                    <span class="mb-1.5 block text-[12px] font-medium text-ink">Interested in smoking cessation support?</span>
+                    <div class="flex w-full overflow-hidden rounded-lg border border-surface-line sm:w-auto sm:inline-flex" role="group" aria-label="Cessation interest">
+                      <button type="button" data-cessation="yes" aria-pressed="false" class="seg inline-flex min-h-[44px] flex-1 items-center justify-center px-6 text-[13px] font-semibold text-ink sm:flex-none">Yes</button>
+                      <button type="button" data-cessation="no" aria-pressed="false" class="seg inline-flex min-h-[44px] flex-1 items-center justify-center border-l border-surface-line px-6 text-[13px] font-semibold text-ink sm:flex-none">No</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- exercise -->
+                <div>
+                  <label class="mb-1.5 block text-[12px] font-medium text-ink">Exercise habits</label>
+                  <div class="flex w-full flex-wrap gap-2 sm:flex-nowrap sm:gap-0 sm:overflow-hidden sm:rounded-lg sm:border sm:border-surface-line" role="group" aria-label="Exercise habits">
+                    <button type="button" data-exercise="Sedentary" aria-pressed="false" class="seg inline-flex min-h-[44px] flex-1 items-center justify-center rounded-lg border border-surface-line px-3 text-[13px] font-semibold text-ink sm:rounded-none sm:border-0">Sedentary</button>
+                    <button type="button" data-exercise="Occasional" aria-pressed="false" class="seg inline-flex min-h-[44px] flex-1 items-center justify-center rounded-lg border border-surface-line px-3 text-[13px] font-semibold text-ink sm:rounded-none sm:border-0 sm:border-l sm:border-surface-line">Occasional</button>
+                    <button type="button" data-exercise="Regular" aria-pressed="false" class="seg inline-flex min-h-[44px] flex-1 items-center justify-center rounded-lg border border-surface-line px-3 text-[13px] font-semibold text-ink sm:rounded-none sm:border-0 sm:border-l sm:border-surface-line">Regular</button>
+                  </div>
+                </div>
+
+                <!-- alcohol -->
+                <div>
+                  <label class="mb-1.5 block text-[12px] font-medium text-ink">Alcohol consumption</label>
+                  <div class="flex w-full flex-wrap gap-2 sm:flex-nowrap sm:gap-0 sm:overflow-hidden sm:rounded-lg sm:border sm:border-surface-line" role="group" aria-label="Alcohol consumption">
+                    <button type="button" data-alcohol="None" aria-pressed="false" class="seg inline-flex min-h-[44px] flex-1 items-center justify-center rounded-lg border border-surface-line px-3 text-[13px] font-semibold text-ink sm:rounded-none sm:border-0">None</button>
+                    <button type="button" data-alcohol="Occasional" aria-pressed="false" class="seg inline-flex min-h-[44px] flex-1 items-center justify-center rounded-lg border border-surface-line px-3 text-[13px] font-semibold text-ink sm:rounded-none sm:border-0 sm:border-l sm:border-surface-line">Occasional</button>
+                    <button type="button" data-alcohol="Regular" aria-pressed="false" class="seg inline-flex min-h-[44px] flex-1 items-center justify-center rounded-lg border border-surface-line px-3 text-[13px] font-semibold text-ink sm:rounded-none sm:border-0 sm:border-l sm:border-surface-line">Regular</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- mandatory reasons for the MedsCheck (minimum 3) -->
+            <section class="reveal rounded-2xl border border-surface-line bg-white p-4 shadow-card sm:p-5">
+              <h2 class="text-sm font-semibold text-ink">Reasons for this MedsCheck</h2>
+              <p class="mt-0.5 text-[12px] text-muted">Select all that apply — at least 3 are required to proceed.</p>
+
+              <div class="mt-3 space-y-2" data-reasons-list>
+                <label class="ix-row flex min-h-[44px] cursor-pointer items-center gap-3 rounded-xl border border-surface-line bg-white px-3.5 py-2.5 transition-colors">
+                  <input type="checkbox" data-reason value="3 or more chronic medications" class="ix-check">
+                  <span class="text-[13px] font-medium text-ink">3 or more chronic medications</span>
+                </label>
+                <label class="ix-row flex min-h-[44px] cursor-pointer items-center gap-3 rounded-xl border border-surface-line bg-white px-3.5 py-2.5 transition-colors">
+                  <input type="checkbox" data-reason value="Multiple comorbid conditions" class="ix-check">
+                  <span class="text-[13px] font-medium text-ink">Multiple comorbid conditions</span>
+                </label>
+                <label class="ix-row flex min-h-[44px] cursor-pointer items-center gap-3 rounded-xl border border-surface-line bg-white px-3.5 py-2.5 transition-colors">
+                  <input type="checkbox" data-reason value="Complex or recently changed medication regimen" class="ix-check">
+                  <span class="text-[13px] font-medium text-ink">Complex or recently changed medication regimen</span>
+                </label>
+                <label class="ix-row flex min-h-[44px] cursor-pointer items-center gap-3 rounded-xl border border-surface-line bg-white px-3.5 py-2.5 transition-colors">
+                  <input type="checkbox" data-reason value="Unaddressed symptoms" class="ix-check">
+                  <span class="text-[13px] font-medium text-ink">Unaddressed symptoms</span>
+                </label>
+                <label class="ix-row flex min-h-[44px] cursor-pointer items-center gap-3 rounded-xl border border-surface-line bg-white px-3.5 py-2.5 transition-colors">
+                  <input type="checkbox" data-reason value="Potential drug-drug interactions" class="ix-check">
+                  <span class="text-[13px] font-medium text-ink">Potential drug-drug interactions</span>
+                </label>
+                <label class="ix-row flex min-h-[44px] cursor-pointer items-center gap-3 rounded-xl border border-surface-line bg-white px-3.5 py-2.5 transition-colors">
+                  <input type="checkbox" data-reason value="Multiple prescribers" class="ix-check">
+                  <span class="text-[13px] font-medium text-ink">Multiple prescribers</span>
+                </label>
+              </div>
+
+              <p data-reasons-msg class="mt-3 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-[12.5px] font-medium text-amber-600"></p>
+            </section>
+
+            <!-- acknowledgement + signature capture + gated continue -->
+            <section class="reveal rounded-2xl border border-surface-line bg-white p-4 shadow-card sm:p-5">
+              <div class="rounded-xl border border-surface-line bg-surface-soft p-4">
+                <h3 class="text-[13px] font-semibold text-ink">Patient Acknowledgement of Professional Pharmacy Services</h3>
+                <p class="mt-1.5 text-[12.5px] leading-relaxed text-muted">Hand the iPad to <span class="font-medium text-ink">Kevin O'Brien</span>. By signing, the patient acknowledges the MedsCheck service, that it is voluntary and free of charge, and that their medication record may be shared with their primary care provider. Valid for one year at this pharmacy.</p>
+
+                <p class="mt-4 text-[12px] font-medium text-ink">Signature of Kevin O'Brien</p>
+                <canvas data-sig class="sig-pad mt-2 h-40 w-full touch-none rounded-xl border border-dashed border-surface-line" aria-label="Signature of Kevin O'Brien"></canvas>
+                <p data-sig-hint hidden class="mt-1.5 text-[11.5px] font-medium text-amber-600">Please capture the patient's signature to continue.</p>
+
+                <div class="mt-3 flex flex-col gap-2.5 sm:flex-row sm:items-center">
+                  <button type="button" data-sig-clear class="btn rounded-xl border border-surface-line bg-white px-4 py-2.5 text-sm font-semibold text-ink hover:bg-surface-soft sm:w-auto">Clear</button>
+                  <button type="button" data-sig-continue class="btn inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-brand-teal2 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_24px_-12px_rgba(11,168,145,.9)] hover:bg-brand-teal">
+                    Sign &amp; continue
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                  </button>
+                </div>
+                <p data-cont-block hidden class="mt-2 flex items-center gap-1.5 text-[11.5px] font-medium text-amber-600">
+                  <svg width="12" height="12" class="shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+                  Select at least 3 reasons above before you can continue.
+                </p>
+              </div>
+            </section>
+          </div>
+
+          <!-- ============ PANEL: Acknowledgement (done — stub) ============ -->
+          <div id="panel-ack" role="tabpanel" data-step-panel="ack" hidden>
+            <section class="reveal rounded-2xl border border-surface-line bg-white p-5 shadow-card">
+              <div class="flex items-start gap-3">
+                <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-emerald-50 text-emerald-600">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                </span>
+                <div>
+                  <h2 class="text-sm font-semibold text-ink">Acknowledgement captured</h2>
+                  <p class="mt-1 text-[13px] text-muted">Patient consented to the MedsCheck service and to sharing the record with their primary care provider, Dr. Maria Santos.</p>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <!-- ============ PANEL: Notify — prescriber-notification decision ============ -->
+          <div id="panel-notify" role="tabpanel" data-step-panel="notify" hidden>
+            <section class="reveal rounded-2xl border border-surface-line bg-white p-4 shadow-card sm:p-5">
+              <h2 class="text-sm font-semibold text-ink">Prescriber notification</h2>
+              <p class="mt-1 text-[12.5px] leading-relaxed text-muted">Since May 26, 2025, notification is only required when follow-up issues were identified, actions are clinically significant, or notification is needed for the patient's care. Either way, the decision is recorded.</p>
+
+              <!-- decision: notify vs. record the judgment not to -->
+              <div class="mt-4 grid gap-3 sm:grid-cols-2" role="group" aria-label="Notification decision">
+                <button type="button" data-notify-decision="required" aria-pressed="true" class="notify-opt rounded-xl border border-surface-line bg-white p-4 text-left">
+                  <p class="text-[13px] font-semibold text-ink">Notification required</p>
+                  <p class="mt-1 text-[12px] text-muted">Fax the record to <span data-notify-doc>Dr. Maria Santos</span> with the notification form</p>
+                </button>
+                <button type="button" data-notify-decision="not-required" aria-pressed="false" class="notify-opt rounded-xl border border-surface-line bg-white p-4 text-left">
+                  <p class="text-[13px] font-semibold text-ink">Not required</p>
+                  <p class="mt-1 text-[12px] text-muted">No clinically significant issues — record the judgment</p>
+                </button>
+              </div>
+
+              <!-- required → provider summary (AI-draftable) -->
+              <div data-notify-required class="mt-4">
+                <div class="flex items-center justify-between gap-3">
+                  <label for="notify-summary" class="text-[13px] font-medium text-ink">Summary for the provider</label>
+                  <button type="button" data-notify-ai class="btn ai-badge inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11.5px] font-semibold">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9Z"/></svg>
+                    AI draft
+                  </button>
+                </div>
+                <textarea id="notify-summary" data-notify-summary rows="3" class="mt-2 w-full rounded-xl border border-surface-line bg-surface-soft p-3 text-sm text-ink transition-shadow placeholder:text-muted focus:outline-none focus:border-brand-teal2" placeholder="e.g., Patient self-discontinued ramipril due to dizziness; plan documented — please review antihypertensive therapy."></textarea>
+                <p data-notify-ai-note hidden class="mt-1.5 flex items-center gap-1.5 text-[11.5px] font-medium text-ai">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9Z"/></svg>
+                  AI-drafted — review and edit before sending.
+                </p>
+              </div>
+
+              <!-- not required → record the rationale -->
+              <div data-notify-not hidden class="mt-4">
+                <label for="notify-reason" class="text-[13px] font-medium text-ink">Reason <span class="text-muted">(optional)</span></label>
+                <textarea id="notify-reason" data-notify-reason rows="3" class="mt-2 w-full rounded-xl border border-surface-line bg-surface-soft p-3 text-sm text-ink transition-shadow placeholder:text-muted focus:outline-none focus:border-brand-teal2" placeholder="e.g., No clinically significant issues identified during the review; record shared with the patient only."></textarea>
+              </div>
+
+              <div class="mt-4 flex">
+                <button type="button" data-notify-send class="btn inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-teal2 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_24px_-12px_rgba(11,168,145,.9)] hover:bg-brand-teal">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4Z"/></svg>
+                  <span data-notify-send-label>Send notification to Dr. Maria Santos &amp; continue</span>
+                </button>
+              </div>
+            </section>
+          </div>
+
+          <!-- ============ PANEL: File & Bill (upcoming — stub) ============ -->
+          <!-- Document — final step. "Complete & file to Fillware" creates the claim and opens Billing. -->
+          <div id="panel-bill" role="tabpanel" data-step-panel="bill" hidden class="space-y-4">
+            <section class="reveal rounded-2xl border border-surface-line bg-white p-4 shadow-card sm:p-5">
+              <h2 class="text-sm font-semibold text-ink">Document bundle</h2>
+              <p class="mt-0.5 text-[12px] text-muted">Generated in this MedsCheck — open any document to review or save as PDF, then file to Fillware.</p>
+
+              <!-- the bundle renders from the captured session (acknowledgement, PMR, and the prescriber
+                   notification when one was required). Each "PDF" opens a print-ready copy. -->
+              <div class="mt-3 space-y-2.5" data-doc-bundle></div>
+
+              <div class="mt-4 flex">
+                <button type="button" data-mc-file class="btn inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-teal2 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_24px_-12px_rgba(11,168,145,.9)] hover:bg-brand-teal">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4 12 14.01l-3-3"/></svg>
+                  Complete &amp; file to Fillware
+                </button>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <!-- ---------- RIGHT: patient rail — top of the page on mobile (collapsible), sticky side panel on desktop ---------- -->
+        <aside class="order-first space-y-3 lg:order-none lg:space-y-4 lg:sticky lg:top-6 lg:self-start">
+
+          <!-- mobile-only collapse toggle (hidden on desktop, where the panel is always shown) -->
+          <button type="button" data-patient-toggle aria-expanded="false" class="btn flex w-full items-center gap-3 rounded-2xl border border-surface-line bg-white p-3.5 text-left shadow-card lg:hidden">
+            <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brand-teal/10 text-[11px] font-bold text-brand-teal2">KO</span>
+            <span class="min-w-0 flex-1">
+              <span class="block text-sm font-bold text-ink">Kevin O'Brien <span class="font-normal text-muted">58 M</span></span>
+              <span class="block text-[11.5px] text-muted">Tap to view patient &amp; medications</span>
+            </span>
+            <svg data-patient-chevron class="h-4 w-4 shrink-0 text-muted transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+
+          <!-- collapsible on mobile; always visible on desktop -->
+          <div data-patient-body class="hidden space-y-4 lg:block">
+
+          <!-- Patient -->
+          <section class="reveal rounded-2xl border border-surface-line bg-white p-4 shadow-card sm:p-5">
+            <p class="text-[10px] font-semibold uppercase tracking-wider text-muted/70">Patient</p>
+            <p class="mt-1 text-base font-bold text-ink">Kevin O'Brien</p>
+            <p class="text-[12px] text-muted">58 M · HN 7781425093</p>
+
+            <div class="mt-3 rounded-lg bg-surface-soft px-3 py-2 text-[12px] font-medium text-muted">No known allergies</div>
+
+            <dl class="mt-3 space-y-2 text-[12px]">
+              <div class="flex justify-between gap-4">
+                <dt class="shrink-0 text-muted">Conditions</dt>
+                <dd class="text-right font-medium text-ink">Hypertension, Dyslipidemia, GERD</dd>
+              </div>
+              <div class="flex justify-between gap-4">
+                <dt class="shrink-0 text-muted">Primary care</dt>
+                <dd class="text-right font-medium text-ink">Dr. Maria Santos</dd>
+              </div>
+              <div class="flex justify-between gap-4">
+                <dt class="shrink-0 text-muted">Coverage</dt>
+                <dd class="text-right font-medium text-ink">Non-ODB</dd>
+              </div>
+            </dl>
+          </section>
+
+          <!-- Medications (from Fillware) -->
+          <section class="reveal rounded-2xl border border-surface-line bg-white p-4 shadow-card sm:p-5">
+            <div class="flex items-center justify-between gap-2">
+              <p class="text-[10px] font-semibold uppercase tracking-wider text-muted/70">Medications (4)</p>
+              <p class="text-[11px] text-muted">Fillware · 08:15 a.m.</p>
+            </div>
+            <ul class="mt-2 divide-y divide-surface-line">
+              <li class="flex items-center justify-between gap-2 py-2.5">
+                <p class="text-[13px] text-ink"><span class="font-semibold">Ramipril</span> <span class="text-muted">5 mg</span></p>
+                <span class="rounded bg-surface-soft px-1.5 py-0.5 text-[10.5px] font-medium text-muted">chronic</span>
+              </li>
+              <li class="flex items-center justify-between gap-2 py-2.5">
+                <p class="text-[13px] text-ink"><span class="font-semibold">Atorvastatin</span> <span class="text-muted">20 mg</span></p>
+                <span class="rounded bg-surface-soft px-1.5 py-0.5 text-[10.5px] font-medium text-muted">chronic</span>
+              </li>
+              <li class="flex items-center justify-between gap-2 py-2.5">
+                <p class="text-[13px] text-ink"><span class="font-semibold">Pantoprazole</span> <span class="text-muted">40 mg</span></p>
+                <span class="rounded bg-surface-soft px-1.5 py-0.5 text-[10.5px] font-medium text-muted">chronic</span>
+              </li>
+              <li class="flex items-center justify-between gap-2 py-2.5">
+                <p class="text-[13px] text-ink"><span class="font-semibold">Bisoprolol</span> <span class="text-muted">5 mg</span></p>
+                <span class="rounded bg-surface-soft px-1.5 py-0.5 text-[10.5px] font-medium text-muted">chronic</span>
+              </li>
+            </ul>
+          </section>
+          </div>
+        </aside>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  // Mobile sidebar
+  const side = document.querySelector('[data-side]');
+  const overlay = document.querySelector('[data-side-overlay]');
+  const openSide  = () => { side.classList.remove('hidden'); overlay.classList.remove('hidden'); };
+  const closeSide = () => { side.classList.add('hidden'); overlay.classList.add('hidden'); };
+  document.querySelector('[data-side-btn]').addEventListener('click', openSide);
+  document.querySelector('[data-side-close]').addEventListener('click', closeSide);
+  overlay.addEventListener('click', closeSide);
+  side.querySelectorAll('a').forEach(a => a.addEventListener('click', closeSide));
+
+  // Mobile: collapsible patient / medications panel (always open on desktop)
+  (function () {
+    const btn = document.querySelector('[data-patient-toggle]');
+    const body = document.querySelector('[data-patient-body]');
+    const chev = document.querySelector('[data-patient-chevron]');
+    if (!btn || !body) return;
+    btn.addEventListener('click', () => {
+      const open = !body.classList.toggle('hidden');
+      btn.setAttribute('aria-expanded', String(open));
+      if (chev) chev.style.transform = open ? 'rotate(180deg)' : '';
+      if (open) body.querySelectorAll('.reveal').forEach(el => el.classList.add('in'));
+    });
+  })();
+
+  // Light / dark mode — persisted, follows system until the user picks
+  const themeBtns = document.querySelectorAll('[data-theme-set]');
+  const applyTheme = (mode) => {
+    document.documentElement.classList.toggle('dark', mode === 'dark');
+    themeBtns.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.themeSet === mode)));
+  };
+  applyTheme(document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+  themeBtns.forEach(b => b.addEventListener('click', () => {
+    const mode = b.dataset.themeSet;
+    applyTheme(mode);
+    try { localStorage.setItem('agilerx-theme', mode); } catch (e) {}
+  }));
+
+  // Account dropdown — Settings / Sign out (only present when the utility bar exists)
+  const profileBtn = document.querySelector('[data-profile-btn]');
+  const profileMenu = document.querySelector('[data-profile-menu]');
+  if (profileBtn && profileMenu) {
+    const setProfile = (open) => {
+      profileMenu.classList.toggle('hidden', !open);
+      profileBtn.setAttribute('aria-expanded', String(open));
+    };
+    profileBtn.addEventListener('click', (e) => { e.stopPropagation(); setProfile(profileMenu.classList.contains('hidden')); });
+    document.addEventListener('click', (e) => { if (!profileMenu.contains(e.target) && !profileBtn.contains(e.target)) setProfile(false); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setProfile(false); });
+  }
+
+  // Step strip — client-side show/hide (no reload); active overrides the done/upcoming base style
+  (function () {
+    const tabs   = Array.from(document.querySelectorAll('[data-step]'));
+    const panels = Array.from(document.querySelectorAll('[data-step-panel]'));
+    tabs.forEach(t => { t.dataset.base = t.className.replace(/\s*is-active/g, ''); });
+    const CHECK = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+    const activate = (step) => {
+      tabs.forEach(t => {
+        const on = t.dataset.step === step;
+        t.className = t.dataset.base + (on ? ' is-active' : '');
+        t.setAttribute('aria-selected', String(on));
+      });
+      panels.forEach(p => {
+        const show = p.dataset.stepPanel === step;
+        p.hidden = !show;
+        if (show) p.querySelectorAll('.reveal').forEach(el => el.classList.add('in'));
+      });
+      // let signature pads size themselves once their panel is actually visible
+      document.dispatchEvent(new CustomEvent('mc:shown', { detail: step }));
+    };
+    // mark a step complete: teal "done" pill + a check (used when a step is signed off)
+    const markDone = (step) => {
+      const t = tabs.find(x => x.dataset.step === step);
+      if (!t) return;
+      t.dataset.state = 'done';
+      t.dataset.base = 'step-tab inline-flex items-center gap-1.5 rounded-xl bg-brand-teal/10 px-4 py-2.5 text-[13px] font-semibold text-brand-teal2';
+      if (!t.querySelector('svg')) t.insertAdjacentHTML('afterbegin', CHECK);
+      t.className = t.dataset.base + (t.getAttribute('aria-selected') === 'true' ? ' is-active' : '');
+    };
+    tabs.forEach(t => t.addEventListener('click', () => activate(t.dataset.step)));
+    window.MC = { activate, markDone };
+  })();
+
+  // Reusable signature pad (mouse / touch / pen). Sizes itself for crisp ink on any DPR,
+  // and re-fits when its panel becomes visible — so a pad inside a hidden step still works.
+  function makeSigPad(canvas, onFirstStroke) {
+    const ctx = canvas.getContext('2d');
+    let drawing = false, dirty = false, last = null;
+    const ink = () => document.documentElement.classList.contains('dark') ? '#E8EDF6' : '#1E293B';
+    function fit() {
+      const r = canvas.getBoundingClientRect();
+      if (!r.width) return false;                 // panel hidden — skip until it's shown
+      const dpr = Math.max(1, window.devicePixelRatio || 1);
+      canvas.width  = Math.round(r.width * dpr);   // (re)sizing clears the pad
+      canvas.height = Math.round(r.height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.lineWidth = 2.2; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      return true;
+    }
+    const at = (e) => { const r = canvas.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
+    canvas.addEventListener('pointerdown', (e) => {
+      if (!canvas.width) fit();                    // lazy first-fit if drawn before any resize/show
+      drawing = true; last = at(e); ctx.strokeStyle = ink();
+      if (canvas.setPointerCapture) { try { canvas.setPointerCapture(e.pointerId); } catch (_) {} }
+    });
+    canvas.addEventListener('pointermove', (e) => {
+      if (!drawing) return;
+      const p = at(e);
+      ctx.beginPath(); ctx.moveTo(last.x, last.y); ctx.lineTo(p.x, p.y); ctx.stroke();
+      last = p;
+      if (!dirty) { dirty = true; if (onFirstStroke) onFirstStroke(); }
+    });
+    window.addEventListener('pointerup', () => { drawing = false; });
+    // re-fit on resize (clears — rare during signing) and when the pad's panel is revealed (only if empty)
+    let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { if (fit()) dirty = false; }, 150); });
+    document.addEventListener('mc:shown', () => { if (!dirty) fit(); });
+    fit();
+    return {
+      clear() { ctx.clearRect(0, 0, canvas.width, canvas.height); dirty = false; },
+      isDirty() { return dirty; },
+    };
+  }
+
+  // Pre-flight signature pad — "Sign & continue" advances to the Acknowledgement step.
+  (function () {
+    const canvas = document.querySelector('[data-sig]');
+    if (!canvas) return;
+    const hint     = document.querySelector('[data-sig-hint]');
+    const clearBtn = document.querySelector('[data-sig-clear]');
+    const contBtn  = document.querySelector('[data-sig-continue]');
+    const ackIcon  = document.querySelector('[data-ack-icon]');
+    const ackRow   = document.querySelector('[data-ack-check]');
+    const ackLabel = document.querySelector('[data-ack-label]');
+    const pad = makeSigPad(canvas, () => { if (hint) hint.hidden = true; });
+
+    if (clearBtn) clearBtn.addEventListener('click', () => pad.clear());
+    if (contBtn) contBtn.addEventListener('click', () => {
+      if (!pad.isDirty()) { if (hint) hint.hidden = false; return; }
+      if (ackIcon) {
+        ackIcon.className = 'grid h-5 w-5 shrink-0 place-items-center rounded-full bg-emerald-50 text-emerald-600';
+        ackIcon.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+      }
+      if (ackRow)   ackRow.className = 'flex items-center gap-2.5 text-[13px] text-ink';
+      if (ackLabel) ackLabel.textContent = 'Patient acknowledgement captured';
+      if (window.MC) { window.MC.markDone('preflight'); window.MC.activate('ack'); }
+    });
+  })();
+
+  /* ============================================================================
+     Intake / assessment controller (Pre-flight step). Captures interview
+     modality, the prescriber for THIS session, caregiver, and lifestyle, and
+     enforces the mandatory reasons checklist (minimum 3) before "Sign &
+     continue" is enabled. The modality + selected doctor are stored on
+     window.MedsCheckIntake so the Acknowledgement / Notify steps can reuse them.
+     ========================================================================== */
+  (function () {
+    const panel = document.querySelector('[data-step-panel="preflight"]');
+    if (!panel) return;
+
+    const PHARMACY = 'Lakeview Pharmacy · 218 Lakeshore Rd E, Oakville ON';
+    const MIN_REASONS = 3;
+
+    // known prescribers on file for this patient (Kevin O'Brien has one — his primary care)
+    const prescribers = [
+      { name: 'Dr. Maria Santos', specialty: 'Family Medicine', role: 'Primary care', fax: '(905) 555-0171', clinic: 'Bronte Medical Clinic · Oakville ON' },
+    ];
+
+    const intake = window.MedsCheckIntake = {
+      modality: 'in-person',
+      location: PHARMACY,
+      doctor: prescribers[0] || null,
+      caregiver: { present: false, name: '', relationship: '', managesMeds: false },
+      lifestyle: { smoking: '', cessationInterest: null, exercise: '', alcohol: '' },
+      reasons: [],
+    };
+
+    // ---- modality (In-person auto-fills the pharmacy location; phone has none) ----
+    (function () {
+      const segs = panel.querySelectorAll('[data-modality]');
+      const loc  = panel.querySelector('[data-modality-loc]');
+      function set(mode) {
+        intake.modality = mode;
+        intake.location = mode === 'in-person' ? PHARMACY : '';
+        segs.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.modality === mode)));
+        if (loc) loc.hidden = mode !== 'in-person';
+      }
+      segs.forEach(b => b.addEventListener('click', () => set(b.dataset.modality)));
+      set('in-person');
+    })();
+
+    // ---- prescriber for this session ----
+    (function () {
+      const listEl  = panel.querySelector('[data-doctor-list]');
+      const contact = panel.querySelector('[data-doctor-contact]');
+      if (!listEl) return;
+      function renderContact() {
+        if (!contact) return;
+        const d = intake.doctor;
+        if (!d) { contact.hidden = true; contact.innerHTML = ''; return; }
+        contact.hidden = false;
+        contact.innerHTML = `<p class="text-[12px] font-semibold text-ink">${d.name} <span class="font-normal text-muted">· ${d.specialty}</span></p>
+          <p class="mt-0.5 text-[12px] text-muted">Fax ${d.fax} · ${d.clinic}</p>`;
+      }
+      listEl.innerHTML = prescribers.map((d, i) => `
+        <label data-doc-row="${i}" class="ix-row flex min-h-[44px] cursor-pointer items-center gap-3 rounded-xl border border-surface-line bg-white px-3.5 py-2.5 transition-colors ${intake.doctor === d ? 'is-on' : ''}">
+          <input type="radio" name="mc-doctor" data-doc="${i}" class="ix-check"${intake.doctor === d ? ' checked' : ''}>
+          <span class="min-w-0">
+            <span class="block text-[13px] font-semibold text-ink">${d.name}</span>
+            <span class="block text-[11.5px] text-muted">${d.specialty}${d.role ? ' · ' + d.role : ''}</span>
+          </span>
+        </label>`).join('');
+      listEl.addEventListener('change', e => {
+        const r = e.target.closest('[data-doc]');
+        if (!r) return;
+        const i = +r.dataset.doc;
+        intake.doctor = prescribers[i] || null;
+        listEl.querySelectorAll('[data-doc-row]').forEach(row => row.classList.toggle('is-on', +row.dataset.docRow === i));
+        renderContact();
+      });
+      renderContact();
+    })();
+
+    // ---- caregiver ----
+    (function () {
+      const segs   = panel.querySelectorAll('[data-caregiver]');
+      const fields = panel.querySelector('[data-caregiver-fields]');
+      const nameEl = panel.querySelector('[data-cg-name]');
+      const relEl  = panel.querySelector('[data-cg-rel]');
+      const mgEl   = panel.querySelector('[data-cg-manages]');
+      function set(present) {
+        intake.caregiver.present = present;
+        segs.forEach(b => b.setAttribute('aria-pressed', String((b.dataset.caregiver === 'yes') === present)));
+        if (fields) fields.hidden = !present;
+        if (!present) {
+          intake.caregiver.name = ''; intake.caregiver.relationship = ''; intake.caregiver.managesMeds = false;
+          if (nameEl) nameEl.value = ''; if (relEl) relEl.value = ''; if (mgEl) mgEl.checked = false;
+        }
+      }
+      segs.forEach(b => b.addEventListener('click', () => set(b.dataset.caregiver === 'yes')));
+      if (nameEl) nameEl.addEventListener('input',  () => intake.caregiver.name = nameEl.value.trim());
+      if (relEl)  relEl.addEventListener('change',  () => intake.caregiver.relationship = relEl.value);
+      if (mgEl)   mgEl.addEventListener('change',   () => intake.caregiver.managesMeds = mgEl.checked);
+      set(false);
+    })();
+
+    // ---- lifestyle (Smoker reveals a cessation-interest follow-up) ----
+    (function () {
+      const smokeSegs = panel.querySelectorAll('[data-smoking]');
+      const cessWrap  = panel.querySelector('[data-cessation-wrap]');
+      const cessSegs  = panel.querySelectorAll('[data-cessation]');
+      const exSegs    = panel.querySelectorAll('[data-exercise]');
+      const alcSegs   = panel.querySelectorAll('[data-alcohol]');
+
+      smokeSegs.forEach(b => b.addEventListener('click', () => {
+        const val = b.dataset.smoking;
+        intake.lifestyle.smoking = val;
+        smokeSegs.forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+        const isSmoker = val === 'Smoker';
+        if (cessWrap) cessWrap.hidden = !isSmoker;
+        if (!isSmoker) {
+          intake.lifestyle.cessationInterest = null;
+          cessSegs.forEach(x => x.setAttribute('aria-pressed', 'false'));
+        }
+      }));
+      cessSegs.forEach(b => b.addEventListener('click', () => {
+        intake.lifestyle.cessationInterest = b.dataset.cessation === 'yes';
+        cessSegs.forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+      }));
+      exSegs.forEach(b => b.addEventListener('click', () => {
+        intake.lifestyle.exercise = b.dataset.exercise;
+        exSegs.forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+      }));
+      alcSegs.forEach(b => b.addEventListener('click', () => {
+        intake.lifestyle.alcohol = b.dataset.alcohol;
+        alcSegs.forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+      }));
+    })();
+
+    // ---- mandatory reasons checklist (min 3) → gates "Sign & continue" ----
+    (function () {
+      const boxes     = Array.from(panel.querySelectorAll('[data-reason]'));
+      const msg       = panel.querySelector('[data-reasons-msg]');
+      const contBtn   = panel.querySelector('[data-sig-continue]');
+      const contBlock = panel.querySelector('[data-cont-block]');
+      if (!boxes.length) return;
+
+      const CONT_ON  = 'btn inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-brand-teal2 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_24px_-12px_rgba(11,168,145,.9)] hover:bg-brand-teal';
+      const CONT_OFF = 'inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-surface-line bg-surface-soft px-4 py-2.5 text-sm font-semibold text-muted cursor-not-allowed';
+      const WARN_SVG = '<svg width="14" height="14" class="mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>';
+      const OK_SVG   = '<svg width="14" height="14" class="shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+
+      function sync() {
+        intake.reasons = boxes.filter(b => b.checked).map(b => b.value);
+        const n = intake.reasons.length;
+        const ok = n >= MIN_REASONS;
+        if (msg) {
+          if (ok) {
+            msg.className = 'mt-3 flex items-center gap-2 rounded-xl border border-brand-teal2/30 bg-brand-teal/5 px-3 py-2.5 text-[12.5px] font-medium text-brand-teal2';
+            msg.innerHTML = OK_SVG + `<span>${n} reasons selected — ready to continue.</span>`;
+          } else {
+            msg.className = 'mt-3 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-[12.5px] font-medium text-amber-600';
+            msg.innerHTML = WARN_SVG + `<span>Select at least ${MIN_REASONS} reasons — ${n} selected so far.</span>`;
+          }
+        }
+        if (contBtn) { contBtn.disabled = !ok; contBtn.className = ok ? CONT_ON : CONT_OFF; }
+        if (contBlock) contBlock.hidden = ok;
+      }
+      boxes.forEach(b => b.addEventListener('change', () => {
+        const row = b.closest('.ix-row');
+        if (row) row.classList.toggle('is-on', b.checked);
+        sync();
+      }));
+      sync();
+    })();
+  })();
+
+  // Personal Medication Record signature pad — "Sign & generate" requires a signature, then advances to Notify.
+  (function () {
+    const canvas = document.querySelector('[data-pmr-sig]');
+    if (!canvas) return;
+    const hint     = document.querySelector('[data-pmr-sig-hint]');
+    const clearBtn = document.querySelector('[data-pmr-sig-clear]');
+    const signBtn  = document.querySelector('[data-pmr-sign]');
+    // delivery confirmation — legally distinct from the Acknowledgement signature
+    const delivery     = document.querySelector('[data-pmr-delivery]');
+    const deliveryRow  = document.querySelector('[data-pmr-delivery-row]');
+    const deliveryHint = document.querySelector('[data-pmr-delivery-hint]');
+    const pad = makeSigPad(canvas, () => { if (hint) hint.hidden = true; });
+
+    if (delivery) delivery.addEventListener('change', () => {
+      if (deliveryRow) deliveryRow.classList.toggle('is-on', delivery.checked);
+      if (delivery.checked && deliveryHint) deliveryHint.hidden = true;
+      if (window.MedsCheckSession) window.MedsCheckSession.pmrDelivered = delivery.checked;
+    });
+
+    if (clearBtn) clearBtn.addEventListener('click', () => pad.clear());
+    if (signBtn) signBtn.addEventListener('click', () => {
+      if (!pad.isDirty()) { if (hint) hint.hidden = false; canvas.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+      if (hint) hint.hidden = true;
+      if (delivery && !delivery.checked) {
+        if (deliveryHint) deliveryHint.hidden = false;
+        if (deliveryRow) deliveryRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+      if (deliveryHint) deliveryHint.hidden = true;
+      if (window.MC) { window.MC.markDone('worksheet'); window.MC.activate('notify'); }
+    });
+  })();
+
+  // Voice dictation — speak, and the transcript is tidied/organised into the recommendations.
+  // Uses the browser Web Speech API; degrades gracefully where it isn't available.
+  (function () {
+    const btn = document.querySelector('[data-voice]');
+    const ta  = document.querySelector('[data-reco]');
+    const note = document.querySelector('[data-ai-note]');
+    const status = document.querySelector('[data-voice-status]');
+    if (!btn || !ta) return;
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const MIC = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>';
+    const IDLE = 'btn inline-flex items-center gap-1.5 rounded-full border border-surface-line px-2.5 py-1 text-[11.5px] font-semibold text-ink hover:bg-surface-soft';
+    const LIVE = 'btn inline-flex items-center gap-1.5 rounded-full border border-brand-teal2/40 bg-brand-teal/10 px-2.5 py-1 text-[11.5px] font-semibold text-brand-teal2';
+
+    function say(msg) { if (status) { status.hidden = !msg; status.textContent = msg || ''; } }
+
+    if (!SR) {
+      btn.addEventListener('click', () => say('Voice input isn’t supported in this browser — try Chrome or Edge, or type / use AI draft.'));
+      return;
+    }
+
+    // Light "organise" pass: strip filler, normalise spacing/punctuation, split spoken run-ons, capitalise sentences.
+    function organise(raw) {
+      let s = (raw || '').replace(/\s+/g, ' ').trim();
+      if (!s) return '';
+      s = s.replace(/\b(?:um+|uh+|er+|ah+|hmm+|you know)\b/gi, ' ');
+      s = s.replace(/\s+([,.;:])/g, '$1').replace(/\s+/g, ' ').trim();
+      s = s.replace(/\s+\b(?:and then|then|also|next|after that)\b\s+/gi, '. ');
+      s = s.replace(/([.!?])\s*/g, '$1 ').trim();
+      s = s.replace(/(^|[.!?]\s+)([a-z])/g, (m, pre, c) => pre + c.toUpperCase());
+      if (!/[.!?]$/.test(s)) s += '.';
+      return s;
+    }
+
+    let rec = null, listening = false, base = '';
+    function setLive(on) {
+      listening = on;
+      btn.className = on ? LIVE : IDLE;
+      btn.innerHTML = on ? '<span class="rec-dot"></span> Listening…' : MIC + ' Dictate';
+      btn.setAttribute('aria-pressed', String(on));
+    }
+    function stop() { if (rec) { try { rec.stop(); } catch (_) {} } }
+
+    btn.addEventListener('click', () => {
+      if (listening) { stop(); return; }
+      rec = new SR();
+      rec.lang = 'en-CA'; rec.continuous = true; rec.interimResults = true;
+      base = ta.value.trim();
+      let finalText = '';
+      rec.onresult = (e) => {
+        let interim = '';
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          const t = e.results[i][0].transcript;
+          if (e.results[i].isFinal) finalText += ' ' + t; else interim += t;
+        }
+        ta.value = [base, organise(finalText), interim.trim()].filter(Boolean).join(' ').trim();
+      };
+      rec.onerror = (e) => { say(e.error === 'not-allowed' ? 'Microphone access was blocked — allow it to dictate.' : 'Voice input stopped: ' + e.error); };
+      rec.onend = () => {
+        ta.value = organise(ta.value);            // final organise pass over the whole note
+        if (ta.value) { ta.classList.add('ai-drafted'); if (note) note.hidden = false; }
+        setLive(false);
+      };
+      say('Listening… speak your recommendations, then tap to stop. The text is tidied automatically.');
+      try { rec.start(); setLive(true); } catch (_) { say('Could not start voice input.'); }
+    });
+  })();
+
+  /* ============================================================================
+     Worksheet controller — medication reconciliation (Issue notes), OTC/natural
+     products, drug therapy problems, and a session-aware Personal Medication
+     Record AI draft. Everything happens inline on the Worksheet tab.
+     ========================================================================== */
+  (function () {
+    const list = document.querySelector('[data-recon-list]');
+    if (!list) return;
+
+    const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
+    const SPARKLE = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9Z"/></svg>';
+
+    /* ---- per-medication clinical reference data -------------------------------
+       Drug lookup drives the auto-filled Indication, the treatment-target category
+       (only bp / dm / chol have universal targets), and the class-specific
+       quick-pick observations. Keyed by lowercased generic name; unknown drugs
+       simply get a blank indication for the pharmacist to fill and generic picks. */
+    const DRUG_DB = {
+      ramipril:      { indication: 'Blood pressure',                 cat: 'bp' },
+      perindopril:   { indication: 'Blood pressure',                 cat: 'bp' },
+      indapamide:    { indication: 'Blood pressure',                 cat: 'bp' },
+      amlodipine:    { indication: 'Blood pressure',                 cat: 'bp' },
+      bisoprolol:    { indication: 'Blood pressure / heart rate',    cat: 'bp' },
+      metoprolol:    { indication: 'Blood pressure / heart rate',    cat: 'bp' },
+      atorvastatin:  { indication: 'Cholesterol (dyslipidemia)',     cat: 'chol' },
+      rosuvastatin:  { indication: 'Cholesterol (dyslipidemia)',     cat: 'chol' },
+      simvastatin:   { indication: 'Cholesterol (dyslipidemia)',     cat: 'chol' },
+      metformin:     { indication: 'Diabetes (blood sugar)',         cat: 'dm' },
+      gliclazide:    { indication: 'Diabetes (blood sugar)',         cat: 'dm' },
+      empagliflozin: { indication: 'Diabetes (blood sugar)',         cat: 'dm' },
+      levothyroxine: { indication: 'Hypothyroidism (thyroid)',       cat: 'thyroid' },
+      pregabalin:    { indication: 'Neuropathic (nerve) pain',       cat: 'nerve' },
+      gabapentin:    { indication: 'Neuropathic (nerve) pain',       cat: 'nerve' },
+      amitriptyline: { indication: 'Nerve pain / mood',              cat: 'nerve' },
+      pantoprazole:  { indication: 'Acid reflux / stomach protection', cat: 'gi' },
+      escitalopram:  { indication: 'Mood (depression / anxiety)',    cat: 'mood' },
+    };
+    const TARGETS = { bp: 'Target BP 140/80', dm: 'Target HbA1c < 6.5', chol: 'Targets: LDL < 2 · Total cholesterol < 5' };
+    const PRESETS = {
+      bp:      ['Dry cough', 'Dizziness', 'Ankle swelling', 'Lightheaded on standing'],
+      chol:    ['Muscle aches (myalgia)', 'Muscle weakness'],
+      dm:      ['Low blood sugar episodes', 'Nausea', 'Upset stomach'],
+      thyroid: ['Headache', 'Palpitations'],
+      nerve:   ['Mild dizziness', 'Drowsiness'],
+      gi:      ['Headache', 'Stomach upset'],
+      mood:    ['Drowsiness', 'Dry mouth', 'Restlessness'],
+      '':      ['Headache', 'Nausea', 'Dizziness', 'Rash'],
+    };
+    const key = name => String(name || '').trim().toLowerCase().split(/\s|\//)[0];
+    const indicationFor = name => (DRUG_DB[key(name)] || {}).indication || '';
+    const catFor        = name => (DRUG_DB[key(name)] || {}).cat || '';
+    const targetFor     = name => TARGETS[catFor(name)] || '';
+    const presetsFor    = name => PRESETS[catFor(name)] || PRESETS[''];
+
+    // brand → generic aliases so patient-reported OTCs still match the interaction rules
+    const ALIAS = { advil: 'ibuprofen', motrin: 'ibuprofen', tylenol: 'acetaminophen', aspirin: 'asa' };
+    const norm  = name => { const k = key(name); return ALIAS[k] || k; };
+    // drugs whose overlapping sedation matters only in combination
+    const SEDATING = new Set(['amitriptyline', 'nortriptyline', 'pregabalin', 'gabapentin', 'zopiclone', 'diphenhydramine']);
+
+    // plain-language "how it works" for the Personal Medication Record summary (data-driven, no jargon)
+    const MECHANISM = {
+      ramipril:      'relaxes and widens your blood vessels so your heart can pump more easily, lowering blood pressure.',
+      perindopril:   'relaxes and widens your blood vessels to lower blood pressure.',
+      indapamide:    'helps your body clear extra salt and water, which lowers blood pressure.',
+      amlodipine:    'relaxes the blood vessels so blood flows more easily, lowering blood pressure.',
+      bisoprolol:    'eases the workload on your heart so it beats more slowly and calmly, lowering blood pressure.',
+      metoprolol:    'slows and steadies the heartbeat to lower blood pressure and ease strain on the heart.',
+      atorvastatin:  'lowers cholesterol by reducing how much your liver makes.',
+      rosuvastatin:  'lowers cholesterol by reducing how much your liver makes.',
+      simvastatin:   'lowers cholesterol by reducing how much your liver makes.',
+      metformin:     'helps your body use insulin better and makes less sugar in the liver, lowering blood sugar.',
+      gliclazide:    'helps your body release more insulin to lower blood sugar.',
+      levothyroxine: 'replaces the thyroid hormone your body is low on, restoring normal energy and metabolism.',
+      pregabalin:    'calms overactive nerve signals to ease nerve-related pain.',
+      gabapentin:    'calms overactive nerve signals to ease nerve-related pain.',
+      amitriptyline: 'calms nerve pain signals and can also help mood and sleep.',
+      pantoprazole:  'reduces the amount of acid your stomach makes, protecting the stomach and easing reflux.',
+      escitalopram:  'gently raises a mood-related chemical in the brain to help with low mood or anxiety.',
+      ibuprofen:     'eases pain and swelling by turning down the body signals that cause inflammation.',
+      acetaminophen: 'eases pain and helps lower a fever.',
+    };
+    const mechanismFor = name => MECHANISM[norm(name)] || '';
+
+    /* Plain-language rule (CLAUDE.md): AI-drafted patient-facing text must describe
+       risks by their everyday symptoms, never the technical term. */
+    const PLAIN = {
+      'myalgia':                'muscle aches or soreness',
+      'muscle aches (myalgia)': 'muscle aches or soreness',
+      'serotonin syndrome':     'excessive sweating, tremors, or unusual restlessness',
+      'qt prolongation':        'a fluttering or skipped-beat feeling in your chest',
+      'hypotension':            'dizziness from low blood pressure',
+      'orthostatic hypotension':'dizziness when you stand up',
+      'bradycardia':            'a slower-than-usual heartbeat',
+      'hypoglycemia':           'shakiness, sweating, or feeling faint (low blood sugar)',
+      'dyspepsia':              'stomach discomfort or heartburn',
+      'peripheral edema':       'swelling in the ankles or feet',
+    };
+    function plainLanguage(text) {
+      const t = String(text || '').trim();
+      if (!t) return '';
+      const k = t.toLowerCase();
+      for (const term in PLAIN) { if (k.includes(term)) return `Watch for ${PLAIN[term]} — let us know if it becomes bothersome.`; }
+      return `Watch for ${t.charAt(0).toLowerCase() + t.slice(1)} — let us know if it becomes bothersome.`;
+    }
+
+    // ---- state ----
+    const meds = [
+      { name: 'Ramipril',     strength: '5 mg',  dir: '1 cap daily',                  years: 3 },
+      { name: 'Atorvastatin', strength: '20 mg', dir: '1 tab daily at bedtime',       years: 4 },
+      { name: 'Pantoprazole', strength: '40 mg', dir: '1 tab daily before breakfast', years: 6 },
+      { name: 'Bisoprolol',   strength: '5 mg',  dir: '1 tab daily',                  years: 2 },
+    ].map(m => ({ ...m, kind: 'chronic', status: null, note: '', saved: false, indication: indicationFor(m.name), se: '', severity: null, seAi: false }));
+    const dtps = [];
+
+    // expose the live session state so the Notify step can draft a provider summary
+    window.MedsCheckSession = { meds, dtps };
+
+    // ---- medication reconciliation ----
+    function kindBadge(kind) {
+      if (kind === 'chronic') return '<span class="rounded bg-surface-soft px-1.5 py-0.5 text-[10.5px] font-medium text-muted">chronic</span>';
+      const label = kind === 'NATURAL' ? 'natural' : 'OTC';
+      return `<span class="rounded bg-brand-teal/10 px-1.5 py-0.5 text-[10.5px] font-medium text-brand-teal2">${label}</span>`;
+    }
+
+    function issueDraft(m) {
+      return `Patient reports not taking ${m.name} ${m.strength} as prescribed — stopped roughly two weeks ago after episodes of dizziness/light-headedness, and has not resumed. Reviewed the indication; advised to hold and follow up with the prescriber before restarting.`;
+    }
+
+    function issueBlock(m, i) {
+      if (m.status !== 'issue') return '';
+      if (m.saved) {
+        return `<div class="-mt-1 pb-3.5">
+          <div class="flex items-start justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5">
+            <p class="min-w-0 text-[12.5px] text-amber-600"><span class="font-semibold">Issue noted:</span> ${esc(m.note)}</p>
+            <button type="button" data-issue-edit="${i}" class="btn shrink-0 text-[12px] font-semibold text-amber-600 underline underline-offset-2 hover:text-amber-700">Edit</button>
+          </div>
+        </div>`;
+      }
+      return `<div class="-mt-1 pb-3.5">
+        <div class="rounded-xl border border-surface-line bg-surface-soft p-3">
+          <div class="mb-1 flex items-center justify-between gap-3">
+            <span class="text-[12px] font-medium text-ink">What is the patient actually doing?</span>
+            <button type="button" data-issue-ai="${i}" class="btn ai-badge inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold">${SPARKLE} AI draft</button>
+          </div>
+          <input data-issue-input="${i}" value="${esc(m.note)}" class="w-in" placeholder="What is the patient actually doing? (e.g., stopped — dizziness)">
+          <div class="mt-2.5 flex justify-end">
+            <button type="button" data-issue-save="${i}" class="btn btn-amber rounded-xl px-4 py-2 text-[13px] font-semibold">Save</button>
+          </div>
+        </div>
+      </div>`;
+    }
+
+    // ---- per-medication clinical review: indication, target, side-effect + severity ----
+    function clinicalBlock(m, i) {
+      const target  = targetFor(m.name);
+      const presets = presetsFor(m.name);
+      const chips = presets.map(p =>
+        `<button type="button" data-qp="${i}" data-qp-val="${esc(p)}" class="qp-chip shrink-0 rounded-full border border-surface-line bg-white px-3 py-2 text-[12px] font-medium text-muted">${esc(p)}</button>`).join('');
+      const needsSev = !!(m.se && m.se.trim() && !m.severity);
+      return `<div class="space-y-3 border-t border-dashed border-surface-line pt-3 pb-3.5">
+        <div class="grid gap-2.5 sm:grid-cols-2">
+          <div>
+            <label class="mb-1 block text-[11.5px] font-medium text-muted" for="ind-${i}">Indication</label>
+            <input id="ind-${i}" data-indication="${i}" value="${esc(m.indication)}" class="w-in min-h-[44px]" placeholder="What is this medication for?">
+          </div>
+          ${target ? `<div class="sm:self-end">
+            <div class="flex min-h-[44px] items-center gap-1.5 rounded-lg bg-surface-soft px-3 py-2 text-[12px] text-muted" title="Treatment target — monitored roughly every 3 months">
+              <svg width="12" height="12" class="shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg>
+              <span class="font-medium text-ink">${esc(target)}</span>
+            </div></div>` : ''}
+        </div>
+        <div>
+          <div class="mb-1 flex items-center justify-between gap-3">
+            <label class="text-[11.5px] font-medium text-muted" for="se-${i}">Side effect / observation</label>
+            <button type="button" data-se-ai="${i}" class="btn ai-badge inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold">${SPARKLE} Plain-language</button>
+          </div>
+          ${chips ? `<div class="tabs-scroll mb-2 flex gap-1.5 overflow-x-auto lg:flex-wrap lg:overflow-visible">${chips}</div>` : ''}
+          <input id="se-${i}" data-se-input="${i}" value="${esc(m.se)}" class="w-in min-h-[44px] ${m.seAi ? 'ai-drafted' : ''}" placeholder="Tap a common one above, or type here">
+          ${m.seAi ? `<p class="mt-1.5 flex items-center gap-1.5 text-[11px] font-medium text-ai">${SPARKLE} AI-drafted in plain language — review and edit.</p>` : ''}
+          <div class="mt-2 flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-3">
+            <span class="text-[11.5px] font-medium text-muted">Severity</span>
+            <div class="flex w-full overflow-hidden rounded-lg border border-surface-line sm:inline-flex sm:w-auto" role="group" aria-label="${esc(m.name)} side-effect severity">
+              <button type="button" data-sev-set="${i}" data-sev="mild"     aria-pressed="${m.severity === 'mild'}"     class="sev-seg inline-flex min-h-[44px] flex-1 items-center justify-center px-3 text-[12.5px] font-semibold text-ink sm:flex-none">Mild</button>
+              <button type="button" data-sev-set="${i}" data-sev="moderate" aria-pressed="${m.severity === 'moderate'}" class="sev-seg inline-flex min-h-[44px] flex-1 items-center justify-center border-l border-surface-line px-3 text-[12.5px] font-semibold text-ink sm:flex-none">Moderate</button>
+              <button type="button" data-sev-set="${i}" data-sev="severe"   aria-pressed="${m.severity === 'severe'}"   class="sev-seg inline-flex min-h-[44px] flex-1 items-center justify-center border-l border-surface-line px-3 text-[12.5px] font-semibold text-ink sm:flex-none">Severe</button>
+            </div>
+          </div>
+          ${needsSev ? `<p class="mt-1.5 flex items-center gap-1.5 text-[11px] font-medium text-amber-600"><svg width="12" height="12" class="shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>Select a severity for this side effect.</p>` : ''}
+        </div>
+      </div>`;
+    }
+
+    function renderRecon() {
+      list.innerHTML = meds.map((m, i) => `
+        <div class="border-t border-surface-line" data-med="${i}">
+          <div class="flex flex-col gap-2.5 py-3.5 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-3">
+            <div class="min-w-0">
+              <p class="text-sm text-ink"><span class="font-semibold">${esc(m.name)}</span> <span class="text-muted">${esc(m.strength)}</span></p>
+              <p class="mt-1 flex items-center gap-2 text-[12px] text-muted">${esc(m.dir)} ${kindBadge(m.kind)}</p>
+            </div>
+            <div class="flex w-full overflow-hidden rounded-lg border border-surface-line sm:inline-flex sm:w-auto sm:shrink-0" role="group" aria-label="${esc(m.name)} status">
+              <button type="button" data-recon="ok" aria-pressed="${m.status === 'ok'}" class="recon-seg flex-1 px-3.5 py-2.5 text-[13px] font-semibold text-ink sm:flex-none sm:py-2">As prescribed</button>
+              <button type="button" data-recon="issue" aria-pressed="${m.status === 'issue'}" class="recon-seg flex-1 border-l border-surface-line px-3.5 py-2.5 text-[13px] font-semibold text-ink sm:flex-none sm:py-2">Issue</button>
+            </div>
+          </div>
+          ${issueBlock(m, i)}
+          ${clinicalBlock(m, i)}
+        </div>`).join('');
+      if (typeof runEngine === 'function') runEngine();
+    }
+
+    // delegated — survives re-render when OTC products are added
+    list.addEventListener('click', e => {
+      const recon = e.target.closest('[data-recon]');
+      if (recon) {
+        const i = +recon.closest('[data-med]').dataset.med;
+        const val = recon.dataset.recon;
+        meds[i].status = meds[i].status === val ? null : val;
+        renderRecon();
+        return;
+      }
+      const ai = e.target.closest('[data-issue-ai]');
+      if (ai) {
+        const i = +ai.dataset.issueAi;
+        const inp = list.querySelector(`[data-issue-input="${i}"]`);
+        if (inp) { inp.value = issueDraft(meds[i]); inp.focus(); }
+        return;
+      }
+      const save = e.target.closest('[data-issue-save]');
+      if (save) {
+        const i = +save.dataset.issueSave;
+        const inp = list.querySelector(`[data-issue-input="${i}"]`);
+        meds[i].note = ((inp && inp.value) || '').trim();
+        meds[i].saved = !!meds[i].note;
+        renderRecon();
+        return;
+      }
+      const edit = e.target.closest('[data-issue-edit]');
+      if (edit) { meds[+edit.dataset.issueEdit].saved = false; renderRecon(); return; }
+
+      // quick-pick chip → populate the side-effect field (free text stays editable)
+      const qp = e.target.closest('[data-qp]');
+      if (qp) {
+        const i = +qp.dataset.qp;
+        meds[i].se = qp.dataset.qpVal;
+        meds[i].seAi = false;
+        renderRecon();
+        return;
+      }
+      // side-effect severity (Mild / Moderate / Severe) — click again to clear
+      const sev = e.target.closest('[data-sev-set]');
+      if (sev) {
+        const i = +sev.dataset.sevSet;
+        const val = sev.dataset.sev;
+        meds[i].severity = meds[i].severity === val ? null : val;
+        renderRecon();
+        return;
+      }
+      // plain-language AI rewrite of the current side-effect text (patient-facing)
+      const seAi = e.target.closest('[data-se-ai]');
+      if (seAi) {
+        const i = +seAi.dataset.seAi;
+        const inp = list.querySelector(`[data-se-input="${i}"]`);
+        const current = (inp && inp.value.trim()) || meds[i].se.trim();
+        if (!current) { if (inp) inp.focus(); return; }
+        meds[i].se = plainLanguage(current);
+        meds[i].seAi = true;
+        renderRecon();
+        return;
+      }
+    });
+
+    // text inputs update state live WITHOUT a re-render, so focus is never lost mid-typing
+    list.addEventListener('input', e => {
+      const ind = e.target.closest('[data-indication]');
+      if (ind) { meds[+ind.dataset.indication].indication = ind.value; if (typeof renderPmrSummary === 'function') renderPmrSummary(); return; }
+      const se = e.target.closest('[data-se-input]');
+      if (se) {
+        const i = +se.dataset.seInput;
+        meds[i].se = se.value;
+        if (meds[i].seAi) {                       // hand-edited → no longer an unmodified AI draft
+          meds[i].seAi = false;
+          se.classList.remove('ai-drafted');
+          const note = se.nextElementSibling;
+          if (note && note.classList && note.classList.contains('text-ai')) note.hidden = true;
+        }
+      }
+    });
+
+    /* ============================================================================
+       Cross-medication engine — combination-driven warnings + drug-drug interaction
+       severity. Runs on every renderRecon(). Prototype internal datasets, structured
+       so a real interaction source can be dropped in later without UI changes.
+       ========================================================================== */
+    // combination rules: class/tag overlaps that only matter when taken together
+    const COMBO_RULES = [
+      { id: 'bp', match: m => catFor(m.name) === 'bp', min: 2,
+        title: 'Multiple blood-pressure medications', risk: 'low blood pressure risk',
+        detail: 'Taking more than one blood-pressure medication together can cause dizziness or lightheadedness, especially when standing up.',
+        confirm: 'I discussed the risk of dizziness / low blood pressure with the patient.',
+        note: 'Combination: on multiple blood-pressure agents — counselled on dizziness / low-blood-pressure risk.' },
+      { id: 'sedating', match: m => SEDATING.has(norm(m.name)), min: 2,
+        title: 'Multiple sedating medications', risk: 'combined drowsiness risk',
+        detail: 'Taking more than one medication that can cause drowsiness may add up — increasing sleepiness, dizziness, and the risk of falls.',
+        confirm: 'I discussed the combined drowsiness / fall risk with the patient.',
+        note: 'Combination: on multiple sedating medications — counselled on combined drowsiness / fall risk.' },
+    ];
+    const comboOK = {};                     // rule id -> confirmed
+
+    // interaction reference table (generic names; plain-language descriptions, no jargon)
+    const INTERACTIONS = [
+      { a: 'escitalopram', b: 'amitriptyline',  severity: 'moderate', desc: 'Together these can occasionally cause excessive sweating, tremor, or unusual restlessness — worth a brief mention to the patient.' },
+      { a: 'ramipril',     b: 'ibuprofen',      severity: 'moderate', desc: 'Regular anti-inflammatory painkillers can blunt this blood-pressure medication and strain the kidneys — check blood pressure and limit ongoing use.' },
+      { a: 'pantoprazole', b: 'clopidogrel',    severity: 'moderate', desc: 'This stomach medication can reduce how well the blood-thinner works — an alternative acid reducer may be preferred.' },
+      { a: 'atorvastatin', b: 'clarithromycin', severity: 'high',     desc: 'This antibiotic can push cholesterol-medication levels up and cause muscle pain or weakness — the statin is usually paused while on the antibiotic.' },
+      { a: 'bisoprolol',   b: 'diltiazem',      severity: 'high',     desc: 'Together these can slow the heartbeat too much — may cause tiredness, dizziness, or fainting; discuss with the doctor.' },
+      { a: 'bisoprolol',   b: 'verapamil',      severity: 'high',     desc: 'Together these can slow the heartbeat too much — may cause tiredness, dizziness, or fainting; discuss with the doctor.' },
+      { a: 'ramipril',     b: 'spironolactone', severity: 'high',     desc: 'Both can raise potassium; too much can upset the heartbeat — a blood test is usually needed.' },
+      { a: 'atorvastatin', b: 'grapefruit',     severity: 'minor',    desc: 'Large amounts of grapefruit can raise statin levels a little — keeping intake modest is enough.' },
+    ];
+    const ixAck = {};                       // pair id -> acknowledged
+
+    const SEV = {
+      high:     { label: 'High',     card: 'border-red-200 bg-red-50',           badge: 'bg-red-100 text-red-600' },
+      moderate: { label: 'Moderate', card: 'border-amber-200 bg-amber-50',       badge: 'bg-amber-100 text-amber-600' },
+      minor:    { label: 'Minor',    card: 'border-surface-line bg-surface-soft', badge: 'bg-white text-muted' },
+    };
+    const WARN_SVG = '<svg width="15" height="15" class="mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>';
+    const OK_SVG   = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+    const PMR_OFF  = 'inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-surface-line bg-surface-soft px-4 py-2.5 text-sm font-semibold text-muted cursor-not-allowed';
+    let   PMR_ON   = null;                   // captured from the button's live class on first gate run
+
+    function detectCombos() {
+      return COMBO_RULES.map(r => {
+        const hits = meds.filter(r.match);
+        return hits.length >= r.min ? { rule: r, names: hits.map(m => m.name) } : null;
+      }).filter(Boolean);
+    }
+    function detectInteractions() {
+      const present = new Map();
+      meds.forEach(m => present.set(norm(m.name), m.name));
+      return INTERACTIONS
+        .filter(x => present.has(x.a) && present.has(x.b))
+        .map(x => ({ ...x, id: x.a + '|' + x.b, nameA: present.get(x.a), nameB: present.get(x.b) }));
+    }
+
+    function renderCombos() {
+      const box = document.querySelector('[data-combo-callouts]');
+      if (!box) return;
+      const found = detectCombos();
+      Object.keys(comboOK).forEach(id => { if (!found.some(f => f.rule.id === id)) delete comboOK[id]; });
+      box.innerHTML = found.map(f => {
+        const done = !!comboOK[f.rule.id];
+        return `<div class="rounded-xl border ${done ? 'border-brand-teal2/30 bg-brand-teal/5' : 'border-amber-200 bg-amber-50'} p-3.5">
+          <div class="flex items-start gap-2.5">
+            <span class="mt-0.5 ${done ? 'text-brand-teal2' : 'text-amber-600'}">${done ? OK_SVG : WARN_SVG}</span>
+            <div class="min-w-0 flex-1">
+              <p class="text-[13px] font-semibold ${done ? 'text-ink' : 'text-amber-600'}">${esc(f.rule.title)} — ${esc(f.rule.risk)}</p>
+              <p class="mt-0.5 text-[12px] text-muted">${esc(f.rule.detail)}</p>
+              <p class="mt-1 text-[11.5px] text-muted">Applies to: <span class="font-medium text-ink">${f.names.map(esc).join(', ')}</span></p>
+              <label class="mt-2.5 flex min-h-[44px] cursor-pointer items-center gap-2.5 rounded-lg border ${done ? 'border-brand-teal2/30' : 'border-amber-200'} bg-white px-3 py-2">
+                <input type="checkbox" data-combo-ok="${f.rule.id}" ${done ? 'checked' : ''} class="ix-check">
+                <span class="text-[12.5px] font-medium text-ink">${esc(f.rule.confirm)}</span>
+              </label>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function ixCard(x) {
+      const s = SEV[x.severity];
+      const done = !!ixAck[x.id];
+      return `<div class="rounded-xl border ${s.card} p-3.5">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="rounded-full ${s.badge} px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide">${s.label}</span>
+          <p class="text-[13px] font-semibold text-ink">${esc(x.nameA)} + ${esc(x.nameB)}</p>
+        </div>
+        <p class="mt-1 text-[12px] text-muted">${esc(x.desc)}</p>
+        ${x.severity === 'high' ? `<div class="mt-2.5">
+          ${done
+            ? `<span class="inline-flex items-center gap-1.5 text-[12px] font-semibold text-brand-teal2">${OK_SVG}Acknowledged — will discuss / flag to the doctor</span>`
+            : `<button type="button" data-ix-ack="${esc(x.id)}" class="btn inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-brand-teal2 px-4 text-[13px] font-semibold text-white hover:bg-brand-teal">Acknowledge — I'll discuss / flag this</button>`}
+        </div>` : ''}
+      </div>`;
+    }
+
+    function renderInteractions() {
+      const listEl = document.querySelector('[data-ix-list]');
+      if (!listEl) return;
+      const empty     = document.querySelector('[data-ix-empty]');
+      const countEl   = document.querySelector('[data-ix-count]');
+      const minorWrap = document.querySelector('[data-ix-minor-wrap]');
+      const minorList = document.querySelector('[data-ix-minor-list]');
+      const found = detectInteractions();
+      Object.keys(ixAck).forEach(id => { if (!found.some(f => f.id === id)) delete ixAck[id]; });
+
+      const major = found.filter(x => x.severity !== 'minor')
+                         .sort((a, b) => (a.severity === 'high' ? 0 : 1) - (b.severity === 'high' ? 0 : 1));
+      const minor = found.filter(x => x.severity === 'minor');
+
+      listEl.innerHTML = major.map(ixCard).join('');
+      if (empty)   empty.hidden = found.length !== 0;
+      if (countEl) countEl.textContent = found.length ? `${found.length} found` : '';
+      if (minorWrap && minorList) {
+        minorWrap.hidden = minor.length === 0;
+        minorList.innerHTML = minor.map(ixCard).join('');
+      }
+    }
+
+    function updateGate() {
+      const hiUnack = detectInteractions().filter(x => x.severity === 'high' && !ixAck[x.id]);
+      const gate = document.querySelector('[data-ix-gate]');
+      if (gate) {
+        if (hiUnack.length) {
+          gate.hidden = false;
+          gate.className = 'flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 text-[12.5px] font-medium text-red-600';
+          gate.innerHTML = `${WARN_SVG}<span>${hiUnack.length} high-severity interaction${hiUnack.length > 1 ? 's' : ''} need${hiUnack.length > 1 ? '' : 's'} acknowledgment before the Personal Medication Record can be signed.</span>`;
+        } else { gate.hidden = true; gate.innerHTML = ''; }
+      }
+      const pmr = document.querySelector('[data-pmr-sign]');
+      if (pmr) {
+        if (PMR_ON == null) PMR_ON = pmr.className;
+        pmr.disabled = hiUnack.length > 0;
+        pmr.className = hiUnack.length ? PMR_OFF : PMR_ON;
+      }
+    }
+
+    function runEngine() { renderCombos(); renderInteractions(); updateGate(); if (typeof renderSuggestions === 'function') renderSuggestions(); if (typeof renderPmrSummary === 'function') renderPmrSummary(); }
+
+    // engine event delegation (containers persist across recon re-renders)
+    (function () {
+      const combo = document.querySelector('[data-combo-callouts]');
+      if (combo) combo.addEventListener('change', e => {
+        const c = e.target.closest('[data-combo-ok]');
+        if (!c) return;
+        const id = c.dataset.comboOk;
+        comboOK[id] = c.checked;
+        const rule = COMBO_RULES.find(r => r.id === id);   // auto-document onto the involved meds
+        if (rule) meds.filter(rule.match).forEach(m => {
+          m.comboNotes = m.comboNotes || [];
+          const has = m.comboNotes.includes(rule.note);
+          if (c.checked && !has) m.comboNotes.push(rule.note);
+          if (!c.checked && has) m.comboNotes = m.comboNotes.filter(n => n !== rule.note);
+        });
+        renderCombos();
+      });
+      const ixListEl = document.querySelector('[data-ix-list]');
+      if (ixListEl) ixListEl.addEventListener('click', e => {
+        const b = e.target.closest('[data-ix-ack]');
+        if (!b) return;
+        ixAck[b.dataset.ixAck] = true;
+        renderInteractions(); updateGate();
+      });
+      const mt = document.querySelector('[data-ix-minor-toggle]');
+      if (mt) mt.addEventListener('click', () => {
+        const ml = document.querySelector('[data-ix-minor-list]');
+        const chev = document.querySelector('[data-ix-minor-chev]');
+        const lbl = document.querySelector('[data-ix-minor-label]');
+        const open = ml.hidden;
+        ml.hidden = !open;
+        mt.setAttribute('aria-expanded', String(open));
+        if (chev) chev.style.transform = open ? 'rotate(180deg)' : '';
+        if (lbl) lbl.textContent = open ? 'Hide minor interactions' : 'Show minor interactions';
+      });
+    })();
+
+    // ---- Add OTC / natural product ----
+    (function () {
+      const slot = document.querySelector('[data-otc-slot]');
+      if (!slot) return;
+      const openBtn  = slot.querySelector('[data-otc-open]');
+      const form     = slot.querySelector('[data-otc-form]');
+      const name     = slot.querySelector('[data-otc-name]');
+      const strength = slot.querySelector('[data-otc-strength]');
+      const dir      = slot.querySelector('[data-otc-dir]');
+      const addBtn   = slot.querySelector('[data-otc-add]');
+      const cancel   = slot.querySelector('[data-otc-cancel]');
+      let kind = 'OTC';
+
+      const valid = () => name.value.trim() && dir.value.trim();
+      function refresh() {
+        addBtn.disabled = !valid();
+        addBtn.className = valid()
+          ? 'btn rounded-xl bg-brand-teal2 px-4 py-2 text-[13px] font-semibold text-white hover:bg-brand-teal'
+          : 'btn rounded-xl bg-brand-teal/10 px-4 py-2 text-[13px] font-semibold text-brand-teal2 cursor-not-allowed';
+      }
+      function reset() {
+        name.value = strength.value = dir.value = '';
+        kind = 'OTC';
+        slot.querySelectorAll('[data-otc-kind]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.otcKind === 'OTC')));
+        refresh();
+      }
+      function close() { form.hidden = true; openBtn.hidden = false; }
+
+      openBtn.addEventListener('click', () => { openBtn.hidden = true; form.hidden = false; name.focus(); });
+      cancel.addEventListener('click', () => { reset(); close(); });
+      [name, strength, dir].forEach(el => el.addEventListener('input', refresh));
+      slot.querySelectorAll('[data-otc-kind]').forEach(b => b.addEventListener('click', () => {
+        kind = b.dataset.otcKind;
+        slot.querySelectorAll('[data-otc-kind]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+      }));
+      addBtn.addEventListener('click', () => {
+        if (!valid()) return;
+        meds.push({ name: name.value.trim(), strength: strength.value.trim(), dir: dir.value.trim(), kind, status: null, note: '', saved: false, indication: indicationFor(name.value), se: '', severity: null, seAi: false, years: 0 });
+        reset(); close(); renderRecon();
+      });
+      refresh();
+    })();
+
+    // ---- Drug therapy problems ----
+    const dtpList = document.querySelector('[data-dtp-list]');
+    const dtpWarn = document.querySelector('[data-dtp-warn]');
+
+    function dtpDraft(cat, drug) {
+      const d = drug || 'the current regimen';
+      const map = {
+        'Untreated indication':     `Documented condition without corresponding therapy; ${d} is not currently addressing it. Recommend assessing whether treatment should be initiated.`,
+        'Dose too low':             `Current dose of ${d} appears sub-therapeutic for the intended indication; recommend dose optimization with follow-up monitoring.`,
+        'Dose too high':            `Current dose of ${d} appears higher than needed, increasing adverse-effect risk; recommend dose reduction and reassessment.`,
+        'Adverse drug reaction':    `Patient describes symptoms consistent with a reaction to ${d}; document the reaction, assess causality, and consider an alternative.`,
+        'Drug interaction':         `Potential interaction involving ${d}; review the combined effect and adjust therapy or add monitoring.`,
+        'Non-adherence':            `Patient is not taking ${d} as prescribed; explored barriers and provided adherence support (reminders / compliance packaging).`,
+        'Unnecessary drug therapy': `${d} may no longer be clinically necessary; recommend a deprescribing review with the prescriber.`,
+      };
+      return map[cat] || `Problem identified with ${d}. Document the assessment and plan.`;
+    }
+
+    function renderDtpWarn() {
+      if (!dtpWarn) return;
+      if (!dtps.length) { dtpWarn.hidden = true; dtpWarn.innerHTML = ''; return; }
+      dtpWarn.hidden = false;
+      const unresolved = dtps.filter(d => !d.resolved).length;
+      if (unresolved) {
+        dtpWarn.className = 'mt-3 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-[12.5px] font-medium text-amber-600';
+        dtpWarn.innerHTML = `<svg width="14" height="14" class="mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg><span>${unresolved} drug therapy problem${unresolved > 1 ? 's' : ''} still ${unresolved > 1 ? 'need' : 'needs'} a documented plan before the record can be released. You can keep filling out the worksheet.</span>`;
+      } else {
+        dtpWarn.className = 'mt-3 flex items-start gap-2 rounded-xl border border-brand-teal2/30 bg-brand-teal/5 px-3 py-2.5 text-[12.5px] font-medium text-brand-teal2';
+        dtpWarn.innerHTML = `<svg width="14" height="14" class="mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>All logged drug therapy problems have a documented plan.</span>`;
+      }
+    }
+
+    function renderDtp() {
+      if (dtpList) {
+        dtpList.innerHTML = dtps.map((d, i) => `
+          <div class="flex items-start gap-2.5 rounded-xl border px-3 py-2.5 ${d.resolved ? 'border-brand-teal2/30 bg-brand-teal/5' : 'border-amber-200 bg-amber-50'}">
+            <span class="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full ${d.resolved ? 'bg-brand-teal/15 text-brand-teal2' : 'bg-amber-100 text-amber-600'}">
+              ${d.resolved
+                ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'
+                : '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v5"/><path d="M12 16h.01"/></svg>'}
+            </span>
+            <div class="min-w-0 flex-1">
+              <p class="text-[13px] font-semibold text-ink">${esc(d.cat)}${d.drug ? ` <span class="font-normal text-muted">· ${esc(d.drug)}</span>` : ''}</p>
+              ${d.desc ? `<p class="mt-0.5 text-[12px] text-muted">${esc(d.desc)}</p>` : ''}
+            </div>
+            <button type="button" data-dtp-resolve="${i}" class="btn shrink-0 rounded-lg border px-2.5 py-1 text-[11.5px] font-semibold ${d.resolved ? 'border-brand-teal2/30 text-brand-teal2' : 'border-amber-300 text-amber-600 hover:bg-amber-100'}">${d.resolved ? 'Resolved ✓' : 'Mark resolved'}</button>
+          </div>`).join('');
+      }
+      renderDtpWarn();
+    }
+
+    if (dtpList) dtpList.addEventListener('click', e => {
+      const r = e.target.closest('[data-dtp-resolve]');
+      if (r) { const i = +r.dataset.dtpResolve; dtps[i].resolved = !dtps[i].resolved; renderDtp(); }
+    });
+
+    (function () {
+      const slot = document.querySelector('[data-dtp-slot]');
+      if (!slot) return;
+      const openBtn = slot.querySelector('[data-dtp-open]');
+      const form    = slot.querySelector('[data-dtp-form]');
+      const cat     = slot.querySelector('[data-dtp-cat]');
+      const drug    = slot.querySelector('[data-dtp-drug]');
+      const desc    = slot.querySelector('[data-dtp-desc]');
+      const aiBtn   = slot.querySelector('[data-dtp-ai]');
+      const logBtn  = slot.querySelector('[data-dtp-log]');
+      const cancel  = slot.querySelector('[data-dtp-cancel]');
+
+      function fillDrugs() {
+        drug.innerHTML = '<option value="">Select drug…</option>' +
+          meds.map(m => `<option>${esc(m.name)}${m.strength ? ' ' + esc(m.strength) : ''}</option>`).join('');
+      }
+      function reset() { cat.value = ''; desc.value = ''; fillDrugs(); }
+      function close() { form.hidden = true; openBtn.hidden = false; }
+
+      openBtn.addEventListener('click', () => { fillDrugs(); openBtn.hidden = true; form.hidden = false; cat.focus(); });
+      cancel.addEventListener('click', () => { reset(); close(); });
+      aiBtn.addEventListener('click', () => { desc.value = dtpDraft(cat.value, drug.value); desc.focus(); });
+      logBtn.addEventListener('click', () => {
+        if (!cat.value) { cat.focus(); return; }
+        dtps.push({ cat: cat.value, drug: drug.value, desc: desc.value.trim(), resolved: false });
+        reset(); close(); renderDtp();
+        openBtn.textContent = '+ Log another drug therapy problem';
+      });
+      fillDrugs();
+    })();
+
+    /* ---- Completeness checklist — quick questions asked before logging DTPs.
+       Stored on the session so the Personal Medication Record (Prompt 4) can reuse it. ---- */
+    const checklist = { otc: null, otcList: '', herbal: null, herbalList: '', samples: null, samplesNote: '', abxDate: '', abxNA: false, flu: null, covid: null };
+    if (window.MedsCheckSession) window.MedsCheckSession.checklist = checklist;
+    (function () {
+      const wrap = document.querySelector('[data-dtp-checklist]');
+      if (!wrap) return;
+      const donePill = wrap.querySelector('[data-cl-done]');
+      function updateDone() {
+        const done = ['otc', 'herbal', 'samples', 'flu', 'covid'].every(k => checklist[k]) && (checklist.abxNA || !!checklist.abxDate);
+        if (donePill) donePill.hidden = !done;
+      }
+      wrap.addEventListener('click', e => {
+        const seg = e.target.closest('[data-cl]');
+        if (!seg) return;
+        const k = seg.dataset.cl, v = seg.dataset.v;
+        checklist[k] = v;
+        wrap.querySelectorAll(`[data-cl="${k}"]`).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v)));
+        const field = wrap.querySelector(`[data-cl-field="${k}"]`);
+        if (field) field.hidden = v !== 'yes';
+        updateDone();
+      });
+      wrap.addEventListener('input', e => {
+        const t = e.target;
+        if (t.dataset.clText != null) checklist[t.dataset.clText] = t.value;
+      });
+      wrap.addEventListener('change', e => {
+        const t = e.target;
+        if (t.dataset.clAbxNa != null) {
+          checklist.abxNA = t.checked;
+          const d = wrap.querySelector('[data-cl-abx-date]');
+          if (d) { d.disabled = t.checked; if (t.checked) { d.value = ''; checklist.abxDate = ''; } }
+          updateDone();
+        }
+        if (t.dataset.clAbxDate != null) { checklist.abxDate = t.value; updateDone(); }
+      });
+    })();
+
+    /* ---- Duration-based therapeutic-issue suggestions (data-driven rules).
+       Surfaced as "Suggested" — the pharmacist accepts (logs) or dismisses; never auto-logged. ---- */
+    const PPI = new Set(['pantoprazole', 'omeprazole', 'esomeprazole', 'lansoprazole', 'rabeprazole', 'dexlansoprazole']);
+    const DURATION_RULES = [
+      { id: 'ppi-5y',
+        match: m => PPI.has(norm(m.name)) && (m.years || 0) > 5,
+        dtpCat: 'Unnecessary drug therapy',
+        label: 'Long-term acid-reducer (PPI) use',
+        rationale: 'This stomach-acid medication has been taken for more than 5 years. Long-term use can lower how well the body absorbs calcium, which over time may weaken the bones and affect the kidneys. Suggest the prescriber review whether it is still needed or could be gradually stepped down.' },
+    ];
+    const suggDismissed = {};
+    const drugLabel = m => m ? `${m.name}${m.strength ? ' ' + m.strength : ''}` : '';
+    function activeSuggestions() {
+      return DURATION_RULES
+        .filter(r => !suggDismissed[r.id] && meds.some(r.match))
+        .map(r => { const m = meds.find(r.match); return { rule: r, drug: drugLabel(m), years: m ? (m.years || 0) : 0 }; });
+    }
+    function renderSuggestions() {
+      const box = document.querySelector('[data-dtp-suggest]');
+      if (!box) return;
+      box.innerHTML = activeSuggestions().map(s => `
+        <div class="rounded-xl border border-amber-200 bg-amber-50 p-3.5">
+          <div class="flex items-start gap-2.5">
+            <span class="mt-0.5 shrink-0 text-amber-600"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></span>
+            <div class="min-w-0 flex-1">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="rounded-full bg-amber-100 px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-wide text-amber-600">Suggested</span>
+                <p class="text-[13px] font-semibold text-ink">${esc(s.rule.label)}${s.drug ? ` · ${esc(s.drug)}` : ''} <span class="font-normal text-muted">· ${s.years} yrs on file</span></p>
+              </div>
+              <p class="mt-1 text-[12px] text-muted">${esc(s.rule.rationale)}</p>
+              <p class="mt-1 flex items-center gap-1.5 text-[11px] font-medium text-ai">${SPARKLE} AI-drafted rationale — review before logging.</p>
+              <div class="mt-2.5 flex flex-wrap gap-2">
+                <button type="button" data-sugg-accept="${esc(s.rule.id)}" class="btn btn-amber rounded-xl px-4 py-2 text-[13px] font-semibold">Accept &amp; log</button>
+                <button type="button" data-sugg-dismiss="${esc(s.rule.id)}" class="btn rounded-xl border border-surface-line bg-white px-4 py-2 text-[13px] font-semibold text-ink hover:bg-surface-soft">Dismiss</button>
+              </div>
+            </div>
+          </div>
+        </div>`).join('');
+    }
+    (function () {
+      const box = document.querySelector('[data-dtp-suggest]');
+      if (!box) return;
+      box.addEventListener('click', e => {
+        const acc = e.target.closest('[data-sugg-accept]');
+        if (acc) {
+          const r = DURATION_RULES.find(x => x.id === acc.dataset.suggAccept);
+          if (r) {
+            dtps.push({ cat: r.dtpCat, drug: drugLabel(meds.find(r.match)), desc: r.rationale, resolved: false });
+            suggDismissed[r.id] = true;
+            renderSuggestions(); renderDtp();
+            const openBtn = document.querySelector('[data-dtp-open]');
+            if (openBtn) openBtn.textContent = '+ Log another drug therapy problem';
+          }
+          return;
+        }
+        const dis = e.target.closest('[data-sugg-dismiss]');
+        if (dis) { suggDismissed[dis.dataset.suggDismiss] = true; renderSuggestions(); }
+      });
+    })();
+    renderSuggestions();
+
+    /* ---- Personal Medication Record — auto-populated, read-only per-medication summary.
+       Re-renders whenever the med list or an Indication changes. ---- */
+    function renderPmrSummary() {
+      const box = document.querySelector('[data-pmr-summary]');
+      if (!box) return;
+      const line = (label, val) => val
+        ? `<p class="mt-0.5 text-[12px] text-muted"><span class="font-medium text-ink">${label}:</span> ${esc(val)}</p>`
+        : '';
+      box.innerHTML = meds.map(m => `
+        <div class="rounded-lg border border-surface-line bg-surface-soft p-3">
+          <p class="text-[13px] font-semibold text-ink">${esc(m.name)} <span class="font-normal text-muted">${esc(m.strength || '')}</span></p>
+          ${line('Indication', m.indication)}
+          ${line('How it works', mechanismFor(m.name))}
+          ${line('How to take it', m.dir)}
+        </div>`).join('');
+    }
+    renderPmrSummary();
+
+    // ---- Personal Medication Record — AI draft synthesises the actual session ----
+    // Visibly AI-marked and fully editable; "Sign & generate" stays the explicit confirm step.
+    (function () {
+      const btn   = document.querySelector('[data-ai-draft]');
+      const ta    = document.querySelector('[data-reco]');
+      const note  = document.querySelector('[data-ai-note]');
+      const clear = document.querySelector('[data-clear]');
+      if (!btn || !ta) return;
+
+      function synthesize() {
+        const total  = meds.length;
+        const issues = meds.filter(m => m.status === 'issue' && m.note.trim());
+        const added  = meds.filter(m => m.kind !== 'chronic');
+        const parts = [`Reviewed all ${total} medication${total > 1 ? 's' : ''} on file with Mr. O'Brien.`];
+        if (issues.length) {
+          parts.push('Adherence / administration issues identified: ' +
+            issues.map(m => `${m.name} ${m.strength} — ${m.note.trim().replace(/\.$/, '')}`).join('; ') + '.');
+        } else {
+          parts.push('Self-reported adherence is good, with no administration issues noted.');
+        }
+        if (added.length) {
+          parts.push('Also taking (patient-reported): ' +
+            added.map(m => `${m.name}${m.strength ? ' ' + m.strength : ''} (${m.kind.toLowerCase()})`).join(', ') + '.');
+        }
+        if (dtps.length) {
+          parts.push('Drug therapy problems addressed: ' +
+            dtps.map(d => `${d.cat}${d.drug ? ' (' + d.drug + ')' : ''}${d.desc ? ' — ' + d.desc.trim().replace(/\.$/, '') : ''}${d.resolved ? ' [plan documented]' : ''}`).join('; ') + '.');
+        } else {
+          parts.push('No drug therapy problems identified.');
+        }
+        parts.push('Provided counselling and advised a home blood-pressure log twice weekly. Follow-up MedsCheck in 12 months, or sooner if concerns arise.');
+        return parts.join(' ');
+      }
+
+      btn.addEventListener('click', () => {
+        ta.value = synthesize();
+        ta.classList.add('ai-drafted');
+        if (note) note.hidden = false;
+        ta.focus();
+      });
+      if (clear) clear.addEventListener('click', () => {
+        ta.value = '';
+        ta.classList.remove('ai-drafted');
+        if (note) note.hidden = true;
+      });
+    })();
+
+    renderRecon();
+  })();
+
+  /* ============================================================================
+     Notify step — prescriber-notification decision. Reads the prescriber
+     selected in Pre-flight (window.MedsCheckIntake.doctor) and the worksheet
+     session (window.MedsCheckSession) to draft a provider summary. Records the
+     decision either way, stores it on window.MedsCheckIntake.notify, then
+     advances to Document.
+     ========================================================================== */
+  (function () {
+    const panel = document.querySelector('[data-step-panel="notify"]');
+    if (!panel) return;
+    const optBtns  = panel.querySelectorAll('[data-notify-decision]');
+    const reqWrap  = panel.querySelector('[data-notify-required]');
+    const notWrap  = panel.querySelector('[data-notify-not]');
+    const summary  = panel.querySelector('[data-notify-summary]');
+    const reason   = panel.querySelector('[data-notify-reason]');
+    const aiBtn    = panel.querySelector('[data-notify-ai]');
+    const aiNote   = panel.querySelector('[data-notify-ai-note]');
+    const sendBtn  = panel.querySelector('[data-notify-send]');
+    const sendLbl  = panel.querySelector('[data-notify-send-label]');
+    const docSpans = panel.querySelectorAll('[data-notify-doc]');
+    if (!sendBtn) return;
+
+    const SEND_ON  = 'btn inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-teal2 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_24px_-12px_rgba(11,168,145,.9)] hover:bg-brand-teal';
+    const SEND_OFF = 'inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-teal2/50 px-4 py-2.5 text-sm font-semibold text-white cursor-not-allowed';
+
+    const docName = () => {
+      const d = (window.MedsCheckIntake || {}).doctor;
+      return (d && d.name) || 'Dr. Maria Santos';
+    };
+    let decision = 'required';
+
+    function synthesize() {
+      const s = window.MedsCheckSession || {};
+      const meds = s.meds || [], dtps = s.dtps || [];
+      const issues = meds.filter(m => m.status === 'issue' && (m.note || '').trim());
+      const parts = ["Re: Kevin O'Brien — MedsCheck Annual, Jul 19, 2026."];
+      if (issues.length) {
+        parts.push('Adherence / administration issues: ' +
+          issues.map(m => `${m.name} ${m.strength} — ${m.note.trim().replace(/\.$/, '')}`).join('; ') + '.');
+      }
+      if (dtps.length) {
+        parts.push('Drug therapy problems: ' +
+          dtps.map(d => `${d.cat}${d.drug ? ' (' + d.drug + ')' : ''}${d.desc ? ' — ' + d.desc.trim().replace(/\.$/, '') : ''}`).join('; ') + '.');
+      }
+      if (!issues.length && !dtps.length) parts.push('No urgent drug therapy problems identified on review.');
+      parts.push('Plan documented in the attached Personal Medication Record. Please review and advise if any changes are needed.');
+      return parts.join(' ');
+    }
+
+    function refreshDoc() {
+      docSpans.forEach(el => el.textContent = docName());
+      if (sendLbl) sendLbl.textContent = decision === 'required'
+        ? `Send notification to ${docName()} & continue`
+        : 'Record — no notification & continue';
+    }
+    function syncSend() {
+      const ok = decision === 'not-required' || (summary && summary.value.trim().length > 0);
+      sendBtn.disabled = !ok;
+      sendBtn.className = ok ? SEND_ON : SEND_OFF;
+    }
+    function setDecision(d) {
+      decision = d;
+      optBtns.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.notifyDecision === d)));
+      if (reqWrap) reqWrap.hidden = d !== 'required';
+      if (notWrap) notWrap.hidden = d !== 'not-required';
+      refreshDoc();
+      syncSend();
+    }
+
+    optBtns.forEach(b => b.addEventListener('click', () => setDecision(b.dataset.notifyDecision)));
+    if (summary) summary.addEventListener('input', syncSend);
+    if (aiBtn && summary) aiBtn.addEventListener('click', () => {
+      summary.value = synthesize();
+      summary.classList.add('ai-drafted');
+      if (aiNote) aiNote.hidden = false;
+      summary.focus();
+      syncSend();
+    });
+    sendBtn.addEventListener('click', () => {
+      if (sendBtn.disabled) return;
+      const it = window.MedsCheckIntake = window.MedsCheckIntake || {};
+      it.notify = {
+        decision,
+        doctor:  docName(),
+        summary: decision === 'required'    ? (summary ? summary.value.trim() : '') : '',
+        reason:  decision === 'not-required' ? (reason ? reason.value.trim() : '')  : '',
+      };
+      if (window.MC) { window.MC.markDone('notify'); window.MC.activate('bill'); }
+    });
+
+    // pull the latest prescriber selection whenever the Notify panel is shown
+    document.addEventListener('mc:shown', e => { if (e.detail === 'notify') { refreshDoc(); syncSend(); } });
+    setDecision('required');
+  })();
+
+  /* ============================================================================
+     Document bundle — renders the documents generated across this MedsCheck
+     (acknowledgement, Personal Medication Record, and the prescriber
+     notification when one was required). Each "PDF" opens a print-ready copy,
+     populated from the real session data + captured signatures, that the
+     pharmacist saves via the browser's print → Save as PDF.
+     ========================================================================== */
+  (function () {
+    const panel  = document.querySelector('[data-step-panel="bill"]');
+    if (!panel) return;
+    const bundle = panel.querySelector('[data-doc-bundle]');
+    if (!bundle) return;
+
+    const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
+    const ICON_DOC = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 15h6M9 11h2"/></svg>';
+    const ICON_DL  = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 12 5 5 5-5"/><path d="M5 21h14"/></svg>';
+
+    // ---- which documents are in the bundle (notification only when it was required) ----
+    function buildDocs() {
+      const it = window.MedsCheckIntake || {};
+      const modality = it.modality === 'phone' ? 'over the phone' : 'in-person';
+      const doc = (it.doctor && it.doctor.name) || 'Dr. Maria Santos';
+      const docs = [
+        { id: 'ack', title: 'Patient Acknowledgement of Professional Pharmacy Services', sub: 'Signed · ' + modality },
+        { id: 'pmr', title: 'MedsCheck Personal Medication Record', sub: "Kevin O'Brien · generated" },
+      ];
+      if (it.notify && it.notify.decision === 'required') {
+        docs.push({ id: 'notify', title: 'Prescriber Notification — ' + doc, sub: 'Fax cover · ' + doc });
+      }
+      return docs;
+    }
+
+    function render() {
+      bundle.innerHTML = buildDocs().map(d => `
+        <div class="flex items-center gap-3 rounded-xl border border-surface-line bg-surface-soft px-3.5 py-3">
+          <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-white text-brand-teal2">${ICON_DOC}</span>
+          <div class="min-w-0 flex-1">
+            <p class="text-[13px] font-semibold text-ink">${esc(d.title)}</p>
+            <p class="text-[11.5px] text-muted">${esc(d.sub)}</p>
+          </div>
+          <button type="button" data-doc-open="${d.id}" class="btn inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2 py-1.5 text-[12px] font-semibold text-muted hover:text-ink" aria-label="Open ${esc(d.title)} as PDF">${ICON_DL} PDF</button>
+        </div>`).join('');
+    }
+
+    // ---- read a captured signature back off its canvas (null when nothing was drawn) ----
+    function sigDataURL(sel) {
+      const c = document.querySelector(sel);
+      if (!c || !c.width || !c.height) return null;
+      try {
+        const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
+        for (let i = 3; i < d.length; i += 4) { if (d[i] !== 0) return c.toDataURL('image/png'); }
+      } catch (e) {}
+      return null;
+    }
+
+    // ---- print-ready document builders (populated from the live session) ----
+    function medsRows() {
+      const meds = (window.MedsCheckSession && window.MedsCheckSession.meds) || [];
+      if (!meds.length) return '<tr><td colspan="3">No medications on file.</td></tr>';
+      return meds.map(m => {
+        let status = m.status === 'issue' && (m.note || '').trim() ? 'Issue — ' + esc(m.note.trim())
+                   : m.status === 'ok' ? 'As prescribed' : 'Reviewed';
+        const kind = m.kind && m.kind !== 'chronic' ? ` <span class="tag">${esc(m.kind.toLowerCase())}</span>` : '';
+        return `<tr><td>${esc(m.name)} ${esc(m.strength || '')}${kind}</td><td>${esc(m.dir || '')}</td><td>${status}</td></tr>`;
+      }).join('');
+    }
+    function dtpList() {
+      const dtps = (window.MedsCheckSession && window.MedsCheckSession.dtps) || [];
+      if (!dtps.length) return '<p class="body">No drug therapy problems identified.</p>';
+      return '<ul>' + dtps.map(d => `<li><b>${esc(d.cat)}</b>${d.drug ? ' · ' + esc(d.drug) : ''}${d.desc ? ' — ' + esc(d.desc) : ''}${d.resolved ? ' <i>(plan documented)</i>' : ''}</li>`).join('') + '</ul>';
+    }
+    function reco() {
+      const ta = document.querySelector('[data-reco]');
+      return (ta && ta.value.trim()) || 'No additional recommendations recorded.';
+    }
+
+    function ackBody() {
+      const it = window.MedsCheckIntake || {};
+      const modality = it.modality === 'phone' ? 'over the phone' : 'in-person';
+      const sig = sigDataURL('[data-sig]');
+      return `<p class="body">By signing, the patient acknowledges the MedsCheck service, that it is voluntary and free of charge, and that their medication record may be shared with their primary care provider. Valid for one year at this pharmacy.</p>
+        <p class="body"><b>Interview conducted:</b> ${modality}${it.location ? ' · ' + esc(it.location) : ''}</p>
+        <div class="sigblock">${sig ? `<img class="sig" src="${sig}" alt="signature">` : '<div class="sigline"></div>'}<div class="sigcap">Signature of Kevin O'Brien · Jul 19, 2026</div></div>`;
+    }
+    function pmrBody() {
+      const sig = sigDataURL('[data-pmr-sig]');
+      return `<h2>Medications reviewed</h2>
+        <table><thead><tr><th>Medication</th><th>Directions</th><th>Status</th></tr></thead><tbody>${medsRows()}</tbody></table>
+        <h2>Drug therapy problems</h2>${dtpList()}
+        <h2>Pharmacist recommendations</h2><p class="body">${esc(reco())}</p>
+        <div class="sigblock">${sig ? `<img class="sig" src="${sig}" alt="signature">` : '<div class="sigline"></div>'}<div class="sigcap">Pharmacist signature · Jul 19, 2026</div></div>`;
+    }
+    function notifyBody() {
+      const it = window.MedsCheckIntake || {};
+      const d = it.doctor || {}, n = it.notify || {};
+      return `<table class="kv">
+          <tr><td>To</td><td>${esc(d.name || 'Dr. Maria Santos')}${d.fax ? ' · Fax ' + esc(d.fax) : ''}${d.clinic ? ' · ' + esc(d.clinic) : ''}</td></tr>
+          <tr><td>From</td><td>Lakeview Pharmacy · 218 Lakeshore Rd E, Oakville ON</td></tr>
+          <tr><td>Re</td><td>Kevin O'Brien · MedsCheck Annual · Jul 19, 2026</td></tr>
+        </table>
+        <h2>Summary</h2><p class="body">${esc(n.summary || 'See the attached Personal Medication Record.')}</p>
+        <p class="body">The Personal Medication Record is attached for your review.</p>`;
+    }
+
+    const CSS = '*{box-sizing:border-box}body{font:14px/1.6 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#111;margin:32px;max-width:720px}'
+      + '.lh{display:flex;justify-content:space-between;align-items:baseline;border-bottom:2px solid #0BA891;padding-bottom:8px}'
+      + '.brand{font-weight:800;font-size:16px;color:#0B7C6B}.addr{font-size:11px;color:#555}'
+      + 'h1{font-size:18px;margin:20px 0 4px}h2{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#0B7C6B;margin:20px 0 6px;border-bottom:1px solid #e5e7eb;padding-bottom:4px}'
+      + '.meta{display:flex;flex-wrap:wrap;gap:6px 20px;font-size:12px;color:#333;margin:10px 0 6px}.meta b{color:#111}.body{font-size:13px}'
+      + 'table{width:100%;border-collapse:collapse;font-size:12px;margin-top:6px}th,td{text-align:left;padding:6px 8px;border-bottom:1px solid #e5e7eb;vertical-align:top}'
+      + 'th{background:#f6f8fc;font-size:11px;text-transform:uppercase;letter-spacing:.03em;color:#555}table.kv td:first-child{width:64px;font-weight:700;color:#555}'
+      + '.tag{display:inline-block;font-size:10px;padding:1px 6px;border-radius:6px;background:#e6f7f3;color:#0B7C6B;margin-left:4px}'
+      + 'ul{margin:6px 0;padding-left:18px}li{margin:3px 0;font-size:12px}'
+      + '.sigblock{margin-top:24px}.sig{display:block;height:64px;max-width:280px;object-fit:contain;border-bottom:1px solid #111}.sigline{height:48px;border-bottom:1px solid #111;max-width:280px}.sigcap{font-size:11px;color:#555;margin-top:4px}'
+      + 'footer{margin-top:28px;border-top:1px solid #e5e7eb;padding-top:8px;font-size:10px;color:#888}@media print{body{margin:.6in}}';
+
+    function shell(title, body) {
+      return '<!doctype html><html><head><meta charset="utf-8"><title>' + esc(title) + " — Kevin O'Brien</title><style>" + CSS + '</style></head>'
+        + '<body onload="window.focus();window.print()">'
+        + '<div class="lh"><div class="brand">Lakeview Pharmacy</div><div class="addr">218 Lakeshore Rd E, Oakville ON · (905) 555-0100</div></div>'
+        + '<h1>' + esc(title) + '</h1>'
+        + '<div class="meta"><div><b>Patient</b> Kevin O\'Brien · 58 M · HN 7781425093</div><div><b>Date</b> Jul 19, 2026</div><div><b>Service</b> MedsCheck Annual</div></div>'
+        + body
+        + '<footer>Generated by AgileRx · Lakeview Pharmacy · Jul 19, 2026</footer></body></html>';
+    }
+
+    function openPdf(id) {
+      let title = '', body = '';
+      if (id === 'ack')      { title = 'Patient Acknowledgement of Professional Pharmacy Services'; body = ackBody(); }
+      else if (id === 'pmr') { title = 'MedsCheck — Personal Medication Record'; body = pmrBody(); }
+      else if (id === 'notify') { title = 'Prescriber Notification'; body = notifyBody(); }
+      else return;
+      const w = window.open('', '_blank');
+      if (!w) { alert('Please allow pop-ups to open the PDF preview.'); return; }
+      w.document.write(shell(title, body));
+      w.document.close();
+    }
+
+    bundle.addEventListener('click', e => {
+      const b = e.target.closest('[data-doc-open]');
+      if (b) openPdf(b.dataset.docOpen);
+    });
+
+    document.addEventListener('mc:shown', e => { if (e.detail === 'bill') render(); });
+    render();
+  })();
+
+  // Document · "Complete & file to Fillware" → create the MedsCheck claim, then open Billing
+  (function () {
+    const btn = document.querySelector('[data-mc-file]');
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+      const claim = {
+        id: 'c' + Date.now(),
+        patient: "Kevin O'Brien",
+        service: 'MedsCheck Annual',
+        condition: 'Annual medication review',
+        date: 'Jul 19, 2026',
+        pin: '93899201',
+        fee: '$60.00',
+        codes: 'MC',
+        status: 'ready',
+        transaction: '',
+      };
+      try {
+        const q = JSON.parse(localStorage.getItem('agilerx-claims') || '[]');
+        q.push(claim);
+        localStorage.setItem('agilerx-claims', JSON.stringify(q.slice(-8)));
+      } catch (e) {}
+      window.location.href = 'billing.html';
+    });
+  })();
+
+  // Reveal on scroll
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold:.12, rootMargin:'0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>

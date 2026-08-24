@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Agile Pharmas — The counter iPad that gets your pharmacy paid</title>
+<meta name="description" content="Agile Pharmas is the counter iPad that captures every claim, recovers rejections, and gets your pharmacy paid faster — all from one screen." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          ink:     '#0F172A',
+          muted:   '#64748B',
+          brand:   { blue:'#2563EB', blue2:'#1D4FD8', teal:'#12BEA6', teal2:'#0BA891', sky:'#7CC8FF' },
+          surface: { soft:'#F6F8FC', line:'#E7ECF4' },
+        },
+        fontFamily: { sans: ['Inter','system-ui','-apple-system','Segoe UI','sans-serif'] },
+        boxShadow: {
+          card:      '0 1px 2px rgba(16,42,84,.04), 0 10px 28px -14px rgba(16,42,84,.20)',
+          cardhover: '0 2px 6px rgba(16,42,84,.06), 0 22px 48px -18px rgba(37,99,235,.30)',
+          float:     '0 26px 70px -24px rgba(37,99,235,.40)',
+          soft:      '0 1px 2px rgba(16,42,84,.05), 0 6px 18px -10px rgba(16,42,84,.18)',
+        },
+      },
+    },
+  };
+</script>
+<style>
+  :root { --ease-spring: cubic-bezier(.16,1,.3,1); }
+  html, body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  body { background:#fff; color:#0F172A; overflow-x:hidden; }
+  .h-display { letter-spacing:-.03em; line-height:1.05; }
+  .lead { line-height:1.7; }
+  .brand-grad   { background-image:linear-gradient(100deg,#12BEA6 0%,#2563EB 60%); }
+  .brand-text   { background-image:linear-gradient(100deg,#0BA891 0%,#2563EB 55%); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .sky-hero     { background:url("brand.assets/hero.jpg") center top/cover no-repeat, #EAF3FF; }
+  .sky-integ    { background:url("brand.assets/integration-bg.jpg") center/cover no-repeat, #E8F1FF; }
+  .sky-cta      { background:url("brand.assets/cta-bg.jpg") center/cover no-repeat, #E8F1FF; }
+  /* grain/noise for depth */
+  .noise::before{ content:""; position:absolute; inset:0; pointer-events:none; opacity:.5; mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.035'/%3E%3C/svg%3E"); }
+  /* buttons */
+  .btn { transition:transform .25s var(--ease-spring), box-shadow .25s var(--ease-spring), background-color .2s ease, color .2s ease; will-change:transform; }
+  .btn:hover  { transform:translateY(-2px); }
+  .btn:active { transform:translateY(0) scale(.985); }
+  .btn:focus-visible { outline:2px solid #2563EB; outline-offset:3px; }
+  .navlink { position:relative; transition:color .2s ease; }
+  .navlink::after{ content:""; position:absolute; left:0; bottom:-6px; height:2px; width:0; border-radius:2px; background:linear-gradient(90deg,#12BEA6,#2563EB); transition:width .3s var(--ease-spring); }
+  .navlink:hover::after, .navlink[aria-current="page"]::after{ width:100%; }
+  .navlink:hover, .navlink[aria-current="page"]{ color:#0F172A; }
+  .card-lift { transition:transform .35s var(--ease-spring), box-shadow .35s var(--ease-spring); will-change:transform; }
+  .card-lift:hover { transform:translateY(-6px); }
+  .icn-tile { transition:transform .3s var(--ease-spring), box-shadow .3s var(--ease-spring); }
+  .icn-tile:hover { transform:translateY(-4px); }
+  /* reveal on scroll */
+  .reveal { opacity:0; transform:translateY(22px); transition:opacity .7s var(--ease-spring), transform .7s var(--ease-spring); }
+  .reveal.in { opacity:1; transform:none; }
+  @media (prefers-reduced-motion: reduce){ .reveal{opacity:1;transform:none;transition:none;} .btn,.card-lift,.icn-tile{transition:none;} html{scroll-behavior:auto;} }
+  .faq-panel { display:grid; grid-template-rows:0fr; transition:grid-template-rows .35s var(--ease-spring); }
+  .faq-item[open-state="true"] .faq-panel { grid-template-rows:1fr; }
+  .faq-item[open-state="true"] .faq-plus { transform:rotate(45deg); }
+  .faq-plus { transition:transform .3s var(--ease-spring); }
+  ::selection{ background:#c9e3ff; color:#0b2c66; }
+</style>
+</head>
+<body class="font-sans antialiased">
+
+<!-- ============ HEADER ============ -->
+<header id="top" class="fixed top-0 inset-x-0 z-50 transition-all duration-300" data-header>
+  <div class="mx-auto max-w-7xl px-5 lg:px-8">
+    <nav class="mt-3 flex items-center justify-between rounded-2xl border border-white/60 bg-white/80 px-4 py-2.5 shadow-soft backdrop-blur-md lg:px-6" style="backdrop-filter:saturate(1.4) blur(12px);">
+      <a href="#top" class="flex items-center gap-2 shrink-0" aria-label="Agile Pharmas home">
+        <img src="brand.assets/aglie%20logo.png" alt="Agile Pharmas" class="h-8 w-auto" />
+      </a>
+      <div class="hidden items-center gap-8 text-sm font-medium text-muted lg:flex">
+        <a href="#top" class="navlink" aria-current="page">AgileRx</a>
+        <a href="#aims" class="navlink">AIMS 2027</a>
+        <a href="#estimator" class="navlink">Estimator</a>
+        <a href="#pricing" class="navlink">Pricing</a>
+        <a href="#about" class="navlink">About</a>
+        <a href="#contact" class="navlink">Contact</a>
+      </div>
+      <div class="flex items-center gap-2.5">
+        <a href="#contact" class="hidden rounded-xl px-4 py-2 text-sm font-semibold text-ink transition-colors hover:bg-surface-soft sm:inline-block">Sign in</a>
+        <a href="#pricing" class="btn brand-grad inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_24px_-10px_rgba(37,99,235,.7)]">
+          Book a Demo
+        </a>
+        <button data-menu-btn class="ml-1 grid h-10 w-10 place-items-center rounded-xl border border-surface-line text-ink lg:hidden" aria-label="Open menu">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+      </div>
+    </nav>
+    <!-- mobile menu -->
+    <div data-menu class="mt-2 hidden overflow-hidden rounded-2xl border border-surface-line bg-white p-2 shadow-card lg:hidden">
+      <a href="#top" class="block rounded-xl px-4 py-3 text-sm font-medium text-ink hover:bg-surface-soft">AgileRx</a>
+      <a href="#aims" class="block rounded-xl px-4 py-3 text-sm font-medium text-ink hover:bg-surface-soft">AIMS 2027</a>
+      <a href="#estimator" class="block rounded-xl px-4 py-3 text-sm font-medium text-ink hover:bg-surface-soft">Estimator</a>
+      <a href="#pricing" class="block rounded-xl px-4 py-3 text-sm font-medium text-ink hover:bg-surface-soft">Pricing</a>
+      <a href="#about" class="block rounded-xl px-4 py-3 text-sm font-medium text-ink hover:bg-surface-soft">About</a>
+      <a href="#contact" class="block rounded-xl px-4 py-3 text-sm font-medium text-ink hover:bg-surface-soft">Contact</a>
+    </div>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="sky-hero noise relative overflow-hidden pt-32 pb-20 lg:pt-40">
+  <div class="relative mx-auto max-w-7xl px-5 text-center lg:px-8">
+    <div class="reveal mx-auto inline-flex items-center gap-2 rounded-full border border-white/70 bg-white/70 px-3.5 py-1.5 text-xs font-medium text-ink shadow-soft backdrop-blur">
+      <span class="grid h-5 w-5 place-items-center rounded-full brand-grad text-white">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+      </span>
+      Built to OCP Platform Criteria · Ready for AIMS 2027
+    </div>
+
+    <h1 class="reveal h-display mx-auto mt-6 max-w-4xl text-4xl font-extrabold text-ink sm:text-5xl lg:text-6xl">
+      The counter iPad that gets<br class="hidden sm:block" />
+      your pharmacy <span class="brand-text">paid.</span>
+    </h1>
+    <p class="reveal lead mx-auto mt-5 max-w-2xl text-base text-muted sm:text-lg">
+      Every funded service — found, billed, and defended: MedsCheck, minor ailments, vaccinations, injections, and claim scrubbing — running alongside the dispensing system you already use.
+    </p>
+
+    <div class="reveal mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+      <a href="#pricing" class="btn brand-grad inline-flex w-full items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-sm font-semibold text-white shadow-[0_16px_34px_-12px_rgba(37,99,235,.75)] sm:w-auto">
+        Book a Demo
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+      <a href="#estimator" class="btn inline-flex w-full items-center justify-center gap-2 rounded-xl border border-surface-line bg-white/90 px-6 py-3.5 text-sm font-semibold text-ink shadow-soft backdrop-blur hover:border-brand-blue/40 sm:w-auto">
+        <span class="grid h-6 w-6 place-items-center rounded-full brand-grad text-white">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg>
+        </span>
+        See what it's worth
+      </a>
+    </div>
+
+    <!-- Dashboard mock -->
+    <div class="reveal relative mx-auto mt-14 max-w-5xl">
+      <div class="absolute -inset-x-10 -top-6 bottom-0 -z-10 rounded-[2rem] bg-gradient-to-b from-brand-blue/10 to-transparent blur-2xl"></div>
+      <div class="overflow-hidden rounded-2xl border border-white/80 bg-white shadow-float ring-1 ring-black/5">
+        <!-- window bar -->
+        <div class="flex items-center gap-2 border-b border-surface-line bg-white px-4 py-3">
+          <span class="h-3 w-3 rounded-full bg-[#ff5f57]"></span>
+          <span class="h-3 w-3 rounded-full bg-[#febc2e]"></span>
+          <span class="h-3 w-3 rounded-full bg-[#28c840]"></span>
+          <div class="ml-4 hidden items-center gap-2 rounded-lg bg-surface-soft px-3 py-1.5 text-xs text-muted sm:flex">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+            app.agilepharmas.com/dashboard
+          </div>
+        </div>
+        <div class="grid grid-cols-12 text-left">
+          <!-- sidebar -->
+          <aside class="col-span-3 hidden border-r border-surface-line bg-surface-soft/60 p-4 md:block">
+            <div class="mb-5 flex items-center gap-2 px-1">
+              <span class="grid h-7 w-7 place-items-center rounded-lg brand-grad text-[11px] font-bold text-white">A</span>
+              <span class="text-sm font-bold text-ink">Agile Pharmas</span>
+            </div>
+            <p class="px-2 pb-2 text-[10px] font-semibold uppercase tracking-wider text-muted/70">Menu</p>
+            <nav class="space-y-1 text-[13px]">
+              <span class="flex items-center gap-2.5 rounded-lg bg-white px-3 py-2 font-semibold text-brand-blue shadow-soft"><span class="h-2 w-2 rounded-full bg-brand-blue"></span>Dashboard</span>
+              <span class="flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>MedsCheck</span>
+              <span class="flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Minor Ailments</span>
+              <span class="flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Billing Guard</span>
+              <span class="flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Calendar</span>
+            </nav>
+          </aside>
+          <!-- main -->
+          <div class="col-span-12 p-4 md:col-span-9 sm:p-5">
+            <div class="mb-4 flex items-center justify-between">
+              <h3 class="text-base font-bold text-ink">Services Dashboard</h3>
+              <span class="hidden items-center gap-1.5 rounded-lg bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-600 sm:inline-flex">● Live</span>
+            </div>
+            <!-- KPI row -->
+            <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+              <div class="rounded-xl border border-surface-line bg-white p-3.5 shadow-soft">
+                <p class="text-[11px] font-medium text-muted">Eligible for MedsCheck</p>
+                <p class="mt-1 text-xl font-extrabold text-ink">186</p>
+                <p class="mt-0.5 text-[11px] font-semibold text-emerald-600">↑ 9.2% <span class="font-normal text-muted">/30d</span></p>
+              </div>
+              <div class="rounded-xl border border-surface-line bg-white p-3.5 shadow-soft">
+                <p class="text-[11px] font-medium text-muted">Billed this month</p>
+                <p class="mt-1 text-xl font-extrabold text-ink">$9,240</p>
+                <p class="mt-0.5 text-[11px] font-semibold text-emerald-600">↑ 14% <span class="font-normal text-muted">/30d</span></p>
+              </div>
+              <div class="rounded-xl border border-surface-line bg-white p-3.5 shadow-soft">
+                <p class="text-[11px] font-medium text-muted">Unbilled encounters</p>
+                <p class="mt-1 text-xl font-extrabold text-ink">42</p>
+                <p class="mt-0.5 text-[11px] font-semibold text-emerald-600">↓ 18% <span class="font-normal text-muted">/30d</span></p>
+              </div>
+              <div class="rounded-xl border border-surface-line bg-white p-3.5 shadow-soft">
+                <p class="text-[11px] font-medium text-muted">Follow-ups pending</p>
+                <p class="mt-1 text-xl font-extrabold text-ink">28</p>
+                <p class="mt-0.5 text-[11px] font-semibold text-emerald-600">8 due today</p>
+              </div>
+            </div>
+            <!-- chart + gauge -->
+            <div class="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-3">
+              <div class="rounded-xl border border-surface-line bg-white p-4 shadow-soft lg:col-span-2">
+                <div class="mb-1 flex items-center justify-between">
+                  <p class="text-sm font-semibold text-ink">Revenue Captured</p>
+                  <div class="flex gap-1 text-[11px]">
+                    <span class="rounded-md brand-grad px-2 py-0.5 font-semibold text-white">Monthly</span>
+                    <span class="rounded-md px-2 py-0.5 text-muted">Annually</span>
+                  </div>
+                </div>
+                <svg viewBox="0 0 480 150" class="mt-2 w-full" preserveAspectRatio="none">
+                  <defs>
+                    <linearGradient id="area" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#2563EB" stop-opacity=".28"/>
+                      <stop offset="100%" stop-color="#2563EB" stop-opacity="0"/>
+                    </linearGradient>
+                    <linearGradient id="stroke" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stop-color="#12BEA6"/><stop offset="100%" stop-color="#2563EB"/>
+                    </linearGradient>
+                  </defs>
+                  <path d="M0,120 C40,110 70,95 110,100 C150,105 175,70 215,78 C255,86 275,55 315,50 C355,45 380,60 420,35 C450,18 465,22 480,14 L480,150 L0,150 Z" fill="url(#area)"/>
+                  <path d="M0,120 C40,110 70,95 110,100 C150,105 175,70 215,78 C255,86 275,55 315,50 C355,45 380,60 420,35 C450,18 465,22 480,14" fill="none" stroke="url(#stroke)" stroke-width="3" stroke-linecap="round"/>
+                  <circle cx="315" cy="50" r="4.5" fill="#2563EB" stroke="#fff" stroke-width="2"/>
+                </svg>
+              </div>
+              <div class="flex flex-col items-center justify-center rounded-xl border border-surface-line bg-gradient-to-br from-brand-blue to-brand-blue2 p-4 text-center shadow-soft">
+                <svg viewBox="0 0 120 70" class="w-32">
+                  <path d="M10,62 A50,50 0 0,1 110,62" fill="none" stroke="#ffffff" stroke-opacity=".25" stroke-width="10" stroke-linecap="round"/>
+                  <path d="M10,62 A50,50 0 0,1 92,26" fill="none" stroke="#ffffff" stroke-width="10" stroke-linecap="round"/>
+                </svg>
+                <p class="-mt-3 text-2xl font-extrabold text-white">$84,900</p>
+                <p class="text-[11px] text-white/80">Paid this month</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- floating badge -->
+      <div class="absolute -left-4 bottom-16 hidden rounded-xl border border-surface-line bg-white px-3.5 py-2.5 shadow-cardhover lg:flex lg:items-center lg:gap-2.5">
+        <span class="grid h-8 w-8 place-items-center rounded-lg bg-emerald-50 text-emerald-600">✓</span>
+        <div><p class="text-xs font-bold text-ink">Claim approved</p><p class="text-[11px] text-muted">$126.40 · 0.8s</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TRUSTED-BY ============ -->
+<section class="border-y border-surface-line bg-white py-10">
+  <div class="mx-auto max-w-6xl px-5 lg:px-8">
+    <div class="reveal flex flex-wrap items-center justify-center gap-x-4 gap-y-3 text-center">
+      <span class="text-xs font-semibold uppercase tracking-[.18em] text-muted">Built to OCP Platform Criteria</span>
+      <span class="text-slate-300">·</span>
+      <span class="text-xs font-semibold uppercase tracking-[.18em] text-muted">Based on the Ontario Drug Programs Reference Manual</span>
+      <span class="text-slate-300">·</span>
+      <span class="text-xs font-semibold uppercase tracking-[.18em] text-muted">Ready for the Jan 1, 2027 AIMS mandate</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROBLEM ============ -->
+<section class="relative overflow-hidden bg-white py-20 lg:py-28">
+  <div class="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(55%_45%_at_85%_0%,rgba(37,99,235,.08),transparent)]"></div>
+  <div class="mx-auto max-w-6xl px-5 lg:px-8">
+    <div class="reveal mx-auto max-w-2xl text-center">
+      <p class="text-xs font-bold uppercase tracking-[.18em] text-brand-blue">The Problem</p>
+      <h2 class="h-display mt-3 text-3xl font-extrabold text-ink sm:text-4xl lg:text-[2.6rem]">Without it, the work doesn't get done. That's what costs you.</h2>
+      <p class="lead mt-4 text-muted">Funded services don't fail because pharmacists don't care. They fail because eligibility, paperwork, and a same-day deadline all land in the middle of a busy dispensing day.</p>
+    </div>
+    <div class="mt-14 grid gap-6 md:grid-cols-3">
+      <article class="reveal card-lift rounded-3xl border border-surface-line bg-gradient-to-br from-[#f4f7ff] to-white p-7 shadow-card">
+        <span class="grid h-11 w-11 place-items-center rounded-2xl bg-brand-blue/10 text-brand-blue">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        </span>
+        <h3 class="mt-5 text-lg font-bold text-ink">Nobody knows who qualifies</h3>
+        <p class="lead mt-2 text-sm text-muted">Eligibility is buried in the dispensing profile. Checking it by hand, patient by patient, simply doesn't happen on a busy day.</p>
+      </article>
+      <article class="reveal card-lift rounded-3xl border border-surface-line bg-gradient-to-br from-[#eafaf6] to-white p-7 shadow-card">
+        <span class="grid h-11 w-11 place-items-center rounded-2xl bg-brand-teal/10 text-brand-teal2">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h4"/></svg>
+        </span>
+        <h3 class="mt-5 text-lg font-bold text-ink">The documentation is the job</h3>
+        <p class="lead mt-2 text-sm text-muted">Ministry forms get filled from memory after the patient has gone — the dreaded part that quietly gets skipped when the counter is three deep.</p>
+      </article>
+      <article class="reveal card-lift rounded-3xl border border-surface-line bg-gradient-to-br from-[#fff3ec] to-white p-7 shadow-card">
+        <span class="grid h-11 w-11 place-items-center rounded-2xl bg-amber-100 text-amber-600">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h16.9a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>
+        </span>
+        <h3 class="mt-5 text-lg font-bold text-ink">The claim goes late, wrong, or never</h3>
+        <p class="lead mt-2 text-sm text-muted">The right PIN, the same-day deadline, one missed detail — and the claim comes back rejected or gets clawed back weeks later.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEATURES ============ -->
+<section id="features" class="relative overflow-hidden py-20 lg:py-28">
+  <div class="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(60%_50%_at_15%_0%,rgba(18,190,166,.10),transparent),radial-gradient(55%_50%_at_100%_10%,rgba(37,99,235,.12),transparent)]"></div>
+  <div class="mx-auto max-w-6xl px-5 lg:px-8">
+    <div class="reveal mx-auto max-w-2xl text-center">
+      <p class="text-xs font-bold uppercase tracking-[.18em] text-brand-blue">Core Modules</p>
+      <h2 class="h-display mt-3 text-3xl font-extrabold text-ink sm:text-4xl lg:text-[2.6rem]">Everything you need to get paid faster</h2>
+      <p class="lead mt-4 text-muted">Seven modules cover every funded service. Here are the four that pay for the whole platform on their own.</p>
+    </div>
+
+    <div class="mt-14 grid gap-6 lg:grid-cols-2">
+      <!-- 01 -->
+      <article class="reveal card-lift group relative overflow-hidden rounded-3xl border border-surface-line bg-gradient-to-br from-[#eef4ff] to-white p-6 shadow-card sm:p-8">
+        <div class="mb-6 rounded-2xl border border-white bg-white/80 p-4 shadow-soft">
+          <div class="flex items-center justify-between"><p class="text-sm font-semibold text-ink">Eligibility Queue</p><span class="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-600">14 eligible</span></div>
+          <div class="mt-4 space-y-2">
+            <div class="flex items-center justify-between rounded-lg bg-white px-3 py-2 shadow-soft"><span class="text-xs font-medium text-ink">R.P. · 68 · 6 meds</span><span class="text-[11px] font-semibold text-emerald-600">MedsCheck</span></div>
+            <div class="flex items-center justify-between rounded-lg bg-white px-3 py-2 shadow-soft"><span class="text-xs font-medium text-ink">S.K. · 72 · 5 meds</span><span class="text-[11px] font-semibold text-emerald-600">MedsCheck</span></div>
+            <div class="flex items-center justify-between rounded-lg bg-white px-3 py-2 shadow-soft"><span class="text-xs font-medium text-ink">A.D. · 61 · diabetes</span><span class="text-[11px] font-semibold text-brand-blue">Follow-up</span></div>
+          </div>
+        </div>
+        <span class="text-sm font-bold text-brand-blue">01</span>
+        <h3 class="mt-1 text-lg font-bold text-ink">Finds every eligible patient automatically</h3>
+        <p class="lead mt-2 text-sm text-muted">AgileRx scans the profile and surfaces everyone due for a MedsCheck — $60 annual, $25 follow-up — then walks you through an AI-assisted review of the ministry forms so nothing gets missed.</p>
+      </article>
+
+      <!-- 02 -->
+      <article class="reveal card-lift group relative overflow-hidden rounded-3xl border border-surface-line bg-gradient-to-br from-[#eaf1ff] to-white p-6 shadow-card sm:p-8">
+        <div class="mb-6 overflow-hidden rounded-2xl bg-gradient-to-br from-brand-blue to-brand-blue2 p-5 text-white shadow-soft">
+          <div class="flex items-center justify-between"><p class="text-sm font-semibold">Assessment</p><span class="text-[11px] text-white/70">Conjunctivitis</span></div>
+          <div class="mt-4 space-y-2 text-[12px]">
+            <p class="flex items-center gap-2.5"><span class="grid h-5 w-5 place-items-center rounded-full bg-white text-[10px] font-bold text-brand-blue">✓</span> Symptoms &amp; history</p>
+            <p class="flex items-center gap-2.5"><span class="grid h-5 w-5 place-items-center rounded-full bg-white text-[10px] font-bold text-brand-blue">✓</span> Red-flag check</p>
+            <p class="flex items-center gap-2.5"><span class="grid h-5 w-5 place-items-center rounded-full bg-white/25 text-[10px] font-bold">3</span> Prescribe from formulary</p>
+            <p class="flex items-center gap-2.5 text-white/70"><span class="grid h-5 w-5 place-items-center rounded-full bg-white/15 text-[10px] font-bold">4</span> Bill $19</p>
+          </div>
+        </div>
+        <span class="text-sm font-bold text-brand-blue">02</span>
+        <h3 class="mt-1 text-lg font-bold text-ink">28 funded conditions, one screen</h3>
+        <p class="lead mt-2 text-sm text-muted">Assess and prescribe for every funded minor ailment — $19 in person, $15 virtual — with the legal formulary and red-flag checks built into each step.</p>
+      </article>
+
+      <!-- 03 -->
+      <article class="reveal card-lift group relative overflow-hidden rounded-3xl border border-surface-line bg-gradient-to-br from-[#eafaf6] to-white p-6 shadow-card sm:p-8">
+        <div class="mb-6 rounded-2xl border border-white bg-white/80 p-5 shadow-soft">
+          <div class="flex items-center justify-between">
+            <span class="grid h-9 w-9 place-items-center rounded-full bg-emerald-50 text-emerald-600">✓</span>
+            <span class="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-600">Caught pre-submit</span>
+          </div>
+          <p class="mt-3 text-3xl font-extrabold text-ink">37 claims</p>
+          <p class="text-xs text-muted">Flagged and fixed before HNS submission this month</p>
+        </div>
+        <span class="text-sm font-bold text-brand-blue">03</span>
+        <h3 class="mt-1 text-lg font-bold text-ink">Catches errors before they cost you</h3>
+        <p class="lead mt-2 text-sm text-muted">Billing Guard checks each claim before it reaches HNS — early refills, per-unit versus per-package pricing, the wrong PIN — so problems get fixed instead of clawed back.</p>
+      </article>
+
+      <!-- 04 -->
+      <article class="reveal card-lift group relative overflow-hidden rounded-3xl border border-surface-line bg-gradient-to-br from-[#fff3ec] to-white p-6 shadow-card sm:p-8">
+        <div class="mb-6 rounded-2xl border border-white bg-white/80 p-4 shadow-soft">
+          <div class="mb-3 flex items-center justify-between"><p class="text-sm font-semibold text-ink">Today's Appointments</p><span class="text-[11px] text-muted">4 booked</span></div>
+          <div class="space-y-2">
+            <div class="flex items-center gap-3">
+              <span class="rounded-lg bg-brand-blue/10 px-2 py-1 text-[11px] font-bold text-brand-blue">10:00</span>
+              <div class="flex-1"><p class="text-xs font-semibold text-ink">Influenza</p><p class="text-[11px] text-muted">Walk-in · $8.50</p></div>
+              <span class="rounded-md bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-600">Ready</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="rounded-lg bg-brand-blue/10 px-2 py-1 text-[11px] font-bold text-brand-blue">10:20</span>
+              <div class="flex-1"><p class="text-xs font-semibold text-ink">COVID-19</p><p class="text-[11px] text-muted">Booked · $13.00</p></div>
+              <span class="rounded-md bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-600">Consent</span>
+            </div>
+          </div>
+        </div>
+        <span class="text-sm font-bold text-brand-blue">04</span>
+        <h3 class="mt-1 text-lg font-bold text-ink">One pipe for every dose</h3>
+        <p class="lead mt-2 text-sm text-muted">Book, document, and bill every vaccination and injection — $8.50 influenza, $13.00 COVID-19 — through one pharmacist-gated workflow that keeps injections compliant.</p>
+      </article>
+    </div>
+    <p class="reveal mt-10 text-center">
+      <a href="#" class="btn inline-flex items-center gap-1.5 text-sm font-semibold text-brand-blue hover:text-brand-blue2">
+        See all seven modules
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+    </p>
+  </div>
+</section>
+
+<!-- ============ REAL NUMBERS ============ -->
+<section id="about" class="py-20 lg:py-28">
+  <div class="mx-auto max-w-6xl px-5 lg:px-8">
+    <div class="reveal mx-auto max-w-2xl text-center">
+      <p class="text-xs font-bold uppercase tracking-[.18em] text-brand-blue">The Cost of Doing Nothing</p>
+      <h2 class="h-display mt-3 text-3xl font-extrabold text-ink sm:text-4xl lg:text-[2.6rem]">What you're losing — and what it costs to stop it.</h2>
+      <p class="lead mt-4 text-muted">These aren't customer results — they're the funded revenue a typical pharmacy leaves on the table every year by not capturing services it's already allowed to bill.</p>
+    </div>
+
+    <div class="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <article class="reveal card-lift rounded-3xl border border-surface-line bg-white p-7 shadow-card">
+        <p class="text-3xl font-extrabold text-ink">$15,000<span class="text-base font-semibold text-muted">/yr</span></p>
+        <p class="lead mt-3 text-sm text-muted">Lost to just one missed MedsCheck a day.</p>
+      </article>
+      <article class="reveal card-lift rounded-3xl border border-surface-line bg-white p-7 shadow-card">
+        <p class="text-3xl font-extrabold text-ink">$4,750<span class="text-base font-semibold text-muted">/yr</span></p>
+        <p class="lead mt-3 text-sm text-muted">Lost when one minor ailment a day goes to a walk-in instead.</p>
+      </article>
+      <article class="reveal card-lift rounded-3xl border border-surface-line bg-white p-7 shadow-card">
+        <p class="text-3xl font-extrabold text-ink">$2,550<span class="text-base font-semibold text-muted">/season</span></p>
+        <p class="lead mt-3 text-sm text-muted">Lost when 300 flu doses get given somewhere else.</p>
+      </article>
+      <article class="reveal card-lift rounded-3xl border-2 border-brand-blue bg-white p-7 shadow-cardhover">
+        <p class="text-3xl font-extrabold brand-text">$149<span class="text-base font-semibold text-muted">/mo</span></p>
+        <p class="lead mt-3 text-sm text-muted">The cost of the whole platform — about three MedsChecks.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEE HIGHLIGHTS ============ -->
+<section id="estimator" class="bg-surface-soft py-16 lg:py-20">
+  <div class="mx-auto max-w-6xl px-5 lg:px-8">
+    <div class="grid items-center gap-8 lg:grid-cols-4">
+      <div class="reveal grid grid-cols-2 gap-4 lg:col-span-3 lg:grid-cols-4">
+        <div class="rounded-2xl border border-surface-line bg-white p-5 text-center shadow-soft">
+          <p class="text-2xl font-extrabold text-ink">$60</p>
+          <p class="mt-1 text-xs font-medium text-muted">MedsCheck Annual</p>
+        </div>
+        <div class="rounded-2xl border border-surface-line bg-white p-5 text-center shadow-soft">
+          <p class="text-2xl font-extrabold text-ink">$19</p>
+          <p class="mt-1 text-xs font-medium text-muted">Minor Ailments (in person)</p>
+        </div>
+        <div class="rounded-2xl border border-surface-line bg-white p-5 text-center shadow-soft">
+          <p class="text-2xl font-extrabold text-ink">$8.50</p>
+          <p class="mt-1 text-xs font-medium text-muted">Influenza vaccination</p>
+        </div>
+        <div class="rounded-2xl border border-surface-line bg-white p-5 text-center shadow-soft">
+          <p class="text-2xl font-extrabold text-ink">28</p>
+          <p class="mt-1 text-xs font-medium text-muted">Minor ailment conditions funded</p>
+        </div>
+      </div>
+      <div class="reveal text-center lg:text-left">
+        <a href="#pricing" class="btn brand-grad inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_34px_-12px_rgba(37,99,235,.7)]">
+          See the full fee schedule
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ AIMS 2027 ============ -->
+<section id="aims" class="relative overflow-hidden py-20 lg:py-28">
+  <div class="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(55%_50%_at_50%_0%,rgba(37,99,235,.10),transparent)]"></div>
+  <div class="relative mx-auto max-w-5xl px-5 text-center lg:px-8">
+    <p class="reveal text-xs font-bold uppercase tracking-[.18em] text-brand-blue">AIMS · January 1, 2027</p>
+    <h2 class="reveal h-display mt-3 text-3xl font-extrabold text-ink sm:text-4xl lg:text-[2.6rem]">January 1, 2027 — the one platform you're forced to buy.</h2>
+    <p class="reveal lead mx-auto mt-4 max-w-2xl text-muted">Ontario's Assurance and Improvement in Medication Safety (AIMS) program makes a compliant incident-reporting platform mandatory. If you have to buy one anyway, it should earn its keep.</p>
+
+    <div class="reveal mx-auto mt-12 grid gap-5 text-left md:grid-cols-3">
+      <div class="card-lift rounded-3xl border border-surface-line bg-white p-6 shadow-card">
+        <p class="text-sm font-bold text-brand-blue">Who it binds</p>
+        <p class="lead mt-2 text-sm text-muted">Every accredited Ontario pharmacy — roughly 4,500 of them — on the same day. No phase-in, no exemptions.</p>
+      </div>
+      <div class="card-lift rounded-3xl border border-surface-line bg-white p-6 shadow-card">
+        <p class="text-sm font-bold text-brand-blue">What it requires</p>
+        <p class="lead mt-2 text-sm text-muted">OCP's published Platform Criteria: 15 mandatory incident fields and a daily anonymous upload to the national database (NIDR).</p>
+      </div>
+      <div class="card-lift rounded-3xl border border-surface-line bg-white p-6 shadow-card">
+        <p class="text-sm font-bold text-brand-blue">What it pays</p>
+        <p class="lead mt-2 text-sm text-muted">Nothing on its own. The real question is what else the platform you're required to run can do for your pharmacy.</p>
+      </div>
+    </div>
+
+    <a href="#aims" class="btn brand-grad mt-11 inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold text-white shadow-[0_16px_34px_-12px_rgba(37,99,235,.7)]">
+      Read the full 2027 briefing
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </a>
+  </div>
+</section>
+
+<!-- ============ INTEGRATIONS ============ -->
+<section class="sky-integ noise relative overflow-hidden py-20 lg:py-28">
+  <div class="relative mx-auto max-w-5xl px-5 text-center lg:px-8">
+    <h2 class="reveal h-display text-3xl font-extrabold text-ink sm:text-4xl lg:text-[2.6rem]">Works beside your dispensing system</h2>
+    <p class="reveal lead mx-auto mt-4 max-w-xl text-muted">No rip-and-replace, no integration project. AgileRx runs standalone on the counter through an assisted worklist — your dispensing system stays exactly as it is.</p>
+
+    <div class="reveal mx-auto mt-12 grid max-w-3xl gap-5 sm:grid-cols-2">
+      <div class="rounded-3xl border border-white/70 bg-white/80 p-6 text-left shadow-soft backdrop-blur">
+        <span class="inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-600">Available today</span>
+        <h3 class="mt-3 text-lg font-bold text-ink">Assisted worklist</h3>
+        <p class="lead mt-2 text-sm text-muted">Works standalone from day one. Your team pulls the day's eligible patients into AgileRx and works them alongside the dispensing system — no integration required.</p>
+      </div>
+      <div class="rounded-3xl border border-white/70 bg-white/80 p-6 text-left shadow-soft backdrop-blur">
+        <span class="inline-flex rounded-full bg-brand-blue/10 px-2.5 py-1 text-[11px] font-semibold text-brand-blue">On the roadmap</span>
+        <h3 class="mt-3 text-lg font-bold text-ink">Fillware adapter</h3>
+        <p class="lead mt-2 text-sm text-muted">A direct Fillware adapter is planned to sync the worklist automatically. It's coming — but you'll never need it to get started.</p>
+      </div>
+    </div>
+
+    <a href="#pricing" class="btn brand-grad mt-11 inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold text-white shadow-[0_16px_34px_-12px_rgba(37,99,235,.7)]">
+      Book a Demo
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </a>
+  </div>
+</section>
+
+<!-- ============ PRICING ============ -->
+<section id="pricing" class="relative overflow-hidden bg-surface-soft py-20 lg:py-28">
+  <div class="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(50%_40%_at_50%_0%,rgba(37,99,235,.10),transparent)]"></div>
+  <div class="mx-auto max-w-6xl px-5 lg:px-8">
+    <div class="reveal mx-auto max-w-2xl text-center">
+      <p class="text-xs font-bold uppercase tracking-[.18em] text-brand-blue">Pricing</p>
+      <h2 class="h-display mt-3 text-3xl font-extrabold text-ink sm:text-4xl lg:text-[2.6rem]">One flat price for the whole platform</h2>
+      <p class="lead mt-4 text-muted">No tiers, no per-claim fees, no long contracts. Every module, every counter, one price.</p>
+    </div>
+
+    <div class="reveal mx-auto mt-12 max-w-md">
+      <div class="card-lift relative flex flex-col rounded-3xl border-2 border-brand-blue bg-white p-8 shadow-cardhover">
+        <span class="absolute right-6 top-6 rounded-full brand-grad px-2.5 py-1 text-[11px] font-bold text-white">Complete</span>
+        <p class="text-sm font-bold text-ink">AgileRx</p>
+        <p class="mt-1 text-xs text-muted">Everything, on every counter</p>
+        <p class="mt-5"><span class="text-5xl font-extrabold text-ink">$149</span><span class="text-sm text-muted">/month</span></p>
+        <p class="mt-2 text-xs font-medium text-muted">About the cost of three MedsChecks a month.</p>
+        <ul class="mt-7 grid flex-1 grid-cols-1 gap-3 text-sm text-muted sm:grid-cols-2">
+          <li class="flex gap-2.5"><span class="text-brand-teal">✓</span> MedsCheck</li>
+          <li class="flex gap-2.5"><span class="text-brand-teal">✓</span> Minor Ailments</li>
+          <li class="flex gap-2.5"><span class="text-brand-teal">✓</span> Billing Guard</li>
+          <li class="flex gap-2.5"><span class="text-brand-teal">✓</span> Vaccinations</li>
+          <li class="flex gap-2.5"><span class="text-brand-teal">✓</span> Injections</li>
+          <li class="flex gap-2.5"><span class="text-brand-teal">✓</span> Incident Reporting</li>
+          <li class="flex gap-2.5"><span class="text-brand-teal">✓</span> Appointment Calendar</li>
+          <li class="flex gap-2.5"><span class="text-brand-teal">✓</span> Every future module</li>
+        </ul>
+        <a href="#contact" class="btn brand-grad mt-8 inline-flex justify-center rounded-xl px-4 py-3.5 text-sm font-semibold text-white shadow-[0_14px_30px_-12px_rgba(37,99,235,.75)]">Book a Demo</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section id="contact" class="py-20 lg:py-28">
+  <div class="mx-auto max-w-6xl px-5 lg:px-8">
+    <div class="grid gap-12 lg:grid-cols-[0.9fr_1.3fr]">
+      <div class="reveal">
+        <h2 class="h-display text-3xl font-extrabold text-ink sm:text-4xl">Frequently asked questions</h2>
+        <p class="lead mt-4 text-muted">Everything you need to know about getting your pharmacy set up and paid faster.</p>
+        <div class="mt-8 rounded-2xl border border-surface-line bg-surface-soft p-6 shadow-soft">
+          <div class="flex -space-x-2">
+            <img class="h-9 w-9 rounded-full ring-2 ring-white" src="https://placehold.co/48x48/2563EB/ffffff?text=A" alt="">
+            <img class="h-9 w-9 rounded-full ring-2 ring-white" src="https://placehold.co/48x48/12BEA6/ffffff?text=B" alt="">
+            <img class="h-9 w-9 rounded-full ring-2 ring-white" src="https://placehold.co/48x48/1D4FD8/ffffff?text=C" alt="">
+          </div>
+          <p class="lead mt-4 text-sm text-muted">Still have questions? Our pharmacy team is happy to walk you through a live demo.</p>
+          <a href="#" class="btn brand-grad mt-4 inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold text-white shadow-[0_12px_26px_-12px_rgba(37,99,235,.7)]">Talk to us</a>
+        </div>
+      </div>
+
+      <div class="reveal divide-y divide-surface-line border-t border-surface-line" data-faq>
+        <!-- item -->
+        <div class="faq-item" open-state="true">
+          <button class="faq-trigger flex w-full items-center justify-between gap-4 py-5 text-left">
+            <span class="text-base font-semibold text-ink">What exactly is AgileRx?</span>
+            <span class="faq-plus grid h-6 w-6 shrink-0 place-items-center rounded-full border border-surface-line text-muted">+</span>
+          </button>
+          <div class="faq-panel"><div class="overflow-hidden"><p class="lead pb-5 text-sm text-muted">AgileRx is an iPad-based tool for the pharmacy counter that finds funded services, runs each encounter on the right ministry forms, and files the claim correctly — all running alongside the dispensing system you already use.</p></div></div>
+        </div>
+        <div class="faq-item" open-state="false">
+          <button class="faq-trigger flex w-full items-center justify-between gap-4 py-5 text-left">
+            <span class="text-base font-semibold text-ink">Do I have to replace my current pharmacy system?</span>
+            <span class="faq-plus grid h-6 w-6 shrink-0 place-items-center rounded-full border border-surface-line text-muted">+</span>
+          </button>
+          <div class="faq-panel"><div class="overflow-hidden"><p class="lead pb-5 text-sm text-muted">No. AgileRx runs standalone in assisted-worklist mode alongside whatever you use today. A Fillware integration is planned, but it's never required to get started.</p></div></div>
+        </div>
+        <div class="faq-item" open-state="false">
+          <button class="faq-trigger flex w-full items-center justify-between gap-4 py-5 text-left">
+            <span class="text-base font-semibold text-ink">What is the AIMS 2027 mandate, and does this cover it?</span>
+            <span class="faq-plus grid h-6 w-6 shrink-0 place-items-center rounded-full border border-surface-line text-muted">+</span>
+          </button>
+          <div class="faq-panel"><div class="overflow-hidden"><p class="lead pb-5 text-sm text-muted">From January 1, 2027, every Ontario pharmacy must record medication incidents on a compliant platform and upload them anonymously each day. AgileRx is built to OCP's published Platform Criteria, so it's designed to meet that reporting requirement.</p></div></div>
+        </div>
+        <div class="faq-item" open-state="false">
+          <button class="faq-trigger flex w-full items-center justify-between gap-4 py-5 text-left">
+            <span class="text-base font-semibold text-ink">How does it help me get paid more?</span>
+            <span class="faq-plus grid h-6 w-6 shrink-0 place-items-center rounded-full border border-surface-line text-muted">+</span>
+          </button>
+          <div class="faq-panel"><div class="overflow-hidden"><p class="lead pb-5 text-sm text-muted">It surfaces the patients eligible for funded services, documents each encounter properly, and files the claim under the correct code before the deadline — so services you could already bill actually get billed.</p></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CTA ============ -->
+<section class="sky-cta noise relative overflow-hidden">
+  <div class="relative mx-auto max-w-4xl px-5 py-24 text-center lg:py-28">
+    <h2 class="reveal h-display text-3xl font-extrabold text-ink sm:text-4xl lg:text-5xl">Get your pharmacy paid faster</h2>
+    <p class="reveal lead mx-auto mt-5 max-w-xl text-muted">Put an AgileRx iPad on your counter and start recovering MedsCheck, minor ailment, and vaccination revenue this month.</p>
+    <div class="reveal mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+      <a href="#pricing" class="btn brand-grad inline-flex w-full items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-sm font-semibold text-white shadow-[0_16px_34px_-12px_rgba(37,99,235,.75)] sm:w-auto">Book a Demo</a>
+      <a href="#estimator" class="btn inline-flex w-full items-center justify-center gap-2 rounded-xl border border-surface-line bg-white px-6 py-3.5 text-sm font-semibold text-ink shadow-soft hover:border-brand-blue/40 sm:w-auto">See what it's worth</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="border-t border-surface-line bg-white">
+  <div class="mx-auto max-w-6xl px-5 py-16 lg:px-8">
+    <div class="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
+      <div>
+        <img src="brand.assets/aglie%20logo.png" alt="Agile Pharmas" class="h-8 w-auto" />
+        <p class="lead mt-4 max-w-xs text-sm text-muted">The counter iPad that gets your pharmacy paid.</p>
+        <p class="mt-4 max-w-xs text-xs text-muted">A The Agile Group venture, building in Ontario, Canada.</p>
+      </div>
+      <div>
+        <p class="text-sm font-bold text-ink">Product</p>
+        <ul class="mt-4 space-y-3 text-sm text-muted">
+          <li><a href="#features" class="transition-colors hover:text-brand-blue">MedsCheck</a></li>
+          <li><a href="#features" class="transition-colors hover:text-brand-blue">Minor Ailments</a></li>
+          <li><a href="#features" class="transition-colors hover:text-brand-blue">Billing Guard</a></li>
+          <li><a href="#features" class="transition-colors hover:text-brand-blue">Vaccinations</a></li>
+          <li><a href="#features" class="transition-colors hover:text-brand-blue">Medicine Injections</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="text-sm font-bold text-ink">Compliance</p>
+        <ul class="mt-4 space-y-3 text-sm text-muted">
+          <li><a href="#aims" class="transition-colors hover:text-brand-blue">AIMS 2027</a></li>
+          <li><a href="#aims" class="transition-colors hover:text-brand-blue">Incident Reporting</a></li>
+          <li><a href="#features" class="transition-colors hover:text-brand-blue">Appointment Calendar</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="text-sm font-bold text-ink">Social</p>
+        <ul class="mt-4 space-y-3 text-sm text-muted">
+          <li><a href="#" class="transition-colors hover:text-brand-blue">LinkedIn</a></li>
+          <li><a href="#" class="transition-colors hover:text-brand-blue">X (Twitter)</a></li>
+          <li><a href="#" class="transition-colors hover:text-brand-blue">Facebook</a></li>
+          <li><a href="#" class="transition-colors hover:text-brand-blue">Instagram</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="mt-12 border-t border-surface-line pt-6">
+      <p class="max-w-3xl text-xs text-muted">AgileRx is clinical services software for pharmacy professionals. It does not provide medical advice.</p>
+    </div>
+    <div class="mt-6 flex flex-col items-center justify-between gap-4 sm:flex-row">
+      <p class="text-sm text-muted">© 2026 Agile Pharmas. All rights reserved.</p>
+      <a href="#top" class="btn inline-flex items-center gap-2 text-sm font-medium text-muted hover:text-brand-blue">
+        Back to top
+        <span class="grid h-8 w-8 place-items-center rounded-full brand-grad text-white">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg>
+        </span>
+      </a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Header shadow on scroll
+  const header = document.querySelector('[data-header]');
+  const onScroll = () => header.querySelector('nav').classList.toggle('shadow-card', window.scrollY > 12);
+  onScroll(); window.addEventListener('scroll', onScroll, { passive:true });
+
+  // Mobile menu
+  const menuBtn = document.querySelector('[data-menu-btn]');
+  const menu = document.querySelector('[data-menu]');
+  menuBtn.addEventListener('click', () => menu.classList.toggle('hidden'));
+  menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => menu.classList.add('hidden')));
+
+  // FAQ accordion
+  document.querySelectorAll('.faq-trigger').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const item = btn.closest('.faq-item');
+      const isOpen = item.getAttribute('open-state') === 'true';
+      document.querySelectorAll('.faq-item').forEach(i => i.setAttribute('open-state','false'));
+      item.setAttribute('open-state', String(!isOpen));
+    });
+  });
+
+  // Reveal on scroll
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold:.12, rootMargin:'0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>

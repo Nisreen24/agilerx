@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Administer vaccination — Agile Pharmas</title>
+<meta name="description" content="Administer a Schedule 3 vaccination — Lakeview Pharmacy, synced with Fillware." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          ink:     '#0F172A',
+          muted:   '#64748B',
+          brand:   { blue:'#2563EB', blue2:'#1D4FD8', teal:'#12BEA6', teal2:'#0BA891', sky:'#7CC8FF' },
+          surface: { soft:'#F6F8FC', line:'#E7ECF4' },
+        },
+        fontFamily: { sans: ['Inter','system-ui','-apple-system','Segoe UI','sans-serif'] },
+        boxShadow: {
+          card:      '0 1px 2px rgba(16,42,84,.04), 0 10px 28px -14px rgba(16,42,84,.20)',
+          cardhover: '0 2px 6px rgba(16,42,84,.06), 0 22px 48px -18px rgba(37,99,235,.30)',
+          float:     '0 26px 70px -24px rgba(37,99,235,.40)',
+          soft:      '0 1px 2px rgba(16,42,84,.05), 0 6px 18px -10px rgba(16,42,84,.18)',
+        },
+      },
+    },
+  };
+</script>
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('agilerx-theme');
+      if (!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      document.documentElement.classList.toggle('dark', t === 'dark');
+    } catch (e) {}
+  })();
+</script>
+<style>
+  :root { --ease-spring: cubic-bezier(.16,1,.3,1); }
+  html, body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  body { background:#fff; color:#0F172A; overflow-x:hidden; }
+  [hidden] { display:none !important; }
+  .h-display { letter-spacing:-.03em; line-height:1.05; }
+  .brand-grad { background-image:linear-gradient(100deg,#12BEA6 0%,#2563EB 60%); }
+  .btn { transition:transform .25s var(--ease-spring), box-shadow .25s var(--ease-spring), background-color .2s ease, color .2s ease, border-color .2s ease; will-change:transform; }
+  .btn:active { transform:scale(.99); }
+  .btn:focus-visible { outline:2px solid #2563EB; outline-offset:3px; }
+  .reveal { opacity:0; transform:translateY(22px); transition:opacity .7s var(--ease-spring), transform .7s var(--ease-spring); }
+  .reveal.in { opacity:1; transform:none; }
+  @media (prefers-reduced-motion: reduce){ .reveal{opacity:1;transform:none;transition:none;} .btn{transition:none;} html{scroll-behavior:auto;} }
+  ::selection{ background:#c9e3ff; color:#0b2c66; }
+  .side-item { transition:color .2s ease, background-color .2s ease; }
+  .side-item:hover { color:#0F172A; background-color:#F6F8FC; }
+  .side-item:focus-visible { outline:2px solid #2563EB; outline-offset:-2px; }
+
+  /* form controls (same radius/spacing/focus as the rest of the app) */
+  .w-in { width:100%; border-radius:.65rem; border:1px solid #E7ECF4; background:#F6F8FC; padding:.55rem .7rem; font-size:.8125rem; color:#0F172A; transition:border-color .15s ease, box-shadow .15s ease; }
+  .w-in::placeholder { color:#9AA6BC; }
+  .w-in:focus { outline:none; border-color:#0BA891; box-shadow:0 0 0 3px rgba(18,190,166,.16); }
+  html.dark .w-in { background:#0E1626; border-color:#26314A; color:#E8EDF6; }
+
+  /* AI DRAFT — the ONE approved violet/purple exception. AI-generated content ONLY. */
+  .ai-badge   { background:linear-gradient(100deg,rgba(139,92,246,.14),rgba(124,58,237,.20)); border:1px solid rgba(139,92,246,.34); color:#6D28D9; }
+  .ai-drafted { border-color:#C4B5FD !important; background:linear-gradient(180deg,rgba(139,92,246,.05),transparent); box-shadow:0 0 0 3px rgba(139,92,246,.10); }
+  html.dark .ai-badge   { background:linear-gradient(100deg,rgba(139,92,246,.24),rgba(124,58,237,.30)); border-color:rgba(167,139,250,.5); color:#C4B5FD; }
+  html.dark .ai-drafted { border-color:rgba(167,139,250,.55) !important; background:linear-gradient(180deg,rgba(139,92,246,.12),transparent); }
+
+  /* single-select site tiles — teal = selected */
+  [data-site][aria-pressed="true"] { border-color:#0BA891; background:rgba(18,190,166,.10); }
+  html.dark [data-site][aria-pressed="true"] { background:rgba(18,190,166,.16); }
+
+  /* "Record dose administered" — the approved softer teal shade (record/continue, not a signed Rx) */
+  .btn-teal-soft { background:rgba(18,190,166,.14); color:#0BA891; border:1px solid rgba(11,168,145,.32); }
+  .btn-teal-soft:hover { background:rgba(18,190,166,.22); }
+  html.dark .btn-teal-soft { background:rgba(18,190,166,.18); color:#2FD9C0; border-color:rgba(47,217,192,.34); }
+
+  /* required-field state — the app's amber token */
+  .field-required { border-color:#F59E0B !important; box-shadow:0 0 0 3px rgba(245,158,11,.14); }
+  html.dark .field-required { border-color:#FBBF24 !important; box-shadow:0 0 0 3px rgba(251,191,36,.16); }
+
+  /* ===== DARK MODE (token-derived, scoped override) ===== */
+  html.dark { color-scheme:dark; }
+  html.dark body { background:#0B1220; color:#E8EDF6; }
+  html.dark .bg-surface-soft            { background-color:#0B1220; }
+  html.dark .bg-white                   { background-color:#141C2B; }
+  html.dark .bg-white\/80               { background-color:rgba(20,28,43,.84); }
+  html.dark .border-surface-line        { border-color:#26314A; }
+  html.dark .border-white\/60           { border-color:rgba(255,255,255,.08); }
+  html.dark .text-ink                   { color:#E8EDF6; }
+  html.dark .text-muted                 { color:#95A3B8; }
+  html.dark .text-muted\/70             { color:rgba(149,163,184,.78); }
+  html.dark .bg-ink\/30                 { background-color:rgba(2,6,18,.62); }
+  html.dark .side-item:hover            { color:#E8EDF6; background-color:rgba(255,255,255,.06); }
+  html.dark .text-brand-blue    { color:#7CC8FF; }
+  html.dark .bg-brand-blue\/10  { background-color:rgba(124,200,255,.14); }
+  html.dark .text-brand-teal2   { color:#2FD9C0; }
+  html.dark .bg-brand-teal\/10  { background-color:rgba(18,190,166,.16); }
+  html.dark .bg-brand-teal\/5   { background-color:rgba(18,190,166,.10); }
+  html.dark .bg-slate-300       { background-color:#3A4A63; }
+  html.dark .shadow-soft { --tw-shadow:0 1px 2px rgba(0,0,0,.45), 0 6px 18px -10px rgba(0,0,0,.65); --tw-shadow-colored:var(--tw-shadow); }
+  html.dark .shadow-card { --tw-shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 28px -14px rgba(0,0,0,.75); --tw-shadow-colored:var(--tw-shadow); }
+  html.dark ::selection { background:#12BEA6; color:#04211C; }
+</style>
+</head>
+<body class="font-sans antialiased bg-surface-soft">
+
+<div class="relative min-h-screen lg:flex">
+  <div class="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(60%_50%_at_15%_0%,rgba(18,190,166,.10),transparent),radial-gradient(55%_50%_at_100%_10%,rgba(37,99,235,.12),transparent)]"></div>
+
+  <!-- ============ SIDEBAR (shared shell; Vaccinations & Injections active) ============ -->
+  <aside data-side class="fixed inset-y-0 left-0 z-50 hidden w-64 shrink-0 overflow-y-auto border-r border-surface-line bg-white p-4 backdrop-blur-md lg:sticky lg:top-0 lg:block lg:h-screen">
+    <div class="mb-5 flex items-center gap-2 px-1">
+      <span class="grid h-7 w-7 place-items-center rounded-lg brand-grad text-[11px] font-bold text-white">A</span>
+      <span class="text-sm font-bold text-ink">Agile Pharmas</span>
+      <button data-side-close class="ml-auto grid h-8 w-8 place-items-center rounded-lg border border-surface-line text-muted lg:hidden" aria-label="Close menu">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <p class="px-2 pb-2 text-[10px] font-semibold uppercase tracking-wider text-muted/70">Menu</p>
+    <nav class="space-y-1 text-[13px]">
+      <a href="dashboard.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Dashboard</a>
+    </nav>
+    <p class="mt-5 px-2 pb-2 text-[10px] font-semibold uppercase tracking-wider text-muted/70">Clinical Services</p>
+    <nav class="space-y-1 text-[13px]">
+      <a href="medscheck.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>MedsCheck</a>
+      <a href="minor-ailments.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Minor Ailments</a>
+      <a href="vaccinations-injections.html" aria-current="page" class="side-item flex items-center gap-2.5 rounded-lg bg-brand-blue/10 px-3 py-2 font-semibold text-brand-blue"><span class="h-2 w-2 rounded-full bg-brand-blue"></span>Vaccinations &amp; Injections</a>
+    </nav>
+    <p class="mt-5 px-2 pb-2 text-[10px] font-semibold uppercase tracking-wider text-muted/70">Operations</p>
+    <nav class="space-y-1 text-[13px]">
+      <a href="billing.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Billing</a>
+      <a href="billing-guard.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Billing Guard</a>
+      <a href="incidents.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Incidents</a>
+      <a href="filing-worklist.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Filing Worklist</a>
+      <a href="calendar.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Calendar</a>
+    </nav>
+    <p class="mt-5 px-2 pb-2 text-[10px] font-semibold uppercase tracking-wider text-muted/70">Records</p>
+    <nav class="space-y-1 text-[13px]">
+      <a href="patients.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Patients</a>
+    </nav>  </aside>
+  <div data-side-overlay class="fixed inset-0 z-40 hidden bg-ink/30 backdrop-blur-sm lg:hidden"></div>
+
+  <!-- ============ MAIN ============ -->
+  <div class="min-w-0 flex-1">
+    <div class="mx-auto max-w-none px-4 py-4 sm:px-6 lg:px-8 lg:py-6 2xl:px-10">
+
+      <!-- breadcrumb -->
+      <div class="reveal mb-3 flex items-center gap-2">
+        <button data-side-btn class="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-surface-line bg-white text-ink shadow-soft lg:hidden" aria-label="Open menu">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+        <a href="vaccinations-injections.html" class="btn inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-[13px] font-semibold text-muted hover:text-ink">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+          Back to Vaccinations
+        </a>
+      </div>
+
+      <!-- header banner -->
+      <section class="reveal relative isolate mb-4 overflow-hidden rounded-2xl border border-white/60 shadow-soft">
+        <img src="brand.assets/cta-bg.jpg" alt="" aria-hidden="true" class="absolute inset-0 -z-10 h-full w-full object-cover object-center" />
+        <div class="absolute inset-0 -z-10 bg-gradient-to-r from-white/85 via-white/45 to-transparent"></div>
+        <div class="flex items-center justify-between gap-4 p-5 sm:px-6 sm:py-6">
+          <div class="flex min-w-0 items-center gap-3.5">
+            <span data-av class="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-white/85 text-[15px] font-extrabold text-[#0B7C6B] shadow-soft ring-1 ring-white/70 backdrop-blur">AO</span>
+            <div class="min-w-0">
+              <p class="text-[11px] font-bold uppercase tracking-wider text-[#0B7C6B]">Vaccination · <span data-vaccine-eyebrow>Influenza</span><span class="sm:hidden"> · Jul 29, 2026</span></p>
+              <h1 data-name class="h-display text-2xl font-extrabold text-[#0F172A] sm:text-[28px]">Ama Osei</h1>
+            </div>
+          </div>
+          <span class="hidden shrink-0 items-center gap-1.5 rounded-full border border-white/70 bg-white/80 px-3 py-1.5 text-[12.5px] font-semibold text-[#0F172A] shadow-soft backdrop-blur sm:inline-flex">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg>
+            Jul 29, 2026
+          </span>
+        </div>
+      </section>
+
+      <!-- workspace grid -->
+      <div class="grid gap-4 lg:grid-cols-3">
+
+        <!-- LEFT: administer form -->
+        <div class="space-y-4 lg:col-span-2">
+          <section class="reveal rounded-2xl border border-surface-line bg-white p-4 shadow-card sm:p-5">
+            <h2 class="text-sm font-semibold text-ink">Administer — <span data-vaccine-name>Influenza</span></h2>
+            <p class="mt-0.5 text-[12px] leading-relaxed text-muted">Administering as <span class="font-medium text-ink">Sarah Lin, RPh</span> (pharmacist). The therapeutic check is completed with administration.</p>
+
+            <!-- Product -->
+            <p class="mt-4 text-[11px] font-semibold uppercase tracking-wider text-muted/70">Product</p>
+            <div class="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div>
+                <label class="mb-1 block text-[12px] font-medium text-ink">Lot number</label>
+                <input data-lot class="w-in" placeholder="FL7231A" />
+              </div>
+              <div>
+                <label class="mb-1 block text-[12px] font-medium text-ink">Expiry date</label>
+                <input data-expiry type="date" class="w-in" />
+              </div>
+            </div>
+
+            <!-- Site -->
+            <p class="mt-4 text-[11px] font-semibold uppercase tracking-wider text-muted/70">Site (IM)</p>
+            <div data-site-grid class="mt-2 grid grid-cols-2 gap-2">
+              <button type="button" data-site="Left deltoid"          aria-pressed="false" class="btn min-h-[2.75rem] rounded-xl border border-surface-line bg-white px-3.5 py-2.5 text-[13px] font-semibold text-ink hover:border-brand-teal2">Left deltoid</button>
+              <button type="button" data-site="Right deltoid"         aria-pressed="false" class="btn min-h-[2.75rem] rounded-xl border border-surface-line bg-white px-3.5 py-2.5 text-[13px] font-semibold text-ink hover:border-brand-teal2">Right deltoid</button>
+              <button type="button" data-site="Left vastus lateralis"  aria-pressed="false" class="btn min-h-[2.75rem] rounded-xl border border-surface-line bg-white px-3.5 py-2.5 text-[13px] font-semibold text-ink hover:border-brand-teal2">Left vastus lateralis</button>
+              <button type="button" data-site="Right vastus lateralis" aria-pressed="false" class="btn min-h-[2.75rem] rounded-xl border border-surface-line bg-white px-3.5 py-2.5 text-[13px] font-semibold text-ink hover:border-brand-teal2">Right vastus lateralis</button>
+            </div>
+            <p data-site-hint hidden class="mt-1.5 text-[11.5px] font-medium text-amber-600">Lot number, expiry date, and an injection site are required.</p>
+
+            <!-- Counselling -->
+            <div class="mt-4">
+              <div class="mb-1 flex items-center justify-between gap-3">
+                <label class="text-[12px] font-medium text-ink">Post-vaccination counselling</label>
+                <button type="button" data-cx-ai class="btn ai-badge inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9Z"/></svg>
+                  AI draft
+                </button>
+              </div>
+              <textarea data-cx rows="4" class="w-in" placeholder="Common effects, 15-minute observation, return precautions…"></textarea>
+            </div>
+
+            <!-- action -->
+            <div class="mt-4 flex">
+              <button type="button" data-record class="btn btn-teal-soft inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold sm:w-auto">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                Record dose administered
+              </button>
+            </div>
+          </section>
+        </div>
+
+        <!-- RIGHT: patient rail — collapsible on mobile, sticky on desktop -->
+        <aside class="order-first space-y-3 lg:order-none lg:space-y-4 lg:sticky lg:top-6 lg:self-start">
+          <button type="button" data-patient-toggle aria-expanded="false" class="btn flex w-full items-center gap-3 rounded-2xl border border-surface-line bg-white p-3.5 text-left shadow-card lg:hidden">
+            <span data-av class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brand-teal/10 text-[11px] font-bold text-brand-teal2">AO</span>
+            <span class="min-w-0 flex-1">
+              <span class="block text-sm font-bold text-ink"><span data-name>Ama Osei</span></span>
+              <span class="block text-[11.5px] text-muted">Tap to view patient profile</span>
+            </span>
+            <svg data-patient-chevron class="h-4 w-4 shrink-0 text-muted transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+
+          <div data-patient-body class="hidden space-y-4 lg:block">
+            <section class="reveal rounded-2xl border border-surface-line bg-white p-4 shadow-card sm:p-5">
+              <p class="text-[10px] font-semibold uppercase tracking-wider text-muted/70">Patient</p>
+              <p class="mt-1 text-base font-bold text-ink"><span data-name>Ama Osei</span></p>
+              <p data-meta class="text-[12px] text-muted">34 F · HN 4821 993 210</p>
+              <div class="mt-3 flex items-center gap-2 rounded-lg bg-brand-teal/5 px-3 py-2 text-[12px] font-medium text-brand-teal2">
+                <svg width="14" height="14" class="shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                Profile pre-populated from Fillware
+              </div>
+              <div class="mt-3 rounded-lg bg-surface-soft px-3 py-2 text-[12px] font-medium text-muted">No known allergies</div>
+              <dl class="mt-3 space-y-2 text-[12px]">
+                <div class="flex justify-between gap-4"><dt class="shrink-0 text-muted">Conditions</dt><dd class="text-right font-medium text-ink">None on file</dd></div>
+                <div class="flex justify-between gap-4"><dt class="shrink-0 text-muted">Primary care</dt><dd class="text-right font-medium text-ink">Dr. Maria Santos</dd></div>
+                <div class="flex justify-between gap-4"><dt class="shrink-0 text-muted">Coverage</dt><dd class="text-right font-medium text-ink">ODB</dd></div>
+              </dl>
+            </section>
+
+            <section class="reveal rounded-2xl border border-surface-line bg-white p-4 shadow-card sm:p-5">
+              <div class="flex items-center justify-between gap-2">
+                <p class="text-[10px] font-semibold uppercase tracking-wider text-muted/70">Immunization history</p>
+                <p class="text-[11px] text-muted">Fillware · today</p>
+              </div>
+              <p class="mt-2 text-[12.5px] text-muted">No prior doses of this vaccine on file. Anything relevant will surface here after administration.</p>
+            </section>
+          </div>
+        </aside>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  // ---- Mobile sidebar ----
+  const side = document.querySelector('[data-side]');
+  const overlay = document.querySelector('[data-side-overlay]');
+  const openSide  = () => { side.classList.remove('hidden'); overlay.classList.remove('hidden'); };
+  const closeSide = () => { side.classList.add('hidden'); overlay.classList.add('hidden'); };
+  document.querySelector('[data-side-btn]').addEventListener('click', openSide);
+  document.querySelector('[data-side-close]').addEventListener('click', closeSide);
+  overlay.addEventListener('click', closeSide);
+  side.querySelectorAll('a').forEach(a => a.addEventListener('click', closeSide));
+
+  // ---- Mobile collapsible patient panel ----
+  (function () {
+    const btn = document.querySelector('[data-patient-toggle]');
+    const body = document.querySelector('[data-patient-body]');
+    const chev = document.querySelector('[data-patient-chevron]');
+    if (!btn || !body) return;
+    btn.addEventListener('click', () => {
+      const open = !body.classList.toggle('hidden');
+      btn.setAttribute('aria-expanded', String(open));
+      if (chev) chev.style.transform = open ? 'rotate(180deg)' : '';
+      if (open) body.querySelectorAll('.reveal').forEach(el => el.classList.add('in'));
+    });
+  })();
+
+  // ============================================================
+  //  Administer vaccination
+  // ============================================================
+  (function () {
+    const params  = new URLSearchParams(location.search);
+    const patient = params.get('patient') || 'Ama Osei';
+    const vaccine = params.get('vaccine') || 'Influenza';
+    const fee     = params.get('fee') || '';
+    const DATE    = 'Jul 29, 2026';
+    const initials = n => n.trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+
+    // fill patient + vaccine context
+    document.querySelectorAll('[data-name]').forEach(el => el.textContent = patient);
+    document.querySelectorAll('[data-av]').forEach(el => el.textContent = initials(patient));
+    document.querySelectorAll('[data-vaccine-eyebrow]').forEach(el => el.textContent = vaccine);
+    document.querySelectorAll('[data-vaccine-name]').forEach(el => el.textContent = vaccine);
+    const meta = document.querySelector('[data-meta]');
+    if (meta && params.get('patient')) meta.textContent = 'Profile synced from Fillware';
+    document.title = 'Administer ' + vaccine + ' — ' + patient + ' — Agile Pharmas';
+
+    const lot     = document.querySelector('[data-lot]');
+    const expiry  = document.querySelector('[data-expiry]');
+    const siteGrid = document.querySelector('[data-site-grid]');
+    const siteHint = document.querySelector('[data-site-hint]');
+    const cx      = document.querySelector('[data-cx]');
+    let site = null;
+
+    // clear the amber "required" outline as soon as a field is filled
+    [lot, expiry].forEach(el => el.addEventListener('input', () => { if (el.value.trim()) el.classList.remove('field-required'); }));
+
+    // site single-select
+    siteGrid.addEventListener('click', e => {
+      const b = e.target.closest('[data-site]');
+      if (!b) return;
+      site = b.dataset.site;
+      siteGrid.querySelectorAll('[data-site]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+      if (siteHint) siteHint.hidden = true;
+    });
+
+    // AI draft — standard post-vaccination counselling
+    document.querySelector('[data-cx-ai]').addEventListener('click', () => {
+      cx.value = `After your ${vaccine} vaccination: mild soreness, redness, or swelling at the injection site, and a low-grade fever, tiredness, or muscle aches, are common for 1–2 days. Please remain in the pharmacy for 15 minutes of observation. Acetaminophen or ibuprofen may be used for discomfort as directed. Seek immediate care if you develop difficulty breathing, swelling of the face or throat, hives, or dizziness.`;
+      cx.classList.add('ai-drafted');
+      cx.focus();
+    });
+
+    // Record dose administered → validate, create claim, open Billing
+    document.querySelector('[data-record]').addEventListener('click', () => {
+      const missingLot = !lot.value.trim();
+      const missingExp = !expiry.value.trim();
+      const missingSite = !site;
+      lot.classList.toggle('field-required', missingLot);
+      expiry.classList.toggle('field-required', missingExp);
+      if (missingLot || missingExp || missingSite) {
+        if (siteHint) siteHint.hidden = false;
+        (missingLot ? lot : missingExp ? expiry : siteGrid).scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+      const claim = {
+        id: 'c' + Date.now(),
+        patient,
+        service: 'Vaccination',
+        condition: vaccine,
+        date: DATE,
+        pin: '93899988',
+        fee: fee || 'Private pay',
+        codes: 'V',
+        status: 'ready',
+        transaction: '',
+      };
+      try {
+        const q = JSON.parse(localStorage.getItem('agilerx-claims') || '[]');
+        q.push(claim);
+        localStorage.setItem('agilerx-claims', JSON.stringify(q.slice(-8)));
+      } catch (e) {}
+      window.location.href = 'billing.html';
+    });
+  })();
+
+  // ---- Reveal on scroll ----
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold:.12, rootMargin:'0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>

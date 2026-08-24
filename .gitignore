@@ -1,0 +1,18 @@
+# dependencies
+node_modules/
+
+# internal strategy / instructions — kept private (competitive & pricing notes)
+CLAUDE.md
+CLAUDE (2).md
+
+# backups & alternate/working variants
+*.backup.html
+*.premobile.backup.html
+*.mobile.html
+*.lavender.html
+
+# local scratch / tooling
+_serve_live.mjs
+_shot_tmp.mjs
+temporary screenshots/
+screenshots/

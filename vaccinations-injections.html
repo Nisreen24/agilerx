@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Vaccinations &amp; Injections — Agile Pharmas</title>
+<meta name="description" content="Schedule 3 vaccines — no prescription needed (O. Reg. 256/24). Lakeview Pharmacy, synced with Fillware." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          ink:     '#0F172A',
+          muted:   '#64748B',
+          brand:   { blue:'#2563EB', blue2:'#1D4FD8', teal:'#12BEA6', teal2:'#0BA891', sky:'#7CC8FF' },
+          surface: { soft:'#F6F8FC', line:'#E7ECF4' },
+        },
+        fontFamily: { sans: ['Inter','system-ui','-apple-system','Segoe UI','sans-serif'] },
+        boxShadow: {
+          card:      '0 1px 2px rgba(16,42,84,.04), 0 10px 28px -14px rgba(16,42,84,.20)',
+          cardhover: '0 2px 6px rgba(16,42,84,.06), 0 22px 48px -18px rgba(37,99,235,.30)',
+          float:     '0 26px 70px -24px rgba(37,99,235,.40)',
+          soft:      '0 1px 2px rgba(16,42,84,.05), 0 6px 18px -10px rgba(16,42,84,.18)',
+        },
+      },
+    },
+  };
+</script>
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('agilerx-theme');
+      if (!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      document.documentElement.classList.toggle('dark', t === 'dark');
+    } catch (e) {}
+  })();
+</script>
+<style>
+  :root { --ease-spring: cubic-bezier(.16,1,.3,1); }
+  html, body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  body { background:#fff; color:#0F172A; overflow-x:hidden; }
+  [hidden] { display:none !important; }
+  .h-display { letter-spacing:-.03em; line-height:1.05; }
+  .brand-grad { background-image:linear-gradient(100deg,#12BEA6 0%,#2563EB 60%); }
+  .btn { transition:transform .25s var(--ease-spring), box-shadow .25s var(--ease-spring), background-color .2s ease, color .2s ease, border-color .2s ease; will-change:transform; }
+  .btn:active { transform:scale(.99); }
+  .btn:focus-visible { outline:2px solid #2563EB; outline-offset:3px; }
+  .reveal { opacity:0; transform:translateY(22px); transition:opacity .7s var(--ease-spring), transform .7s var(--ease-spring); }
+  .reveal.in { opacity:1; transform:none; }
+  @media (prefers-reduced-motion: reduce){ .reveal{opacity:1;transform:none;transition:none;} .btn{transition:none;} html{scroll-behavior:auto;} }
+  ::selection{ background:#c9e3ff; color:#0b2c66; }
+  .side-item { transition:color .2s ease, background-color .2s ease; }
+  .side-item:hover { color:#0F172A; background-color:#F6F8FC; }
+  .side-item:focus-visible { outline:2px solid #2563EB; outline-offset:-2px; }
+  .theme-seg { transition:background-color .2s ease, color .2s ease, transform .25s var(--ease-spring); }
+  .theme-seg:hover { color:#0F172A; }
+  .theme-seg:active { transform:scale(.92); }
+  .theme-seg:focus-visible { outline:2px solid #12BEA6; outline-offset:2px; }
+  .theme-seg[aria-pressed="true"] { background:#fff; color:#0F172A; box-shadow:0 1px 2px rgba(16,42,84,.10); }
+  .topbar-search:focus { outline:none; border-color:#0BA891; box-shadow:0 0 0 3px rgba(18,190,166,.20); }
+  .topbar-search::-webkit-search-cancel-button { -webkit-appearance:none; }
+
+  /* ---------- page-specific ---------- */
+  .vx-list { max-height:22rem; overflow-y:auto; }
+  @media (max-width:1023px){ .vx-list { max-height:none; } }
+  [data-vx-patient][aria-pressed="true"] { border-color:#0BA891; background:rgba(18,190,166,.10); }
+  [data-vx-patient][aria-pressed="true"] .vx-av { background:rgba(18,190,166,.16); color:#0BA891; }
+  .vx-locked { opacity:.5; pointer-events:none; }
+  .vx-tab { transition:background-color .2s ease, color .2s ease; color:#64748B; }
+  .vx-tab[aria-selected="true"] { background:#0BA891; color:#fff; }
+  /* Injections flow — mirrors the vaccinations flow selection + mobile step-switch */
+  [data-ij-patient][aria-pressed="true"] { border-color:#0BA891; background:rgba(18,190,166,.10); }
+  [data-ij-patient][aria-pressed="true"] .vx-av { background:rgba(18,190,166,.16); color:#0BA891; }
+  @media (max-width:1023px){
+    [data-ij-flow="patient"] [data-ij-panel="med"]     { display:none; }
+    [data-ij-flow="med"]     [data-ij-panel="patient"] { display:none; }
+  }
+  .ma-in { width:100%; border-radius:.65rem; border:1px solid #E7ECF4; background:#fff; padding:.55rem .7rem; font-size:.8125rem; color:#0F172A; transition:border-color .15s ease, box-shadow .15s ease; }
+  .ma-in::placeholder { color:#9AA6BC; }
+  .ma-in:focus { outline:none; border-color:#0BA891; box-shadow:0 0 0 3px rgba(18,190,166,.16); }
+  @media (max-width:1023px){
+    [data-vx-flow="patient"] [data-vx-panel="vaccine"]  { display:none; }
+    [data-vx-flow="vaccine"] [data-vx-panel="patient"]  { display:none; }
+  }
+
+  /* ===== DARK MODE (token-derived, scoped override) ===== */
+  html.dark { color-scheme:dark; }
+  html.dark body { background:#0B1220; color:#E8EDF6; }
+  html.dark .bg-surface-soft            { background-color:#0B1220; }
+  html.dark .bg-white                   { background-color:#141C2B; }
+  html.dark .bg-white\/80               { background-color:rgba(20,28,43,.84); }
+  html.dark .border-surface-line        { border-color:#26314A; }
+  html.dark .border-white\/60           { border-color:rgba(255,255,255,.08); }
+  html.dark .text-ink                   { color:#E8EDF6; }
+  html.dark .text-muted                 { color:#95A3B8; }
+  html.dark .text-muted\/70             { color:rgba(149,163,184,.78); }
+  html.dark .text-muted\/80             { color:rgba(149,163,184,.85); }
+  html.dark .bg-ink\/30                 { background-color:rgba(2,6,18,.62); }
+  html.dark .hover\:bg-surface-soft:hover { background-color:rgba(255,255,255,.05); }
+  html.dark .side-item:hover            { color:#E8EDF6; background-color:rgba(255,255,255,.06); }
+  html.dark .theme-seg:hover            { color:#E8EDF6; }
+  html.dark .theme-seg[aria-pressed="true"] { background:#26314A; color:#E8EDF6; box-shadow:0 1px 2px rgba(0,0,0,.5); }
+  html.dark .topbar-search:focus        { border-color:#12BEA6; box-shadow:0 0 0 3px rgba(18,190,166,.28); }
+  html.dark .ma-in                      { background:#0E1626; border-color:#26314A; color:#E8EDF6; }
+  html.dark .text-brand-blue    { color:#7CC8FF; }
+  html.dark .bg-brand-blue\/10  { background-color:rgba(124,200,255,.14); }
+  html.dark .border-brand-blue\/25 { border-color:rgba(124,200,255,.30); }
+  html.dark .text-brand-teal2   { color:#2FD9C0; }
+  html.dark .bg-brand-teal\/10  { background-color:rgba(18,190,166,.16); }
+  html.dark .bg-brand-teal\/5   { background-color:rgba(18,190,166,.10); }
+  html.dark .border-brand-teal2\/30 { border-color:rgba(47,217,192,.34); }
+  html.dark .hover\:bg-brand-teal\/20:hover { background-color:rgba(18,190,166,.26); }
+  html.dark [data-vx-patient][aria-pressed="true"] { background:rgba(18,190,166,.16); }
+  html.dark [data-ij-patient][aria-pressed="true"] { background:rgba(18,190,166,.16); }
+  html.dark .vx-tab { color:#95A3B8; }
+  html.dark .vx-tab[aria-selected="true"] { color:#fff; }
+  html.dark .text-amber-600     { color:#FBBF24; }
+  html.dark .bg-amber-50        { background-color:rgba(251,191,36,.12); }
+  html.dark .border-amber-200   { border-color:rgba(251,191,36,.38); }
+  html.dark .text-emerald-600   { color:#34D399; }
+  html.dark .bg-emerald-50      { background-color:rgba(52,211,153,.14); }
+  html.dark .bg-slate-300       { background-color:#3A4A63; }
+  html.dark .shadow-soft { --tw-shadow:0 1px 2px rgba(0,0,0,.45), 0 6px 18px -10px rgba(0,0,0,.65); --tw-shadow-colored:var(--tw-shadow); }
+  html.dark .shadow-card { --tw-shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 28px -14px rgba(0,0,0,.75); --tw-shadow-colored:var(--tw-shadow); }
+  html.dark ::selection { background:#12BEA6; color:#04211C; }
+  /* custom select arrow — inset chevron instead of the far-edge native one */
+  select[class]{ -webkit-appearance:none; -moz-appearance:none; appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 0.7rem center; background-size:15px 15px; padding-right:2.2rem; }
+  html.dark select[class]{ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2395A3B8' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); }
+</style>
+</head>
+<body class="font-sans antialiased bg-surface-soft">
+
+<div class="relative min-h-screen lg:flex">
+  <div class="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(60%_50%_at_15%_0%,rgba(18,190,166,.10),transparent),radial-gradient(55%_50%_at_100%_10%,rgba(37,99,235,.12),transparent)]"></div>
+
+  <!-- ============ SIDEBAR (shared shell; Vaccinations & Injections active) ============ -->
+  <aside data-side class="fixed inset-y-0 left-0 z-50 hidden w-64 shrink-0 overflow-y-auto border-r border-surface-line bg-white p-4 backdrop-blur-md lg:sticky lg:top-0 lg:block lg:h-screen">
+    <div class="mb-5 flex items-center gap-2 px-1">
+      <span class="grid h-7 w-7 place-items-center rounded-lg brand-grad text-[11px] font-bold text-white">A</span>
+      <span class="text-sm font-bold text-ink">Agile Pharmas</span>
+      <button data-side-close class="ml-auto grid h-8 w-8 place-items-center rounded-lg border border-surface-line text-muted lg:hidden" aria-label="Close menu">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <p class="px-2 pb-2 text-[10px] font-semibold uppercase tracking-wider text-muted/70">Menu</p>
+    <nav class="space-y-1 text-[13px]">
+      <a href="dashboard.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Dashboard</a>
+    </nav>
+    <p class="mt-5 px-2 pb-2 text-[10px] font-semibold uppercase tracking-wider text-muted/70">Clinical Services</p>
+    <nav class="space-y-1 text-[13px]">
+      <a href="medscheck.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>MedsCheck</a>
+      <a href="minor-ailments.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Minor Ailments</a>
+      <a href="vaccinations-injections.html" aria-current="page" class="side-item flex items-center gap-2.5 rounded-lg bg-brand-blue/10 px-3 py-2 font-semibold text-brand-blue"><span class="h-2 w-2 rounded-full bg-brand-blue"></span>Vaccinations &amp; Injections</a>
+    </nav>
+    <p class="mt-5 px-2 pb-2 text-[10px] font-semibold uppercase tracking-wider text-muted/70">Operations</p>
+    <nav class="space-y-1 text-[13px]">
+      <a href="billing.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Billing</a>
+      <a href="billing-guard.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Billing Guard</a>
+      <a href="incidents.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Incidents</a>
+      <a href="filing-worklist.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Filing Worklist</a>
+      <a href="calendar.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Calendar</a>
+    </nav>
+    <p class="mt-5 px-2 pb-2 text-[10px] font-semibold uppercase tracking-wider text-muted/70">Records</p>
+    <nav class="space-y-1 text-[13px]">
+      <a href="patients.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Patients</a>
+    </nav>  </aside>
+  <div data-side-overlay class="fixed inset-0 z-40 hidden bg-ink/30 backdrop-blur-sm lg:hidden"></div>
+
+  <!-- ============ MAIN ============ -->
+  <div class="min-w-0 flex-1">
+    <div class="mx-auto max-w-none px-4 py-4 sm:px-6 lg:px-8 lg:py-6 2xl:px-10">
+
+      <!-- ---- top utility bar (shared shell) ---- -->
+      <div data-topbar class="reveal relative mb-3 flex items-center gap-2 rounded-2xl border border-surface-line bg-white px-2.5 py-2 shadow-soft sm:gap-3 sm:px-4 sm:py-2.5">
+        <button data-side-btn class="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-surface-line text-ink lg:hidden" aria-label="Open menu">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+        <img src="brand.assets/aglie%20logo.png" alt="Agile Pharmas" class="hidden h-6 w-auto shrink-0 md:block" />
+        <div class="relative hidden min-w-0 flex-1 sm:block">
+          <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input type="search" class="topbar-search w-full rounded-xl border border-surface-line bg-surface-soft py-2 pl-9 pr-3 text-sm text-ink transition-colors placeholder:text-muted" placeholder="Search patients, claims..." aria-label="Search patients, claims" />
+        </div>
+        <div class="flex-1 sm:hidden"></div>
+        <div class="flex shrink-0 items-center gap-1.5 sm:gap-2">
+          <button data-search-open class="grid h-10 w-10 place-items-center rounded-xl border border-surface-line text-muted hover:text-ink sm:hidden" aria-label="Search">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          </button>
+          <div class="flex items-center gap-0.5 rounded-full border border-surface-line bg-surface-soft p-0.5" role="group" aria-label="Colour mode">
+            <button type="button" data-theme-set="light" class="theme-seg grid h-8 w-8 place-items-center rounded-full text-muted" aria-pressed="true" aria-label="Light mode" title="Light mode">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+            </button>
+            <button type="button" data-theme-set="dark" class="theme-seg grid h-8 w-8 place-items-center rounded-full text-muted" aria-pressed="false" aria-label="Dark mode" title="Dark mode">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+            </button>
+          </div>
+          <button type="button" class="btn relative grid h-9 w-9 place-items-center rounded-full bg-brand-teal/10 text-brand-teal2 hover:bg-brand-teal/20" aria-label="Notifications — 3 unread">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 6-2 7-2 7h16s-2-1-2-7"/><path d="M10.3 20a2 2 0 0 0 3.4 0"/></svg>
+            <span class="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-brand-teal ring-2 ring-white"></span>
+          </button>
+          <span class="mx-0.5 hidden h-6 w-px bg-surface-line sm:block"></span>
+          <div class="relative">
+            <button type="button" data-profile-btn class="btn flex items-center gap-2 rounded-full p-0.5 pr-1.5 hover:bg-surface-soft" aria-haspopup="menu" aria-expanded="false" aria-label="Account menu">
+              <span class="grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-full bg-emerald-50 text-[11px] font-bold text-emerald-600">LP</span>
+              <svg class="hidden h-4 w-4 text-muted sm:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+            <div data-profile-menu class="absolute right-0 top-full z-40 mt-2 hidden w-60 origin-top-right overflow-hidden rounded-2xl border border-surface-line bg-white shadow-card" role="menu" aria-label="Account">
+              <div class="flex items-center gap-3 border-b border-surface-line px-3.5 py-3">
+                <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-emerald-50 text-[11px] font-bold text-emerald-600">LP</span>
+                <div class="min-w-0">
+                  <p class="truncate text-xs font-semibold text-ink">Lakeview Pharmacy</p>
+                  <p class="truncate text-[11px] text-muted">Fillware · connected</p>
+                </div>
+              </div>
+              <div class="p-1.5">
+                <a href="#" role="menuitem" class="side-item flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium text-ink hover:bg-surface-soft">
+                  <svg class="h-4 w-4 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                  Settings
+                </a>
+                <a href="#" role="menuitem" class="side-item flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium text-ink hover:bg-surface-soft">
+                  <svg class="h-4 w-4 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg>
+                  Sign out
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div data-search-panel hidden class="absolute inset-0 z-20 flex items-center gap-2 rounded-2xl border border-surface-line bg-white px-2.5 sm:hidden">
+          <button data-search-close class="grid h-10 w-10 shrink-0 place-items-center rounded-xl text-muted hover:text-ink" aria-label="Close search">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+          </button>
+          <div class="relative min-w-0 flex-1">
+            <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <input data-search-panel-input type="search" class="topbar-search w-full rounded-xl border border-surface-line bg-surface-soft py-2 pl-9 pr-3 text-sm text-ink placeholder:text-muted" placeholder="Search patients, claims..." aria-label="Search patients, claims" />
+          </div>
+        </div>
+      </div>
+
+      <!-- ---- Vaccinations / Injections tab toggle ---- -->
+      <div class="reveal mb-4 inline-flex rounded-xl border border-surface-line bg-white p-1 shadow-soft" role="tablist" aria-label="Vaccinations or Injections">
+        <button type="button" data-vx-tab="vacc" role="tab" aria-selected="true" class="vx-tab rounded-lg px-4 py-2 text-[13px] font-semibold">Vaccinations</button>
+        <button type="button" data-vx-tab="inj" role="tab" aria-selected="false" class="vx-tab rounded-lg px-4 py-2 text-[13px] font-semibold">Injections</button>
+      </div>
+
+      <!-- ================= VACCINATIONS VIEW ================= -->
+      <div data-vx-view="vacc">
+
+      <!-- ---- page header ---- -->
+      <div class="reveal mb-4">
+        <h1 class="h-display text-2xl font-extrabold text-ink sm:text-[28px]">Vaccinations</h1>
+        <p class="mt-1 max-w-3xl text-[13.5px] leading-relaxed text-muted">21 Schedule 3 vaccines, no prescription needed (O. Reg. 256/24). Flu $8.50 · COVID-19 $13.00 · Adult Vaccine Bundle newly funded July 2026.</p>
+      </div>
+
+      <!-- ================= PATIENT → VACCINE FLOW ================= -->
+      <div data-vx-flow="patient" class="grid gap-4 lg:grid-cols-2 lg:items-start">
+
+        <!-- ---------- STEP 1 · PATIENT ---------- -->
+        <section data-vx-panel="patient" class="reveal rounded-2xl border border-surface-line bg-white p-4 shadow-card sm:p-5">
+          <div class="flex items-center gap-2.5">
+            <span class="grid h-6 w-6 place-items-center rounded-full bg-brand-blue/10 text-[11px] font-bold text-brand-blue">1</span>
+            <h2 class="text-[11px] font-semibold uppercase tracking-wider text-muted/80">Patient</h2>
+          </div>
+
+          <div class="relative mt-3">
+            <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <input data-vx-search type="search" class="topbar-search w-full rounded-xl border border-surface-line bg-surface-soft py-2.5 pl-9 pr-3 text-sm text-ink placeholder:text-muted" placeholder="Search patients (walk-in)..." aria-label="Search patients" />
+          </div>
+
+          <div data-vx-list class="vx-list mt-3 space-y-2"></div>
+
+          <div data-vx-empty hidden class="mt-3 rounded-xl border border-dashed border-surface-line bg-surface-soft px-4 py-5 text-center">
+            <p class="text-[13px] font-semibold text-ink">No patients match “<span data-vx-empty-q></span>”.</p>
+            <p class="mt-0.5 text-[12px] text-muted">Walk-in without a Fillware record? Add them below.</p>
+          </div>
+
+          <div data-vx-confirm hidden class="mt-3 flex items-center gap-2 rounded-xl border border-brand-teal2/30 bg-brand-teal/5 px-3 py-2.5 text-[12.5px] font-medium text-brand-teal2">
+            <svg width="15" height="15" class="shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            <span data-vx-confirm-text></span>
+          </div>
+
+          <div class="mt-3" data-vx-add-slot>
+            <button type="button" data-vx-add-open class="btn w-full rounded-xl border border-dashed border-surface-line py-2.5 text-sm font-semibold text-muted hover:border-brand-teal2 hover:text-ink">+ Add new patient</button>
+            <div data-vx-add-form hidden class="rounded-xl border border-surface-line bg-surface-soft p-3.5">
+              <p class="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted/80">New patient (walk-in)</p>
+              <div class="space-y-2.5">
+                <div><label class="mb-1 block text-[12px] font-medium text-ink">Full name</label><input data-vx-add-name class="ma-in" placeholder="e.g., Jordan Reyes" /></div>
+                <div class="grid grid-cols-2 gap-2.5">
+                  <div><label class="mb-1 block text-[12px] font-medium text-ink">Age</label><input data-vx-add-age class="ma-in" inputmode="numeric" placeholder="e.g., 32" /></div>
+                  <div><label class="mb-1 block text-[12px] font-medium text-ink">Sex</label><select data-vx-add-sex class="ma-in"><option>F</option><option>M</option><option>X</option></select></div>
+                </div>
+                <div><label class="mb-1 block text-[12px] font-medium text-ink">Health number <span class="text-muted">(optional)</span></label><input data-vx-add-hn class="ma-in" placeholder="e.g., 1234 567 890" /></div>
+              </div>
+              <div class="mt-3 flex justify-end gap-2">
+                <button type="button" data-vx-add-cancel class="btn rounded-xl border border-surface-line bg-white px-4 py-2 text-[13px] font-semibold text-ink hover:bg-surface-soft">Cancel</button>
+                <button type="button" data-vx-add-save disabled class="btn rounded-xl bg-brand-teal/10 px-4 py-2 text-[13px] font-semibold text-brand-teal2">Add &amp; select</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------- STEP 2 · VACCINE ---------- -->
+        <section data-vx-panel="vaccine" class="reveal rounded-2xl border border-surface-line bg-white p-4 shadow-card sm:p-5">
+          <button type="button" data-vx-back class="btn mb-3 inline-flex items-center gap-1.5 text-[13px] font-semibold text-muted hover:text-ink lg:hidden">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+            Back to patient search
+          </button>
+
+          <div class="flex items-center gap-2.5">
+            <span data-vx-num class="grid h-6 w-6 place-items-center rounded-full bg-surface-soft text-[11px] font-bold text-muted">2</span>
+            <h2 class="text-[11px] font-semibold uppercase tracking-wider text-muted/80">Vaccine</h2>
+            <span data-vx-hint class="ml-auto text-[11.5px] font-medium text-muted">Select a patient first</span>
+          </div>
+
+          <div data-vx-body class="vx-locked mt-4">
+            <!-- informational banner (blue) -->
+            <div data-vx-info hidden class="mb-4 flex items-start gap-2.5 rounded-xl border border-brand-blue/25 bg-brand-blue/10 px-3.5 py-3 text-brand-blue">
+              <svg width="16" height="16" class="mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+              <div class="min-w-0">
+                <p class="text-[12.5px] font-semibold" data-vx-info-title></p>
+                <p class="mt-0.5 text-[12px] leading-relaxed text-brand-blue/90" data-vx-info-body></p>
+              </div>
+            </div>
+
+            <p class="text-[11px] font-semibold uppercase tracking-wider text-muted/70">Publicly funded</p>
+            <div data-vx-funded class="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2"></div>
+
+            <p class="mt-5 text-[11px] font-semibold uppercase tracking-wider text-muted/70">Schedule 3 — private pay</p>
+            <div data-vx-private class="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2"></div>
+          </div>
+        </section>
+      </div>
+      </div><!-- /data-vx-view="vacc" -->
+
+      <!-- ================= INJECTIONS VIEW ================= -->
+      <div data-vx-view="inj" hidden>
+
+        <!-- ---- page header ---- -->
+        <div class="reveal mb-4">
+          <h1 class="h-display text-2xl font-extrabold text-ink sm:text-[28px]">Medicine Injections</h1>
+          <p class="mt-1 max-w-3xl text-[13.5px] leading-relaxed text-muted">Schedule 1 drugs on pharmacist authority (O. Reg. 256/24); testosterone &amp; LAIs by delegation. Private fee — no public program. Recurring doses auto-book.</p>
+        </div>
+
+        <!-- ================= PATIENT → MEDICATION FLOW ================= -->
+        <div data-ij-flow="patient" class="grid gap-4 lg:grid-cols-2 lg:items-start">
+
+          <!-- ---------- STEP 1 · PATIENT ---------- -->
+          <section data-ij-panel="patient" class="reveal rounded-2xl border border-surface-line bg-white p-4 shadow-card sm:p-5">
+            <div class="flex items-center gap-2.5">
+              <span class="grid h-6 w-6 place-items-center rounded-full bg-brand-blue/10 text-[11px] font-bold text-brand-blue">1</span>
+              <h2 class="text-[11px] font-semibold uppercase tracking-wider text-muted/80">Patient</h2>
+            </div>
+
+            <div class="relative mt-3">
+              <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+              <input data-ij-search type="search" class="topbar-search w-full rounded-xl border border-surface-line bg-surface-soft py-2.5 pl-9 pr-3 text-sm text-ink placeholder:text-muted" placeholder="Search patients (walk-in)..." aria-label="Search patients" />
+            </div>
+
+            <div data-ij-list class="vx-list mt-3 space-y-2"></div>
+
+            <div data-ij-empty hidden class="mt-3 rounded-xl border border-dashed border-surface-line bg-surface-soft px-4 py-5 text-center">
+              <p class="text-[13px] font-semibold text-ink">No patients match “<span data-ij-empty-q></span>”.</p>
+              <p class="mt-0.5 text-[12px] text-muted">Walk-in without a Fillware record? Add them below.</p>
+            </div>
+
+            <div data-ij-confirm hidden class="mt-3 flex items-start gap-2 rounded-xl border border-brand-teal2/30 bg-brand-teal/5 px-3 py-2.5 text-[12.5px] font-medium text-brand-teal2">
+              <svg width="15" height="15" class="mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+              <span data-ij-confirm-text></span>
+            </div>
+
+            <div class="mt-3" data-ij-add-slot>
+              <button type="button" data-ij-add-open class="btn w-full rounded-xl border border-dashed border-surface-line py-2.5 text-sm font-semibold text-muted hover:border-brand-teal2 hover:text-ink">+ Add new patient</button>
+              <div data-ij-add-form hidden class="rounded-xl border border-surface-line bg-surface-soft p-3.5">
+                <p class="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted/80">New patient (walk-in)</p>
+                <div class="space-y-2.5">
+                  <div><label class="mb-1 block text-[12px] font-medium text-ink">Full name</label><input data-ij-add-name class="ma-in" placeholder="e.g., Jordan Reyes" /></div>
+                  <div class="grid grid-cols-2 gap-2.5">
+                    <div><label class="mb-1 block text-[12px] font-medium text-ink">Age</label><input data-ij-add-age class="ma-in" inputmode="numeric" placeholder="e.g., 32" /></div>
+                    <div><label class="mb-1 block text-[12px] font-medium text-ink">Sex</label><select data-ij-add-sex class="ma-in"><option>F</option><option>M</option><option>X</option></select></div>
+                  </div>
+                  <div><label class="mb-1 block text-[12px] font-medium text-ink">Health number <span class="text-muted">(optional)</span></label><input data-ij-add-hn class="ma-in" placeholder="e.g., 1234 567 890" /></div>
+                </div>
+                <div class="mt-3 flex justify-end gap-2">
+                  <button type="button" data-ij-add-cancel class="btn rounded-xl border border-surface-line bg-white px-4 py-2 text-[13px] font-semibold text-ink hover:bg-surface-soft">Cancel</button>
+                  <button type="button" data-ij-add-save disabled class="btn rounded-xl bg-brand-teal/10 px-4 py-2 text-[13px] font-semibold text-brand-teal2">Add &amp; select</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ---------- STEP 2 · MEDICATION ---------- -->
+          <section data-ij-panel="med" class="reveal rounded-2xl border border-surface-line bg-white p-4 shadow-card sm:p-5">
+            <button type="button" data-ij-back class="btn mb-3 inline-flex items-center gap-1.5 text-[13px] font-semibold text-muted hover:text-ink lg:hidden">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+              Back to patient search
+            </button>
+
+            <div class="flex items-center gap-2.5">
+              <span data-ij-num class="grid h-6 w-6 place-items-center rounded-full bg-surface-soft text-[11px] font-bold text-muted">2</span>
+              <h2 class="text-[11px] font-semibold uppercase tracking-wider text-muted/80">Medication</h2>
+              <span data-ij-hint class="ml-auto text-[11.5px] font-medium text-muted">Select a patient first</span>
+            </div>
+
+            <div data-ij-body class="vx-locked mt-4">
+              <p class="text-[11px] font-semibold uppercase tracking-wider text-muted/70">Schedule 1 — pharmacist authority</p>
+              <div data-ij-sched1 class="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2"></div>
+
+              <div class="mt-5 rounded-xl border border-brand-blue/25 bg-brand-blue/5 p-3">
+                <div class="flex items-start gap-2 text-brand-blue">
+                  <svg width="15" height="15" class="mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                  <div class="min-w-0">
+                    <p class="text-[11px] font-semibold uppercase tracking-wider">Off-schedule — direct order / medical directive required</p>
+                    <p class="mt-0.5 text-[11.5px] text-brand-blue/90">Given under delegation or a medical directive — a direct order must be on file. Still bookable here.</p>
+                  </div>
+                </div>
+                <div data-ij-offsched class="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2"></div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div><!-- /data-vx-view="inj" -->
+
+    </div>
+  </div>
+</div>
+
+<script>
+  // ---- Mobile sidebar ----
+  const side = document.querySelector('[data-side]');
+  const overlay = document.querySelector('[data-side-overlay]');
+  const openSide  = () => { side.classList.remove('hidden'); overlay.classList.remove('hidden'); };
+  const closeSide = () => { side.classList.add('hidden'); overlay.classList.add('hidden'); };
+  document.querySelector('[data-side-btn]').addEventListener('click', openSide);
+  document.querySelector('[data-side-close]').addEventListener('click', closeSide);
+  overlay.addEventListener('click', closeSide);
+  side.querySelectorAll('a').forEach(a => a.addEventListener('click', closeSide));
+
+  // ---- Mobile top-bar search overlay ----
+  (function () {
+    const openBtn = document.querySelector('[data-search-open]');
+    const closeBtn = document.querySelector('[data-search-close]');
+    const panel = document.querySelector('[data-search-panel]');
+    if (!openBtn || !panel) return;
+    openBtn.addEventListener('click', () => { panel.hidden = false; const i = panel.querySelector('input'); if (i) i.focus(); });
+    if (closeBtn) closeBtn.addEventListener('click', () => { panel.hidden = true; });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && !panel.hidden) panel.hidden = true; });
+  })();
+
+  // ---- Theme toggle ----
+  const themeBtns = document.querySelectorAll('[data-theme-set]');
+  const applyTheme = (mode) => {
+    document.documentElement.classList.toggle('dark', mode === 'dark');
+    themeBtns.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.themeSet === mode)));
+  };
+  applyTheme(document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+  themeBtns.forEach(b => b.addEventListener('click', () => { const m = b.dataset.themeSet; applyTheme(m); try { localStorage.setItem('agilerx-theme', m); } catch (e) {} }));
+
+  // ---- Account dropdown ----
+  (function () {
+    const profileBtn = document.querySelector('[data-profile-btn]');
+    const profileMenu = document.querySelector('[data-profile-menu]');
+    if (!profileBtn) return;
+    const setProfile = (open) => { profileMenu.classList.toggle('hidden', !open); profileBtn.setAttribute('aria-expanded', String(open)); };
+    profileBtn.addEventListener('click', (e) => { e.stopPropagation(); setProfile(profileMenu.classList.contains('hidden')); });
+    document.addEventListener('click', (e) => { if (!profileMenu.contains(e.target) && !profileBtn.contains(e.target)) setProfile(false); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setProfile(false); });
+  })();
+
+  // ============================================================
+  //  Vaccinations — patient search/select + vaccine selection
+  // ============================================================
+  (function () {
+    const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
+    const initials = n => n.trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+
+    const PATIENTS = [
+      { name: 'Ama Osei',       age: 34, sex: 'F', hn: '4821 993 210' },
+      { name: 'Daniel Osei',    age: 9,  sex: 'M', hn: '5120 447 883' },
+      { name: 'Priya Nair',     age: 27, sex: 'F', hn: '3390 118 274' },
+      { name: 'Marcus Bell',    age: 41, sex: 'M', hn: '7745 601 002' },
+      { name: 'Sofia Rossi',    age: 52, sex: 'F', hn: '2214 887 559' },
+      { name: 'Liang Chen',     age: 63, sex: 'M', hn: '6087 233 470' },
+      { name: 'Fatima Khan',    age: 29, sex: 'F', hn: '9931 054 118' },
+      { name: 'Grace Thompson', age: 45, sex: 'F', hn: '1750 442 906' },
+    ];
+
+    // Publicly funded — COVID-19 & Influenza are billable now; the rest await fee configuration.
+    const FUNDED = [
+      { name: 'COVID-19',                 fee: '$13.00' },
+      { name: 'Influenza',                fee: '$8.50' },
+      { name: 'Herpes zoster (shingles)', pending: true },
+      { name: 'Pertussis',                pending: true },
+      { name: 'Pneumococcal',             pending: true },
+      { name: 'RSV',                      pending: true },
+      { name: 'Tetanus',                  pending: true },
+    ];
+    // Schedule 3 private-pay — only Japanese encephalitis is wired up in this prototype.
+    const PRIVATE = ['BCG', 'Diphtheria', 'Haemophilus influenzae type b', 'Hepatitis A', 'Hepatitis A + B combined', 'Hepatitis B', 'HPV', 'Japanese encephalitis', 'Meningococcal', 'Rabies', 'Typhoid', 'Typhoid/hepatitis A combined', 'Varicella', 'Yellow fever'];
+    const PRIVATE_ACTIVE = 'Japanese encephalitis';
+
+    const flow      = document.querySelector('[data-vx-flow]');
+    const listEl    = document.querySelector('[data-vx-list]');
+    const searchEl  = document.querySelector('[data-vx-search]');
+    const emptyEl   = document.querySelector('[data-vx-empty]');
+    const emptyQ    = document.querySelector('[data-vx-empty-q]');
+    const confirmEl = document.querySelector('[data-vx-confirm]');
+    const confirmTx = document.querySelector('[data-vx-confirm-text]');
+    const body      = document.querySelector('[data-vx-body]');
+    const num       = document.querySelector('[data-vx-num]');
+    const hint      = document.querySelector('[data-vx-hint]');
+    const fundedEl  = document.querySelector('[data-vx-funded]');
+    const privateEl = document.querySelector('[data-vx-private]');
+    const infoEl    = document.querySelector('[data-vx-info]');
+    const infoTitle = document.querySelector('[data-vx-info-title]');
+    const infoBody  = document.querySelector('[data-vx-info-body]');
+    const backBtn   = document.querySelector('[data-vx-back]');
+
+    let selected = null;
+
+    // ---- vaccine tiles ----
+    const chev = '<svg class="h-4 w-4 shrink-0 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>';
+    function tileActive(name, fee, badge, sub) {
+      return `<button type="button" data-vx-tile data-vaccine="${esc(name)}" data-fee="${esc(fee)}" class="btn flex min-h-[3rem] items-center gap-3 rounded-xl border border-surface-line bg-white p-3.5 text-left hover:border-brand-teal2 hover:shadow-card">
+        <span class="min-w-0 flex-1"><span class="block text-[13.5px] font-semibold text-ink">${esc(name)}</span><span class="block text-[11.5px] text-muted">${esc(sub)}</span></span>
+        ${badge || ''}${chev}
+      </button>`;
+    }
+    function tileDisabled(name, badge) {
+      return `<button type="button" data-vx-tile data-disabled data-vaccine="${esc(name)}" class="btn flex min-h-[2.75rem] items-center justify-between gap-2 rounded-xl border border-surface-line bg-surface-soft p-3.5 text-left hover:border-brand-blue/40">
+        <span class="text-[12.5px] font-medium text-muted">${esc(name)}</span>${badge || ''}
+      </button>`;
+    }
+    const tealBadge  = fee => `<span class="shrink-0 rounded-full bg-brand-teal/10 px-2 py-0.5 text-[11px] font-semibold text-brand-teal2">${esc(fee)}</span>`;
+    const amberBadge = '<span class="shrink-0 rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-600">Fee pending</span>';
+
+    fundedEl.innerHTML = FUNDED.map(v => v.pending
+      ? tileDisabled(v.name, amberBadge)
+      : tileActive(v.name, v.fee, tealBadge(v.fee), 'Publicly funded · no Rx needed')).join('');
+    privateEl.innerHTML = PRIVATE.map(name => name === PRIVATE_ACTIVE
+      ? tileActive(name, 'Private pay', '', 'Private pay')
+      : tileDisabled(name, '')).join('');
+
+    // ---- patient list ----
+    function renderList() {
+      const q = (searchEl.value || '').trim().toLowerCase();
+      const matches = PATIENTS.filter(p => !q || p.name.toLowerCase().includes(q));
+      listEl.innerHTML = matches.map(p => `
+        <button type="button" data-vx-patient data-name="${esc(p.name)}" aria-pressed="${selected === p.name}" class="btn flex w-full items-center gap-3 rounded-xl border border-surface-line bg-white px-3 py-2.5 text-left hover:border-brand-teal2">
+          <span class="vx-av grid h-9 w-9 shrink-0 place-items-center rounded-full bg-surface-soft text-[11px] font-bold text-muted">${esc(initials(p.name))}</span>
+          <span class="min-w-0 flex-1">
+            <span class="block text-[13.5px] font-semibold text-ink">${esc(p.name)} <span class="font-normal text-muted">· ${p.age} ${esc(p.sex)}</span></span>
+            <span class="block text-[11.5px] text-muted">HN ${esc(p.hn)}</span>
+          </span>
+          <svg class="h-4 w-4 shrink-0 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>`).join('');
+      const none = matches.length === 0;
+      emptyEl.hidden = !none;
+      if (none) emptyQ.textContent = searchEl.value.trim();
+    }
+
+    function selectPatient(name) {
+      selected = name;
+      listEl.querySelectorAll('[data-vx-patient]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.name === name)));
+      confirmEl.hidden = false;
+      confirmTx.textContent = `${name} — profile pre-populated from Fillware`;
+      body.classList.remove('vx-locked');
+      num.className = 'grid h-6 w-6 place-items-center rounded-full bg-brand-blue/10 text-[11px] font-bold text-brand-blue';
+      hint.textContent = 'Ready — pick a vaccine';
+      hint.classList.remove('text-muted'); hint.classList.add('text-brand-teal2');
+      infoEl.hidden = true;
+      flow.setAttribute('data-vx-flow', 'vaccine');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ---- events ----
+    searchEl.addEventListener('input', renderList);
+    listEl.addEventListener('click', e => { const b = e.target.closest('[data-vx-patient]'); if (b) selectPatient(b.dataset.name); });
+    if (backBtn) backBtn.addEventListener('click', () => flow.setAttribute('data-vx-flow', 'patient'));
+
+    function onTile(e) {
+      const b = e.target.closest('[data-vx-tile]');
+      if (!b) return;
+      if (b.hasAttribute('data-disabled')) {
+        infoTitle.textContent = `${b.dataset.vaccine} — billing not configured yet`;
+        infoBody.textContent = 'A dose can’t be recorded through this flow until this vaccine’s fee/billing is set up. In this prototype, COVID-19 and Influenza (publicly funded) and Japanese encephalitis (private pay) are available.';
+        infoEl.hidden = false;
+        infoEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        return;
+      }
+      const q = '?patient=' + encodeURIComponent(selected || '') + '&vaccine=' + encodeURIComponent(b.dataset.vaccine) + '&fee=' + encodeURIComponent(b.dataset.fee || '');
+      window.location.href = 'vaccinate-session.html' + q;
+    }
+    fundedEl.addEventListener('click', onTile);
+    privateEl.addEventListener('click', onTile);
+
+    // ---- add new patient (walk-in) ----
+    (function () {
+      const slot   = document.querySelector('[data-vx-add-slot]');
+      const openB  = slot.querySelector('[data-vx-add-open]');
+      const form   = slot.querySelector('[data-vx-add-form]');
+      const name   = slot.querySelector('[data-vx-add-name]');
+      const age    = slot.querySelector('[data-vx-add-age]');
+      const sex    = slot.querySelector('[data-vx-add-sex]');
+      const hn     = slot.querySelector('[data-vx-add-hn]');
+      const saveB  = slot.querySelector('[data-vx-add-save]');
+      const cancel = slot.querySelector('[data-vx-add-cancel]');
+      const valid = () => name.value.trim() && String(age.value).trim();
+      function refresh() {
+        saveB.disabled = !valid();
+        saveB.className = valid()
+          ? 'btn rounded-xl bg-brand-teal2 px-4 py-2 text-[13px] font-semibold text-white hover:bg-brand-teal'
+          : 'btn rounded-xl bg-brand-teal/10 px-4 py-2 text-[13px] font-semibold text-brand-teal2 cursor-not-allowed';
+      }
+      function reset() { name.value = age.value = hn.value = ''; sex.value = 'F'; refresh(); }
+      function close() { form.hidden = true; openB.hidden = false; }
+      openB.addEventListener('click', () => { openB.hidden = true; form.hidden = false; name.focus(); });
+      cancel.addEventListener('click', () => { reset(); close(); });
+      [name, age].forEach(el => el.addEventListener('input', refresh));
+      saveB.addEventListener('click', () => {
+        if (!valid()) return;
+        const p = { name: name.value.trim(), age: Number(age.value) || age.value.trim(), sex: sex.value, hn: hn.value.trim() || '— (walk-in)' };
+        PATIENTS.unshift(p);
+        reset(); close(); searchEl.value = ''; renderList(); selectPatient(p.name);
+      });
+      refresh();
+    })();
+
+    renderList();
+  })();
+
+  // ============================================================
+  //  Injections — patient search/select + medication selection
+  // ============================================================
+  (function () {
+    const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
+    const enc = encodeURIComponent;
+    const initials = n => n.trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+
+    const PATIENTS = [
+      { name: 'Ama Osei',       age: 34, sex: 'F', hn: '4821 993 210' },
+      { name: 'Daniel Osei',    age: 9,  sex: 'M', hn: '5120 447 883' },
+      { name: 'Priya Nair',     age: 27, sex: 'F', hn: '3390 118 274' },
+      { name: 'Marcus Bell',    age: 41, sex: 'M', hn: '7745 601 002' },
+      { name: 'Sofia Rossi',    age: 52, sex: 'F', hn: '2214 887 559' },
+      { name: 'Liang Chen',     age: 63, sex: 'M', hn: '6087 233 470' },
+      { name: 'Fatima Khan',    age: 29, sex: 'F', hn: '9931 054 118' },
+      { name: 'Grace Thompson', age: 45, sex: 'F', hn: '1750 442 906' },
+    ];
+
+    // Schedule 1 — administered on the pharmacist's own authority (O. Reg. 256/24).
+    const SCHED1 = [
+      { name: 'Adalimumab (Humira/biosimilar)',        fee: '$20.00', route: 'SC', interval: 'q2wk'  },
+      { name: 'Benzathine penicillin G (Bicillin L-A)', fee: '$25.00', route: 'IM', interval: 'per Rx' },
+      { name: 'Denosumab (Prolia)',                    fee: '$20.00', route: 'SC', interval: 'q26wk' },
+      { name: 'Depo-Provera (medroxyprogesterone)',    fee: '$20.00', route: 'IM', interval: 'q12wk' },
+      { name: 'Vitamin B12 (cyanocobalamin)',          fee: '$20.00', route: 'IM', interval: 'q4wk'  },
+    ];
+    // Off-schedule — needs a direct order / medical directive on file (delegation).
+    const OFFSCHED = [
+      { name: 'Paliperidone (Invega Sustenna)', fee: '$25.00', route: 'IM', interval: 'q4wk',  deleg: true },
+      { name: 'Paliperidone (Invega Trinza)',   fee: '$25.00', route: 'IM', interval: 'q13wk', deleg: true },
+      { name: 'Testosterone cypionate',         fee: '$20.00', route: 'IM', interval: 'per Rx', deleg: true },
+    ];
+
+    const flow      = document.querySelector('[data-ij-flow]');
+    const listEl    = document.querySelector('[data-ij-list]');
+    const searchEl  = document.querySelector('[data-ij-search]');
+    const emptyEl   = document.querySelector('[data-ij-empty]');
+    const emptyQ    = document.querySelector('[data-ij-empty-q]');
+    const confirmEl = document.querySelector('[data-ij-confirm]');
+    const confirmTx = document.querySelector('[data-ij-confirm-text]');
+    const body      = document.querySelector('[data-ij-body]');
+    const num       = document.querySelector('[data-ij-num]');
+    const hint      = document.querySelector('[data-ij-hint]');
+    const sched1El  = document.querySelector('[data-ij-sched1]');
+    const offEl     = document.querySelector('[data-ij-offsched]');
+    const backBtn   = document.querySelector('[data-ij-back]');
+
+    let selected = null;
+
+    const chev = '<svg class="h-4 w-4 shrink-0 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>';
+
+    // teal-outlined (Schedule 1) or blue-outlined (off-schedule, delegation) medication tile — all clickable
+    function medTile(m, blue) {
+      const outline = blue ? 'border-brand-blue/40 hover:border-brand-blue' : 'border-brand-teal2/40 hover:border-brand-teal2';
+      const badge = m.deleg ? '<span class="shrink-0 self-start rounded-full border border-brand-blue/30 bg-brand-blue/10 px-2 py-0.5 text-[10.5px] font-semibold text-brand-blue">Delegation required</span>' : '';
+      return `<button type="button" data-ij-tile data-drug="${esc(m.name)}" data-fee="${esc(m.fee)}" data-route="${esc(m.route)}" data-interval="${esc(m.interval)}" data-deleg="${m.deleg ? 1 : 0}" class="btn flex min-h-[3.25rem] items-center gap-2.5 rounded-xl border ${outline} bg-white p-3.5 text-left hover:shadow-card">
+        <span class="min-w-0 flex-1"><span class="block text-[13.5px] font-semibold text-ink">${esc(m.name)}</span><span class="mt-0.5 block text-[11.5px] text-muted">${esc(m.fee)} · ${esc(m.route)} · ${esc(m.interval)}</span></span>
+        ${badge}${chev}
+      </button>`;
+    }
+    sched1El.innerHTML = SCHED1.map(m => medTile(m, false)).join('');
+    offEl.innerHTML    = OFFSCHED.map(m => medTile(m, true)).join('');
+
+    function renderList() {
+      const q = (searchEl.value || '').trim().toLowerCase();
+      const matches = PATIENTS.filter(p => !q || p.name.toLowerCase().includes(q));
+      listEl.innerHTML = matches.map(p => `
+        <button type="button" data-ij-patient data-name="${esc(p.name)}" aria-pressed="${selected === p.name}" class="btn flex w-full items-center gap-3 rounded-xl border border-surface-line bg-white px-3 py-2.5 text-left hover:border-brand-teal2">
+          <span class="vx-av grid h-9 w-9 shrink-0 place-items-center rounded-full bg-surface-soft text-[11px] font-bold text-muted">${esc(initials(p.name))}</span>
+          <span class="min-w-0 flex-1">
+            <span class="block text-[13.5px] font-semibold text-ink">${esc(p.name)} <span class="font-normal text-muted">· ${p.age} ${esc(p.sex)}</span></span>
+            <span class="block text-[11.5px] text-muted">HN ${esc(p.hn)}</span>
+          </span>
+          ${chev}
+        </button>`).join('');
+      const none = matches.length === 0;
+      emptyEl.hidden = !none;
+      if (none) emptyQ.textContent = searchEl.value.trim();
+    }
+
+    function selectPatient(name) {
+      const p = PATIENTS.find(x => x.name === name);
+      if (!p) return;
+      selected = name;
+      listEl.querySelectorAll('[data-ij-patient]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.name === name)));
+      confirmEl.hidden = false;
+      confirmTx.textContent = `${p.name}, ${p.age} — dose timing is checked against the last injection at intake.`;
+      body.classList.remove('vx-locked');
+      num.className = 'grid h-6 w-6 place-items-center rounded-full bg-brand-blue/10 text-[11px] font-bold text-brand-blue';
+      hint.textContent = 'Ready — pick a medication';
+      hint.classList.remove('text-muted'); hint.classList.add('text-brand-teal2');
+      flow.setAttribute('data-ij-flow', 'med');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    searchEl.addEventListener('input', renderList);
+    listEl.addEventListener('click', e => { const b = e.target.closest('[data-ij-patient]'); if (b) selectPatient(b.dataset.name); });
+    if (backBtn) backBtn.addEventListener('click', () => flow.setAttribute('data-ij-flow', 'patient'));
+
+    function onTile(e) {
+      const b = e.target.closest('[data-ij-tile]');
+      if (!b) return;
+      const p = PATIENTS.find(x => x.name === selected) || {};
+      const q = '?patient=' + enc(selected || '') + '&age=' + enc(p.age || '') + '&sex=' + enc(p.sex || '') + '&hn=' + enc(p.hn || '')
+        + '&drug=' + enc(b.dataset.drug) + '&fee=' + enc(b.dataset.fee || '') + '&route=' + enc(b.dataset.route || '')
+        + '&interval=' + enc(b.dataset.interval || '') + '&deleg=' + enc(b.dataset.deleg || '0');
+      window.location.href = 'injection-session.html' + q;
+    }
+    sched1El.addEventListener('click', onTile);
+    offEl.addEventListener('click', onTile);
+
+    // ---- add new patient (walk-in) ----
+    (function () {
+      const slot   = document.querySelector('[data-ij-add-slot]');
+      const openB  = slot.querySelector('[data-ij-add-open]');
+      const form   = slot.querySelector('[data-ij-add-form]');
+      const name   = slot.querySelector('[data-ij-add-name]');
+      const age    = slot.querySelector('[data-ij-add-age]');
+      const sex    = slot.querySelector('[data-ij-add-sex]');
+      const hn     = slot.querySelector('[data-ij-add-hn]');
+      const saveB  = slot.querySelector('[data-ij-add-save]');
+      const cancel = slot.querySelector('[data-ij-add-cancel]');
+      const valid = () => name.value.trim() && String(age.value).trim();
+      function refresh() {
+        saveB.disabled = !valid();
+        saveB.className = valid()
+          ? 'btn rounded-xl bg-brand-teal2 px-4 py-2 text-[13px] font-semibold text-white hover:bg-brand-teal'
+          : 'btn rounded-xl bg-brand-teal/10 px-4 py-2 text-[13px] font-semibold text-brand-teal2 cursor-not-allowed';
+      }
+      function reset() { name.value = age.value = hn.value = ''; sex.value = 'F'; refresh(); }
+      function close() { form.hidden = true; openB.hidden = false; }
+      openB.addEventListener('click', () => { openB.hidden = true; form.hidden = false; name.focus(); });
+      cancel.addEventListener('click', () => { reset(); close(); });
+      [name, age].forEach(el => el.addEventListener('input', refresh));
+      saveB.addEventListener('click', () => {
+        if (!valid()) return;
+        const p = { name: name.value.trim(), age: Number(age.value) || age.value.trim(), sex: sex.value, hn: hn.value.trim() || '— (walk-in)' };
+        PATIENTS.unshift(p);
+        reset(); close(); searchEl.value = ''; renderList(); selectPatient(p.name);
+      });
+      refresh();
+    })();
+
+    renderList();
+  })();
+
+  // ---- Vaccinations / Injections tab switch ----
+  (function () {
+    const tabs = document.querySelectorAll('[data-vx-tab]');
+    const views = { vacc: document.querySelector('[data-vx-view="vacc"]'), inj: document.querySelector('[data-vx-view="inj"]') };
+    function show(which) {
+      tabs.forEach(t => t.setAttribute('aria-selected', String(t.dataset.vxTab === which)));
+      Object.keys(views).forEach(k => { if (views[k]) views[k].hidden = (k !== which); });
+      const v = views[which];
+      if (v) v.querySelectorAll('.reveal').forEach(el => el.classList.add('in'));
+    }
+    tabs.forEach(t => t.addEventListener('click', () => show(t.dataset.vxTab)));
+    show(new URLSearchParams(location.search).get('tab') === 'inj' ? 'inj' : 'vacc');
+  })();
+
+  // ---- Reveal on scroll ----
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold:.12, rootMargin:'0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>

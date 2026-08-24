@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Patients — Agile Pharmas</title>
+<meta name="description" content="Patient records — Lakeview Pharmacy, synced with Fillware." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          ink:     '#0F172A',
+          muted:   '#64748B',
+          brand:   { blue:'#2563EB', blue2:'#1D4FD8', teal:'#12BEA6', teal2:'#0BA891', sky:'#7CC8FF' },
+          surface: { soft:'#F6F8FC', line:'#E7ECF4' },
+        },
+        fontFamily: { sans: ['Inter','system-ui','-apple-system','Segoe UI','sans-serif'] },
+        boxShadow: {
+          card:      '0 1px 2px rgba(16,42,84,.04), 0 10px 28px -14px rgba(16,42,84,.20)',
+          cardhover: '0 2px 6px rgba(16,42,84,.06), 0 22px 48px -18px rgba(37,99,235,.30)',
+          float:     '0 26px 70px -24px rgba(37,99,235,.40)',
+          soft:      '0 1px 2px rgba(16,42,84,.05), 0 6px 18px -10px rgba(16,42,84,.18)',
+        },
+      },
+    },
+  };
+</script>
+<script>
+  // Apply saved theme before first paint (no flash of light mode)
+  (function () {
+    try {
+      var t = localStorage.getItem('agilerx-theme');
+      if (!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      document.documentElement.classList.toggle('dark', t === 'dark');
+    } catch (e) {}
+  })();
+</script>
+<style>
+  :root { --ease-spring: cubic-bezier(.16,1,.3,1); }
+  html, body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  body { background:#fff; color:#0F172A; overflow-x:hidden; }
+  [hidden] { display:none !important; }  /* attribute must beat display utilities (e.g. a hidden .flex modal) */
+  .h-display { letter-spacing:-.03em; line-height:1.05; }
+  .brand-grad   { background-image:linear-gradient(100deg,#12BEA6 0%,#2563EB 60%); }
+  /* buttons */
+  .btn { transition:transform .25s var(--ease-spring), box-shadow .25s var(--ease-spring), background-color .2s ease, color .2s ease, border-color .2s ease; will-change:transform; }
+  .btn:hover  { transform:translateY(-2px); }
+  .btn:active { transform:translateY(0) scale(.985); }
+  .btn:focus-visible { outline:2px solid #2563EB; outline-offset:3px; }
+  .card-lift { transition:transform .35s var(--ease-spring), box-shadow .35s var(--ease-spring); will-change:transform; }
+  .card-lift:hover { transform:translateY(-6px); }
+  /* reveal on scroll */
+  .reveal { opacity:0; transform:translateY(22px); transition:opacity .7s var(--ease-spring), transform .7s var(--ease-spring); }
+  .reveal.in { opacity:1; transform:none; }
+  @media (prefers-reduced-motion: reduce){ .reveal{opacity:1;transform:none;transition:none;} .btn,.card-lift,.patient-row{transition:none;} html{scroll-behavior:auto;} }
+  ::selection{ background:#c9e3ff; color:#0b2c66; }
+  /* sidebar nav items */
+  .side-item { transition:color .2s ease, background-color .2s ease; }
+  .side-item:hover { color:#0F172A; background-color:#F6F8FC; }
+  .side-item:focus-visible { outline:2px solid #2563EB; outline-offset:-2px; }
+  /* top bar bits (kept for shell parity) */
+  .theme-seg { transition:background-color .2s ease, color .2s ease, transform .25s var(--ease-spring); }
+  .theme-seg:hover { color:#0F172A; }
+  .theme-seg:active { transform:scale(.92); }
+  .theme-seg:focus-visible { outline:2px solid #12BEA6; outline-offset:2px; }
+  .theme-seg[aria-pressed="true"] { background:#fff; color:#0F172A; box-shadow:0 1px 2px rgba(16,42,84,.10); }
+  .topbar-search:focus { outline:none; border-color:#0BA891; box-shadow:0 0 0 3px rgba(18,190,166,.20); }
+  .topbar-search::-webkit-search-cancel-button { -webkit-appearance:none; }
+
+  /* ---- Patients page ---- */
+  .patient-row { transition:background-color .18s ease, border-color .18s ease; }
+  .patient-row:hover { background:#F6F8FC; }
+  .patient-row:focus-visible { outline:2px solid #2563EB; outline-offset:-2px; }
+  .patient-row[aria-current="true"] { background:rgba(18,190,166,.08); border-color:#A7E8DD; }
+  .dot { display:inline-block; width:.5rem; height:.5rem; border-radius:9999px; flex:0 0 auto; }
+  .dot-teal  { background:#0BA891; }
+  .dot-blue  { background:#2563EB; }
+  .dot-gray  { background:#94A3B8; }
+  .dot-brown { background:#C79A5E; }
+  .badge-pathway { background:#F5EEE3; border:1px solid #E4D6C3; color:#8A5A2B; }
+  /* medications: aligned table on desktop, stacked cards on mobile (no horizontal scroll) */
+  @media (max-width:639px){
+    .med-table, .med-table tbody { display:block; }
+    .med-table thead { display:none; }
+    .med-table tr { display:block; border:1px solid #E7ECF4; border-radius:.7rem; padding:.55rem .75rem; margin-bottom:.5rem; }
+    .med-table td { display:block; padding:.12rem 0 !important; text-align:left !important; }
+    .med-table td:first-child { font-size:.875rem; }
+    .med-table td[data-label]::before { content:attr(data-label); display:inline-block; min-width:5.5rem; color:#64748B; font-weight:600; }
+  }
+  html.dark .med-table tr { border-color:#26314A; }
+  /* add-patient sheet: full-screen bottom sheet on mobile, side drawer on ≥640px.
+     Positioning + open/close transform live here so one .is-open toggle drives both breakpoints;
+     colour/border/shadow stay on Tailwind utilities (dark-mode aware). */
+  .add-sheet { inset:0; transform:translateY(100%); }
+  @media (min-width:640px){ .add-sheet { inset:0 0 0 auto; width:100%; max-width:28rem; transform:translateX(100%); } }
+  .add-sheet.is-open { transform:none; }
+  /* add-patient drawer form controls */
+  .f-in { width:100%; border-radius:.5rem; border:1px solid #E7ECF4; background:#F6F8FC; padding:.5rem .75rem; font-size:.8125rem; color:#0F172A; transition:border-color .18s ease, box-shadow .18s ease; }
+  .f-in:focus { outline:none; border-color:#0BA891; box-shadow:0 0 0 3px rgba(18,190,166,.18); }
+  html.dark .f-in { background:#0B1220; border-color:#26314A; color:#E8EDF6; }
+  /* allergies autocomplete (type-ahead + chips) */
+  .ac { position:relative; }
+  .ac-box { display:flex; flex-wrap:wrap; align-items:center; gap:.375rem; min-height:2.5rem; border-radius:.5rem; border:1px solid #E7ECF4; background:#F6F8FC; padding:.3rem .45rem; transition:border-color .18s ease, box-shadow .18s ease; cursor:text; }
+  .ac-box:focus-within { border-color:#0BA891; box-shadow:0 0 0 3px rgba(18,190,166,.18); }
+  .ac-input { flex:1 1 7rem; min-width:7rem; border:0; background:transparent; outline:none; font-size:.8125rem; color:#0F172A; padding:.2rem .15rem; }
+  .ac-chip { display:inline-flex; align-items:center; gap:.1rem; border-radius:9999px; border:1px solid #E7ECF4; background:#fff; color:#0F172A; padding:.15rem .2rem .15rem .55rem; font-size:11.5px; font-weight:600; line-height:1.2; }
+  .ac-chip button { display:grid; place-items:center; width:1.05rem; height:1.05rem; border-radius:9999px; color:#64748B; font-size:15px; line-height:1; }
+  .ac-chip button:hover { background:#F6F8FC; color:#0F172A; }
+  .ac-list { position:absolute; left:0; right:0; top:calc(100% + 4px); z-index:20; max-height:12rem; overflow-y:auto; border-radius:.6rem; border:1px solid #E7ECF4; background:#fff; box-shadow:0 12px 30px -14px rgba(16,42,84,.4); padding:.25rem; }
+  .ac-opt { border-radius:.4rem; padding:.4rem .55rem; font-size:.8125rem; color:#0F172A; cursor:pointer; }
+  .ac-opt[aria-selected="true"] { background:#F6F8FC; }
+  .ac-opt mark { background:transparent; color:#0BA891; font-weight:700; }
+  .ac-empty { padding:.5rem .55rem; font-size:.8125rem; color:#64748B; }
+  html.dark .ac-box { background:#0B1220; border-color:#26314A; }
+  html.dark .ac-input { color:#E8EDF6; }
+  html.dark .ac-chip { background:#141C2B; border-color:#26314A; color:#E8EDF6; }
+  html.dark .ac-chip button:hover { background:rgba(255,255,255,.06); }
+  html.dark .ac-list { background:#141C2B; border-color:#26314A; }
+  html.dark .ac-opt[aria-selected="true"] { background:rgba(255,255,255,.06); }
+  html.dark .ac-opt mark { color:#2FD9C0; }
+
+  /* ---- DARK MODE (scoped overrides on the shared tokens) ---- */
+  html.dark { color-scheme:dark; }
+  html.dark body { background:#0B1220; color:#E8EDF6; }
+  html.dark .bg-surface-soft            { background-color:#0B1220; }
+  html.dark .bg-white                   { background-color:#141C2B; }
+  html.dark .bg-white\/80               { background-color:rgba(20,28,43,.84); }
+  html.dark .border-surface-line        { border-color:#26314A; }
+  html.dark .text-ink                   { color:#E8EDF6; }
+  html.dark .text-muted                 { color:#95A3B8; }
+  html.dark .text-muted\/70             { color:rgba(149,163,184,.78); }
+  html.dark .bg-ink\/30                 { background-color:rgba(2,6,18,.62); }
+  html.dark .hover\:bg-surface-soft:hover { background-color:rgba(255,255,255,.05); }
+  html.dark .side-item:hover            { color:#E8EDF6; background-color:rgba(255,255,255,.06); }
+  html.dark .theme-seg:hover            { color:#E8EDF6; }
+  html.dark .theme-seg[aria-pressed="true"] { background:#26314A; color:#E8EDF6; box-shadow:0 1px 2px rgba(0,0,0,.5); }
+  html.dark .topbar-search:focus        { border-color:#12BEA6; box-shadow:0 0 0 3px rgba(18,190,166,.28); }
+  html.dark .text-brand-blue    { color:#7CC8FF; }
+  html.dark .bg-brand-blue\/10  { background-color:rgba(124,200,255,.14); }
+  html.dark .border-brand-blue\/20 { border-color:rgba(124,200,255,.3); }
+  html.dark .text-brand-teal2   { color:#2FD9C0; }
+  html.dark .bg-brand-teal\/10  { background-color:rgba(18,190,166,.16); }
+  html.dark .border-brand-teal\/30 { border-color:rgba(47,217,192,.34); }
+  html.dark .hover\:bg-brand-teal\/20:hover { background-color:rgba(18,190,166,.26); }
+  html.dark .text-emerald-600   { color:#34D399; }
+  html.dark .bg-emerald-50      { background-color:rgba(52,211,153,.14); }
+  html.dark .text-amber-600     { color:#FBBF24; }
+  html.dark .bg-amber-50        { background-color:rgba(251,191,36,.11); }
+  html.dark .bg-slate-300       { background-color:#3A4A63; }
+  html.dark .ring-white         { --tw-ring-color:#141C2B; }
+  html.dark .shadow-soft { --tw-shadow:0 1px 2px rgba(0,0,0,.45), 0 6px 18px -10px rgba(0,0,0,.65); --tw-shadow-colored:var(--tw-shadow); }
+  html.dark .shadow-card { --tw-shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 28px -14px rgba(0,0,0,.75); --tw-shadow-colored:var(--tw-shadow); }
+  html.dark .patient-row:hover { background:rgba(255,255,255,.05); }
+  html.dark .patient-row[aria-current="true"] { background:rgba(18,190,166,.14); border-color:rgba(47,217,192,.4); }
+  html.dark .dot-blue { background:#7CC8FF; }
+  html.dark .dot-teal { background:#2FD9C0; }
+  html.dark .badge-pathway { background:rgba(180,120,60,.16); border-color:rgba(180,120,60,.42); color:#E0B98C; }
+  html.dark ::selection { background:#12BEA6; color:#04211C; }
+  /* custom select arrow — inset chevron instead of the far-edge native one */
+  select[class]{ -webkit-appearance:none; -moz-appearance:none; appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 0.7rem center; background-size:15px 15px; padding-right:2.2rem; }
+  html.dark select[class]{ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2395A3B8' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); }
+</style>
+</head>
+<body class="font-sans antialiased bg-surface-soft">
+
+<div class="relative min-h-screen lg:flex">
+  <div class="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(60%_50%_at_15%_0%,rgba(18,190,166,.10),transparent),radial-gradient(55%_50%_at_100%_10%,rgba(37,99,235,.12),transparent)]"></div>
+
+  <!-- ============ SIDEBAR (shared shell; Patients active) ============ -->
+  <aside data-side class="fixed inset-y-0 left-0 z-50 hidden w-64 shrink-0 overflow-y-auto border-r border-surface-line bg-white p-4 backdrop-blur-md lg:sticky lg:top-0 lg:block lg:h-screen">
+    <div class="mb-5 flex items-center gap-2 px-1">
+      <span class="grid h-7 w-7 place-items-center rounded-lg brand-grad text-[11px] font-bold text-white">A</span>
+      <span class="text-sm font-bold text-ink">Agile Pharmas</span>
+      <button data-side-close class="ml-auto grid h-8 w-8 place-items-center rounded-lg border border-surface-line text-muted lg:hidden" aria-label="Close menu">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <p class="px-2 pb-2 text-[10px] font-semibold uppercase tracking-wider text-muted/70">Menu</p>
+    <nav class="space-y-1 text-[13px]">
+      <a href="dashboard.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Dashboard</a>
+    </nav>
+
+    <p class="mt-5 px-2 pb-2 text-[10px] font-semibold uppercase tracking-wider text-muted/70">Clinical Services</p>
+    <nav class="space-y-1 text-[13px]">
+      <a href="medscheck.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>MedsCheck</a>
+      <a href="minor-ailments.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Minor Ailments</a>
+      <a href="vaccinations-injections.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Vaccinations &amp; Injections</a>
+    </nav>
+
+    <p class="mt-5 px-2 pb-2 text-[10px] font-semibold uppercase tracking-wider text-muted/70">Operations</p>
+    <nav class="space-y-1 text-[13px]">
+      <a href="billing.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Billing</a>
+      <a href="billing-guard.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Billing Guard</a>
+      <a href="incidents.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Incidents</a>
+      <a href="filing-worklist.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Filing Worklist</a>
+      <a href="calendar.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Calendar</a>
+    </nav>
+
+    <p class="mt-5 px-2 pb-2 text-[10px] font-semibold uppercase tracking-wider text-muted/70">Records</p>
+    <nav class="space-y-1 text-[13px]">
+      <a href="patients.html" aria-current="page" class="side-item flex items-center gap-2.5 rounded-lg bg-brand-blue/10 px-3 py-2 font-semibold text-brand-blue"><span class="h-2 w-2 rounded-full bg-brand-blue"></span>Patients</a>
+    </nav>
+  </aside>
+  <div data-side-overlay class="fixed inset-0 z-40 hidden bg-ink/30 backdrop-blur-sm lg:hidden"></div>
+
+  <!-- ============ MAIN ============ -->
+  <div class="min-w-0 flex-1">
+    <div class="mx-auto max-w-none px-4 py-4 sm:px-6 lg:px-8 lg:py-6 2xl:px-10">
+
+      <!-- ---- UTILITY BAR ---- -->
+      <div data-topbar class="reveal relative mb-3 flex items-center gap-2 rounded-2xl border border-surface-line bg-white px-2.5 py-2 shadow-soft sm:gap-3 sm:px-4 sm:py-2.5">
+        <button data-side-btn class="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-surface-line text-ink lg:hidden" aria-label="Open menu">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+        <img src="brand.assets/aglie%20logo.png" alt="Agile Pharmas" class="hidden h-6 w-auto shrink-0 md:block" />
+        <div class="relative hidden min-w-0 flex-1 sm:block">
+          <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input type="search" class="topbar-search w-full rounded-xl border border-surface-line bg-surface-soft py-2 pl-9 pr-3 text-sm text-ink transition-colors placeholder:text-muted" placeholder="Search patients, claims..." aria-label="Search patients, claims" />
+        </div>
+
+        <div class="flex-1 sm:hidden"></div>
+
+        <div class="flex shrink-0 items-center gap-1.5 sm:gap-2">
+          <button data-search-open class="grid h-10 w-10 place-items-center rounded-xl border border-surface-line text-muted hover:text-ink sm:hidden" aria-label="Search">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          </button>
+          <div class="flex items-center gap-0.5 rounded-full border border-surface-line bg-surface-soft p-0.5" role="group" aria-label="Colour mode">
+            <button type="button" data-theme-set="light" class="theme-seg grid h-8 w-8 place-items-center rounded-full text-muted" aria-pressed="true" aria-label="Light mode" title="Light mode">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+            </button>
+            <button type="button" data-theme-set="dark" class="theme-seg grid h-8 w-8 place-items-center rounded-full text-muted" aria-pressed="false" aria-label="Dark mode" title="Dark mode">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+            </button>
+          </div>
+          <button type="button" class="btn relative grid h-9 w-9 place-items-center rounded-full bg-brand-teal/10 text-brand-teal2 hover:bg-brand-teal/20" aria-label="Notifications — 3 unread">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 6-2 7-2 7h16s-2-1-2-7"/><path d="M10.3 20a2 2 0 0 0 3.4 0"/></svg>
+            <span class="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-brand-teal ring-2 ring-white"></span>
+          </button>
+          <span class="mx-0.5 hidden h-6 w-px bg-surface-line sm:block"></span>
+          <span class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-emerald-50 text-[11px] font-bold text-emerald-600" title="Lakeview Pharmacy">LP</span>
+        </div>
+
+        <!-- mobile search overlay (covers the bar when the search icon is tapped) -->
+        <div data-search-panel hidden class="absolute inset-0 z-20 flex items-center gap-2 rounded-2xl border border-surface-line bg-white px-2.5 sm:hidden">
+          <button data-search-close class="grid h-10 w-10 shrink-0 place-items-center rounded-xl text-muted hover:text-ink" aria-label="Close search">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+          </button>
+          <div class="relative min-w-0 flex-1">
+            <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <input type="search" class="topbar-search w-full rounded-xl border border-surface-line bg-surface-soft py-2 pl-9 pr-3 text-sm text-ink placeholder:text-muted" placeholder="Search patients, claims..." aria-label="Search patients, claims" />
+          </div>
+        </div>
+      </div>
+
+      <!-- ---- PAGE HEADER BANNER (branded sky image; fixed dark text as the image is always light) ---- -->
+      <section class="reveal relative isolate mb-4 overflow-hidden rounded-2xl border border-white/60 shadow-soft">
+        <img src="brand.assets/cta-bg.jpg" alt="" aria-hidden="true" class="absolute inset-0 -z-10 h-full w-full object-cover object-center" />
+        <div class="absolute inset-0 -z-10 bg-gradient-to-r from-white/85 via-white/45 to-transparent"></div>
+        <div class="flex flex-col gap-4 p-5 sm:flex-row sm:items-end sm:justify-between sm:px-6 sm:py-6">
+          <div class="min-w-0">
+            <h1 class="h-display text-xl font-extrabold text-[#0F172A] sm:text-2xl">Patients</h1>
+            <p class="mt-1 text-sm font-medium text-[#475569]"><span data-count>16</span> synced from Fillware · last sync <span data-synctime>01:15 a.m.</span></p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2.5 sm:flex-nowrap sm:shrink-0 sm:justify-end">
+            <button type="button" data-add class="btn brand-grad inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_24px_-10px_rgba(37,99,235,.7)]">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+              Add patient
+            </button>
+            <button type="button" data-import class="btn inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-white/70 bg-white/85 px-4 py-2.5 text-sm font-semibold text-[#0F172A] shadow-soft backdrop-blur hover:bg-white">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M8 7l4-4 4 4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+              Import CSV
+            </button>
+            <button type="button" data-sync class="btn inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-white/70 bg-white/85 px-4 py-2.5 text-sm font-semibold text-[#0F172A] shadow-soft backdrop-blur hover:bg-white">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/></svg>
+              Sync from Fillware
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---- MASTER + DETAIL (patient list is collapsible) ---- -->
+      <div class="mt-4">
+        <button type="button" data-list-show hidden class="btn mb-3 inline-flex items-center gap-1.5 rounded-lg border border-surface-line bg-white px-3 py-2 text-[13px] font-semibold text-ink shadow-soft hover:border-brand-teal2 hover:text-brand-teal2">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M13 17l5-5-5-5M6 17l5-5-5-5"/></svg>
+          Show patient list <span class="text-muted">(<span data-list-count>16</span>)</span>
+        </button>
+        <div data-grid class="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:items-start">
+
+        <!-- LEFT: patient list -->
+        <aside data-list-panel class="reveal flex flex-col rounded-2xl border border-surface-line bg-white p-3 shadow-card sm:p-4 lg:sticky lg:top-6 lg:col-span-1 lg:self-start">
+          <div class="mb-2.5 flex items-center justify-between gap-2">
+            <p class="text-[12px] font-semibold text-ink">Patient list</p>
+            <button type="button" data-list-hide class="btn grid h-7 w-7 place-items-center rounded-lg border border-surface-line text-muted hover:border-brand-teal2 hover:text-brand-teal2" aria-label="Collapse list" title="Collapse list">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"/></svg>
+            </button>
+          </div>
+          <div class="relative">
+            <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <input data-q type="search" class="topbar-search w-full rounded-xl border border-surface-line bg-surface-soft py-2 pl-9 pr-3 text-sm text-ink transition-colors placeholder:text-muted" placeholder="Search patients" aria-label="Search patients" />
+          </div>
+          <div class="-mx-1 mt-2.5 flex gap-1.5 overflow-x-auto px-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0" role="group" aria-label="Filter by eligibility">
+            <button type="button" data-filter="all" aria-pressed="true" class="ptab shrink-0 rounded-full border border-brand-teal2 bg-brand-teal2 px-2.5 py-1 text-[11.5px] font-semibold text-white">All <span data-c="all" class="opacity-70">16</span></button>
+            <button type="button" data-filter="eligible" aria-pressed="false" class="ptab shrink-0 rounded-full border border-surface-line bg-surface-soft px-2.5 py-1 text-[11.5px] font-semibold text-muted hover:text-ink">Eligible <span data-c="eligible" class="opacity-70">0</span></button>
+            <button type="button" data-filter="almost" aria-pressed="false" class="ptab shrink-0 rounded-full border border-surface-line bg-surface-soft px-2.5 py-1 text-[11.5px] font-semibold text-muted hover:text-ink">Almost <span data-c="almost" class="opacity-70">0</span></button>
+            <button type="button" data-filter="noteligible" aria-pressed="false" class="ptab shrink-0 rounded-full border border-surface-line bg-surface-soft px-2.5 py-1 text-[11.5px] font-semibold text-muted hover:text-ink">Not eligible <span data-c="noteligible" class="opacity-70">0</span></button>
+          </div>
+          <div class="mt-2.5 flex items-center justify-between gap-2">
+            <span data-shown class="text-[11.5px] text-muted">16 patients</span>
+            <label class="flex items-center gap-1.5 text-[12px] text-muted">
+              <span class="hidden sm:inline">Sort</span>
+              <select data-sort class="rounded-lg border border-surface-line bg-surface-soft py-1 pl-2 pr-6 text-[12px] font-semibold text-ink focus:outline-none focus:border-brand-teal2">
+                <option value="name">Name (A–Z)</option>
+                <option value="eligible">Eligible first</option>
+              </select>
+            </label>
+          </div>
+          <ul data-list class="mt-2 max-h-[64vh] space-y-1 overflow-y-auto pr-1 lg:max-h-[calc(100vh-15rem)]"></ul>
+          <p data-none hidden class="px-2 py-8 text-center text-[13px] text-muted">No patients match that search.</p>
+        </aside>
+
+        <!-- RIGHT: patient detail (rendered by JS) -->
+        <div data-detail class="space-y-4 lg:col-span-2"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ============ ADD-PATIENT SHEET (full-screen on mobile · side drawer on tablet/desktop) ============ -->
+<div data-drawer-overlay class="pointer-events-none fixed inset-0 z-[55] bg-ink/40 opacity-0 backdrop-blur-sm transition-opacity duration-300"></div>
+<aside data-drawer role="dialog" aria-modal="true" aria-label="Add patient" aria-hidden="true"
+  class="add-sheet fixed z-[56] flex flex-col bg-white transition-transform duration-300 ease-out sm:border-l sm:border-surface-line sm:shadow-float">
+  <form data-add-form class="flex min-h-0 flex-1 flex-col" novalidate>
+    <div class="flex items-center justify-between gap-3 border-b border-surface-line px-5 py-4">
+      <div>
+        <h2 class="h-display text-lg font-extrabold text-ink">Add patient</h2>
+        <p class="text-[12px] text-muted">Creates a new record in Fillware.</p>
+      </div>
+      <button type="button" data-drawer-close class="btn grid h-9 w-9 place-items-center rounded-lg border border-surface-line text-muted hover:text-ink" aria-label="Close">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <div class="flex-1 space-y-3.5 overflow-y-auto px-5 py-5">
+      <div class="grid grid-cols-2 gap-3">
+        <label class="block"><span class="mb-1 block text-[12px] font-semibold text-ink">First name <span class="text-brand-blue">*</span></span><input name="first" autocomplete="off" class="f-in" /></label>
+        <label class="block"><span class="mb-1 block text-[12px] font-semibold text-ink">Last name <span class="text-brand-blue">*</span></span><input name="last" autocomplete="off" class="f-in" /></label>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <label class="block"><span class="mb-1 block text-[12px] font-semibold text-ink">Age <span class="text-brand-blue">*</span></span><input name="age" type="number" min="0" max="120" inputmode="numeric" class="f-in" /></label>
+        <label class="block"><span class="mb-1 block text-[12px] font-semibold text-ink">Sex <span class="text-brand-blue">*</span></span>
+          <select name="sex" class="f-in"><option value="">Select…</option><option value="F">F</option><option value="M">M</option><option value="X">X</option></select></label>
+      </div>
+      <label class="block"><span class="mb-1 block text-[12px] font-semibold text-ink">Health number</span><input name="hn" placeholder="Optional — leave blank for private pay" class="f-in" /></label>
+      <label class="block"><span class="mb-1 block text-[12px] font-semibold text-ink">Address</span><input name="addr" placeholder="Street, city, province" class="f-in" /></label>
+      <div class="block">
+        <span class="mb-1 block text-[12px] font-semibold text-ink">Allergies</span>
+        <div class="ac" data-ac data-list="allergens">
+          <div class="ac-box" data-ac-box role="combobox" aria-haspopup="listbox" aria-expanded="false">
+            <input data-ac-input type="text" autocomplete="off" class="ac-input" placeholder="Type to search — e.g. Penicillin" aria-label="Search allergies" />
+          </div>
+          <input type="hidden" name="allergies" data-ac-value />
+          <ul data-ac-list class="ac-list hidden" role="listbox"></ul>
+        </div>
+        <p class="mt-1 text-[11px] text-muted">Pick from the list or type your own · add several · leave empty for “None known”.</p>
+      </div>
+      <div class="block">
+        <span class="mb-1 block text-[12px] font-semibold text-ink">Conditions</span>
+        <div class="ac" data-ac data-list="conditions">
+          <div class="ac-box" data-ac-box role="combobox" aria-haspopup="listbox" aria-expanded="false">
+            <input data-ac-input type="text" autocomplete="off" class="ac-input" placeholder="Type to search — e.g. Hypertension" aria-label="Search conditions" />
+          </div>
+          <input type="hidden" name="conditions" data-ac-value />
+          <ul data-ac-list class="ac-list hidden" role="listbox"></ul>
+        </div>
+        <p class="mt-1 text-[11px] text-muted">Pick from the list or type your own · add several.</p>
+      </div>
+      <label class="block"><span class="mb-1 block text-[12px] font-semibold text-ink">Primary care</span><input name="primary" placeholder="Provider name" class="f-in" /></label>
+      <label class="block"><span class="mb-1 block text-[12px] font-semibold text-ink">Coverage</span>
+        <select name="coverage" class="f-in"><option>ODB eligible</option><option>Non-ODB</option><option>Private pay</option><option>LTC — capitation</option></select></label>
+      <p data-add-error hidden class="rounded-lg border border-amber-400 bg-amber-50 px-3 py-2 text-[12px] font-medium text-amber-600">Please fill in first name, last name, age and sex.</p>
+    </div>
+
+    <div class="flex items-center justify-end gap-2.5 border-t border-surface-line px-5 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+      <button type="button" data-drawer-close class="btn rounded-xl border border-surface-line bg-white px-4 py-2.5 text-sm font-semibold text-ink hover:bg-surface-soft">Cancel</button>
+      <button type="submit" class="btn brand-grad inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_24px_-10px_rgba(37,99,235,.7)]">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        Add patient
+      </button>
+    </div>
+  </form>
+</aside>
+
+<!-- ============ IMPORT CSV MODAL ============ -->
+<div data-import-modal hidden class="fixed inset-0 z-[57] flex items-center justify-center p-4">
+  <div data-import-overlay class="absolute inset-0 bg-ink/40 backdrop-blur-sm"></div>
+  <div class="relative z-10 flex max-h-[86vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-surface-line bg-white shadow-float" role="dialog" aria-modal="true" aria-label="Import patients from CSV">
+    <div class="flex items-center justify-between gap-3 border-b border-surface-line px-5 py-4">
+      <div>
+        <h2 class="h-display text-lg font-extrabold text-ink">Import patients from CSV</h2>
+        <p class="text-[12px] text-muted">Bulk-add patient records into Fillware.</p>
+      </div>
+      <button type="button" data-import-close class="btn grid h-9 w-9 place-items-center rounded-lg border border-surface-line text-muted hover:text-ink" aria-label="Close">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <div class="flex-1 overflow-y-auto p-5">
+      <!-- ---- drop / choose state ---- -->
+      <div data-import-drop>
+        <div data-import-zone class="flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-surface-line bg-surface-soft px-6 py-10 text-center transition-colors">
+          <span class="grid h-11 w-11 place-items-center rounded-xl bg-brand-teal/10 text-brand-teal2">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M8 7l4-4 4 4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+          </span>
+          <p class="text-sm font-semibold text-ink">Drop your CSV here, or <button type="button" data-import-browse class="text-brand-teal2 underline underline-offset-2 hover:text-brand-teal">browse</button></p>
+          <p class="text-[11.5px] text-muted">Columns: first, last, age, sex, hn, address, allergies, conditions, primary, coverage</p>
+        </div>
+        <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
+          <button type="button" data-import-sample class="btn inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-brand-teal2 hover:text-brand-teal">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M8 11l4 4 4-4M4 19h16"/></svg>
+            Download a sample CSV
+          </button>
+          <p data-import-err hidden class="text-[12px] font-medium text-amber-600"></p>
+        </div>
+        <input data-import-file type="file" accept=".csv,text/csv" class="hidden" />
+      </div>
+
+      <!-- ---- preview state ---- -->
+      <div data-import-summary hidden>
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px]">
+            <span class="font-semibold text-ink"><span data-import-total>0</span> rows</span>
+            <span class="inline-flex items-center gap-1.5 font-semibold text-brand-teal2"><span class="dot dot-teal"></span><span data-import-ok>0</span> ready</span>
+            <span class="inline-flex items-center gap-1.5 font-semibold text-amber-600"><span data-import-skip>0</span> skipped</span>
+          </div>
+          <button type="button" data-import-reset class="btn text-[12.5px] font-semibold text-muted hover:text-ink">Choose another file</button>
+        </div>
+        <div class="mt-3 overflow-x-auto rounded-xl border border-surface-line">
+          <table class="w-full min-w-[36rem] text-left text-[12.5px]">
+            <thead class="bg-surface-soft text-[10.5px] uppercase tracking-wide text-muted/70">
+              <tr><th class="px-3 py-2 font-semibold">Patient</th><th class="px-3 py-2 font-semibold">Age/Sex</th><th class="px-3 py-2 font-semibold">Health #</th><th class="px-3 py-2 font-semibold">Status</th></tr>
+            </thead>
+            <tbody data-import-rows class="divide-y divide-surface-line"></tbody>
+          </table>
+        </div>
+        <p data-import-more hidden class="mt-2 text-[11.5px] text-muted"></p>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-end gap-2.5 border-t border-surface-line px-5 py-4">
+      <button type="button" data-import-close class="btn rounded-xl border border-surface-line bg-white px-4 py-2.5 text-sm font-semibold text-ink hover:bg-surface-soft">Cancel</button>
+      <button type="button" data-import-confirm disabled class="btn brand-grad inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_24px_-10px_rgba(37,99,235,.7)] disabled:cursor-not-allowed disabled:opacity-50">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        <span data-import-confirm-label>Import</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div data-toast hidden class="pointer-events-none fixed bottom-4 left-1/2 z-[60] -translate-x-1/2 rounded-xl border border-surface-line bg-white px-4 py-2.5 text-[13px] font-medium text-ink shadow-card"></div>
+
+<script>
+  // Mobile sidebar
+  const side = document.querySelector('[data-side]');
+  const overlay = document.querySelector('[data-side-overlay]');
+  const closeSide = () => { side.classList.add('hidden'); overlay.classList.add('hidden'); };
+  document.querySelector('[data-side-btn]').addEventListener('click', () => { side.classList.remove('hidden'); overlay.classList.remove('hidden'); });
+  document.querySelector('[data-side-close]').addEventListener('click', closeSide);
+  overlay.addEventListener('click', closeSide);
+  side.querySelectorAll('a').forEach(a => a.addEventListener('click', closeSide));
+
+  // Mobile search: collapse to an icon; tap to expand a full-width overlay
+  (function () {
+    const openBtn = document.querySelector('[data-search-open]');
+    const closeBtn = document.querySelector('[data-search-close]');
+    const panel = document.querySelector('[data-search-panel]');
+    if (!openBtn || !panel) return;
+    openBtn.addEventListener('click', () => { panel.hidden = false; const i = panel.querySelector('input'); if (i) i.focus(); });
+    if (closeBtn) closeBtn.addEventListener('click', () => { panel.hidden = true; });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && !panel.hidden) panel.hidden = true; });
+  })();
+
+  // Light / dark toggle
+  const themeBtns = document.querySelectorAll('[data-theme-set]');
+  const applyTheme = (mode) => { document.documentElement.classList.toggle('dark', mode === 'dark'); themeBtns.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.themeSet === mode))); };
+  applyTheme(document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+  themeBtns.forEach(b => b.addEventListener('click', () => { applyTheme(b.dataset.themeSet); try { localStorage.setItem('agilerx-theme', b.dataset.themeSet); } catch (e) {} }));
+
+  // ===================== Patients app =====================
+  (function () {
+    // status tones: teal = eligible now · blue = opportunity/almost · gray = eligible again later · brown = different pathway
+    const P = [
+      { id:'adeyemi', last:'Adeyemi', first:'Samuel', age:72, sex:'M', hn:'3358216749', addr:'12 Bronte Rd, Oakville ON', fw:'FW-1004',
+        allergies:'None known', conditions:['Type 2 diabetes','Hypertension','Neuropathy','Asthma'], primary:'Dr. Maria Santos · fax (905) 555-0171', coverage:'ODB eligible',
+        status:{tone:'gray', text:'Eligible again 2027-07-15'},
+        pills:[{tone:'gray', text:'Annual MedsCheck 9 days ago — eligible again 2027-07-15'},{tone:'blue', text:'MedsCheck for Diabetes eligible'}],
+        meds:[
+          {name:'Metformin', strength:'500 mg', dir:'1 tab BID with meals', type:'chronic'},
+          {name:'Insulin glargine', strength:'100 U/mL', dir:'22 units at bedtime', type:'chronic'},
+          {name:'Ramipril', strength:'5 mg', dir:'1 cap daily', type:'chronic'},
+          {name:'Gabapentin', strength:'300 mg', dir:'1 cap TID', type:'chronic'},
+          {name:'Salbutamol HFA', strength:'100 mcg', dir:'2 puffs QID PRN', type:'chronic'},
+          {name:'Atorvastatin', strength:'20 mg', dir:'1 tab daily at bedtime', type:'chronic'},
+          {name:'Hydrochlorothiazide', strength:'25 mg', dir:'1 tab daily', type:'chronic'}],
+        history:[{svc:'Minor Ailment', date:'Jul 23, 2026', badge:'intake'},{svc:'MedsCheck', date:'Jul 15, 2026', badge:'billed'}] },
+
+      { id:'alvarez', last:'Alvarez', first:'Rosa', age:73, sex:'F', hn:'4412308822', addr:'88 Trafalgar Rd, Oakville ON', fw:'FW-1009',
+        allergies:'None known', conditions:['Hypertension','Osteoporosis','Hypothyroidism','GERD'], primary:'Dr. A. Bhatt', coverage:'ODB eligible',
+        status:{tone:'gray', text:'Eligible again 2027-04-18'},
+        pills:[{tone:'gray', text:'Annual MedsCheck 98 days ago — eligible again 2027-04-18'}],
+        meds:[
+          {name:'Amlodipine', strength:'5 mg', dir:'1 tab daily', type:'chronic'},
+          {name:'Alendronate', strength:'70 mg', dir:'1 tab weekly', type:'chronic'},
+          {name:'Levothyroxine', strength:'75 mcg', dir:'1 tab daily', type:'chronic'},
+          {name:'Pantoprazole', strength:'40 mg', dir:'1 tab daily', type:'chronic'}],
+        history:[{svc:'MedsCheck', date:'Apr 12, 2026', badge:'billed'}] },
+
+      { id:'bergeron', last:'Bergeron', first:'Chloe', age:27, sex:'F', hn:'5521190043', addr:'5 Kerr St, Oakville ON', fw:'FW-1015',
+        allergies:'Penicillin', conditions:['Asthma'], primary:'Dr. L. Osei', coverage:'ODB eligible',
+        status:null, pills:[],
+        meds:[{name:'Fluticasone', strength:'125 mcg', dir:'2 puffs BID', type:'chronic'}],
+        history:[] },
+
+      { id:'chen', last:'Chen', first:'Margaret', age:71, sex:'F', hn:'6698321100', addr:'240 Lakeshore Rd, Oakville ON', fw:'FW-1021',
+        allergies:'Sulfa drugs', conditions:['Hypertension','Atrial fibrillation','CKD stage 3','Depression','GERD'], primary:'Dr. Maria Santos', coverage:'ODB eligible',
+        status:{tone:'gray', text:'Eligible again 2027-07-16'},
+        pills:[{tone:'gray', text:'Annual MedsCheck 8 days ago — eligible again 2027-07-16'}],
+        meds:[
+          {name:'Bisoprolol', strength:'5 mg', dir:'1 tab daily', type:'chronic'},
+          {name:'Apixaban', strength:'5 mg', dir:'1 tab BID', type:'chronic'},
+          {name:'Furosemide', strength:'40 mg', dir:'1 tab daily', type:'chronic'},
+          {name:'Sertraline', strength:'50 mg', dir:'1 tab daily', type:'chronic'},
+          {name:'Calcium + Vit D', strength:'500 mg', dir:'1 tab BID', type:'chronic'},
+          {name:'Pantoprazole', strength:'40 mg', dir:'1 tab daily', type:'chronic'}],
+        history:[{svc:'MedsCheck', date:'Jul 07, 2026', badge:'billed'}] },
+
+      { id:'fiorini', last:'Fiorini', first:'Nella', age:69, sex:'F', hn:'7043998210', addr:'19 Reynolds St, Oakville ON', fw:'FW-1027',
+        allergies:'None known', conditions:['Type 2 diabetes','Hypertension','Hypothyroidism'], primary:'Dr. A. Bhatt', coverage:'ODB eligible',
+        status:{tone:'gray', text:'Eligible again 2027-07-17'},
+        pills:[{tone:'gray', text:'Annual MedsCheck 7 days ago — eligible again 2027-07-17'}],
+        meds:[
+          {name:'Ramipril', strength:'10 mg', dir:'1 tab daily', type:'chronic'},
+          {name:'Metformin', strength:'850 mg', dir:'1 tab BID', type:'chronic'},
+          {name:'Rosuvastatin', strength:'10 mg', dir:'1 tab daily', type:'chronic'},
+          {name:'Levothyroxine', strength:'50 mcg', dir:'1 tab daily', type:'chronic'}],
+        history:[{svc:'MedsCheck', date:'Jul 09, 2026', badge:'billed'}] },
+
+      { id:'greenberg', last:'Greenberg', first:'Harold', age:77, sex:'M', hn:'7789004512', addr:'302 Maple Grove Dr, Oakville ON', fw:'FW-1030',
+        allergies:'None known', conditions:['Hypertension','BPH','Dyslipidemia','Type 2 diabetes'], primary:'Dr. Maria Santos', coverage:'ODB eligible',
+        status:{tone:'gray', text:'Eligible again 2027-07-17'},
+        pills:[{tone:'gray', text:'Annual MedsCheck 7 days ago — eligible again 2027-07-17'}],
+        meds:[
+          {name:'Tamsulosin', strength:'0.4 mg', dir:'1 cap daily', type:'chronic'},
+          {name:'Atorvastatin', strength:'40 mg', dir:'1 tab daily', type:'chronic'},
+          {name:'Perindopril', strength:'4 mg', dir:'1 tab daily', type:'chronic'},
+          {name:'Metformin', strength:'500 mg', dir:'1 tab BID', type:'chronic'}],
+        history:[{svc:'MedsCheck', date:'Jul 09, 2026', badge:'billed'}] },
+
+      { id:'hassan', last:'Hassan', first:'Fatima', age:54, sex:'F', hn:'8120347765', addr:'44 Speers Rd, Oakville ON', fw:'FW-1033',
+        allergies:'Codeine', conditions:['Hypothyroidism','Anxiety'], primary:'Dr. L. Osei', coverage:'ODB eligible',
+        status:{tone:'blue', text:'1 more chronic med to qualify'},
+        pills:[{tone:'blue', text:'Almost eligible — 1 more chronic medication to qualify'}],
+        meds:[
+          {name:'Levothyroxine', strength:'100 mcg', dir:'1 tab daily', type:'chronic'},
+          {name:'Escitalopram', strength:'10 mg', dir:'1 tab daily', type:'chronic'}],
+        history:[] },
+
+      { id:'hill', last:'Hill', first:'Marcus', age:34, sex:'M', hn:'8890561234', addr:'7 Dundas St E, Oakville ON', fw:'FW-1036',
+        allergies:'None known', conditions:['—'], primary:'Dr. L. Osei', coverage:'ODB eligible',
+        status:null, pills:[], meds:[], history:[] },
+
+      { id:'malhotra', last:'Malhotra', first:'Priyanka', age:61, sex:'F', hn:'9012887340', addr:'55 Cornwall Rd, Oakville ON', fw:'FW-1041',
+        allergies:'None known', conditions:['Type 2 diabetes','Migraine'], primary:'Dr. A. Bhatt', coverage:'ODB eligible',
+        status:{tone:'blue', text:'1 more chronic med to qualify'},
+        pills:[{tone:'blue', text:'Almost eligible — 1 more chronic medication to qualify'}],
+        meds:[
+          {name:'Metformin', strength:'500 mg', dir:'1 tab BID', type:'chronic'},
+          {name:'Ramipril', strength:'2.5 mg', dir:'1 tab daily', type:'chronic'}],
+        history:[] },
+
+      { id:'mctavish', last:'McTavish', first:'Doris', age:81, sex:'F', hn:'9345120098', addr:'120 Rebecca St, Oakville ON', fw:'FW-1044',
+        allergies:'None known', conditions:['Atrial fibrillation','Heart failure','Dementia','GERD'], primary:'Dr. Maria Santos', coverage:'ODB eligible',
+        status:{tone:'gray', text:'Eligible again 2027-07-19'},
+        pills:[{tone:'gray', text:'Annual MedsCheck 5 days ago — eligible again 2027-07-19'}],
+        meds:[
+          {name:'Warfarin', strength:'3 mg', dir:'1 tab daily', type:'chronic'},
+          {name:'Digoxin', strength:'0.125 mg', dir:'1 tab daily', type:'chronic'},
+          {name:'Furosemide', strength:'20 mg', dir:'1 tab daily', type:'chronic'},
+          {name:'Donepezil', strength:'5 mg', dir:'1 tab at bedtime', type:'chronic'},
+          {name:'Pantoprazole', strength:'40 mg', dir:'1 tab daily', type:'chronic'}],
+        history:[{svc:'MedsCheck', date:'Jul 11, 2026', badge:'billed'}] },
+
+      { id:'novak', last:'Novak', first:'Frank', age:83, sex:'M', hn:'9560331277', addr:'Wildwood LTC, 3 Oak Park Blvd', fw:'FW-1049',
+        allergies:'None known', conditions:['Parkinson’s disease','Hypertension','Dyslipidemia'], primary:'Dr. R. Kaplan (LTC)', coverage:'LTC — capitation',
+        status:{tone:'brown', text:'LTC resident — not eligible'},
+        pills:[{tone:'brown', text:'LTC resident — not eligible for community MedsCheck (capitation-funded)'}],
+        meds:[
+          {name:'Levodopa/Carbidopa', strength:'100/25 mg', dir:'1 tab QID', type:'chronic'},
+          {name:'Amlodipine', strength:'5 mg', dir:'1 tab daily', type:'chronic'},
+          {name:'Atorvastatin', strength:'20 mg', dir:'1 tab daily', type:'chronic'},
+          {name:'Docusate', strength:'100 mg', dir:'1 cap BID', type:'chronic'}],
+        history:[] },
+
+      { id:'obrien', last:'O’Brien', first:'Kevin', age:58, sex:'M', hn:'7781425093', addr:'12 Bronte Rd, Oakville ON', fw:'FW-1052',
+        allergies:'None known', conditions:['Hypertension','Dyslipidemia','GERD'], primary:'Dr. Maria Santos', coverage:'Non-ODB',
+        status:{tone:'teal', text:'MedsCheck Annual eligible'},
+        pills:[{tone:'teal', text:'MedsCheck Annual eligible'}],
+        meds:[
+          {name:'Ramipril', strength:'5 mg', dir:'1 cap daily', type:'chronic'},
+          {name:'Atorvastatin', strength:'20 mg', dir:'1 tab daily at bedtime', type:'chronic'},
+          {name:'Pantoprazole', strength:'40 mg', dir:'1 tab daily before breakfast', type:'chronic'},
+          {name:'Bisoprolol', strength:'5 mg', dir:'1 tab daily', type:'chronic'}],
+        history:[] },
+
+      { id:'osei', last:'Osei', first:'Jasmine', age:27, sex:'F', hn:'6120558841', addr:'9 Trelawny Cres, Oakville ON', fw:'FW-1055',
+        allergies:'None known', conditions:['Anxiety'], primary:'Dr. L. Osei', coverage:'ODB eligible',
+        status:null, warn:'Possible duplicate record — review before billing', pills:[],
+        meds:[{name:'Sertraline', strength:'25 mg', dir:'1 tab daily', type:'chronic'}],
+        history:[] },
+
+      { id:'stamatis', last:'Stamatis', first:'George', age:69, sex:'M', hn:'5987410023', addr:'61 Kingsway Dr, Oakville ON', fw:'FW-1058',
+        allergies:'None known', conditions:['Type 2 diabetes','Hypertension','Dyslipidemia'], primary:'Dr. A. Bhatt', coverage:'ODB eligible',
+        status:{tone:'teal', text:'MedsCheck Annual eligible'},
+        pills:[{tone:'teal', text:'MedsCheck Annual eligible'}],
+        meds:[
+          {name:'Metformin', strength:'1000 mg', dir:'1 tab BID', type:'chronic'},
+          {name:'Gliclazide MR', strength:'30 mg', dir:'1 tab daily', type:'chronic'},
+          {name:'Ramipril', strength:'10 mg', dir:'1 tab daily', type:'chronic'},
+          {name:'Rosuvastatin', strength:'20 mg', dir:'1 tab daily', type:'chronic'},
+          {name:'ASA', strength:'81 mg', dir:'1 tab daily', type:'chronic'}],
+        history:[] },
+
+      { id:'tremblay', last:'Tremblay', first:'Liam', age:41, sex:'M', hn:'', addr:'2 Balsam Dr, Oakville ON', fw:'FW-1061',
+        allergies:'None known', conditions:['GERD'], primary:'—', coverage:'Private pay',
+        status:{tone:'brown', text:'No health number — private pay'},
+        pills:[{tone:'brown', text:'No health number on file — private pay only'}],
+        meds:[{name:'Pantoprazole', strength:'40 mg', dir:'1 tab daily', type:'chronic'}],
+        history:[] },
+
+      { id:'whitby', last:'Whitby', first:'Eleanor', age:88, sex:'F', hn:'4410023987', addr:'75 Allan St, Oakville ON', fw:'FW-1064',
+        allergies:'None known', conditions:['Atrial fibrillation','Hypertension','Osteoarthritis'], primary:'Dr. Maria Santos', coverage:'ODB eligible',
+        status:{tone:'teal', text:'MedsCheck Annual eligible'},
+        pills:[{tone:'teal', text:'MedsCheck Annual eligible'}],
+        meds:[
+          {name:'Amlodipine', strength:'10 mg', dir:'1 tab daily', type:'chronic'},
+          {name:'Atorvastatin', strength:'40 mg', dir:'1 tab daily', type:'chronic'},
+          {name:'Apixaban', strength:'2.5 mg', dir:'1 tab BID', type:'chronic'}],
+        history:[] },
+    ];
+
+    const listEl = document.querySelector('[data-list]');
+    const detailEl = document.querySelector('[data-detail]');
+    const q = document.querySelector('[data-q]');
+    const sortSel = document.querySelector('[data-sort]');
+    const none = document.querySelector('[data-none]');
+    const shown = document.querySelector('[data-shown]');
+    document.querySelector('[data-count]').textContent = P.length;
+
+    let selectedId = P[0].id;
+    let filter = 'all';
+    const chips = Array.from(document.querySelectorAll('[data-filter]'));
+    const matchF = p => {
+      if (filter === 'all') return true;
+      const t = p.status && p.status.tone;
+      if (filter === 'eligible') return t === 'teal';
+      if (filter === 'almost') return t === 'blue';
+      return !p.status || t === 'gray' || t === 'brown'; // "Not eligible" (later / different pathway / n/a)
+    };
+    function fillCounts () {
+      let e = 0, a = 0, n = 0;
+      P.forEach(p => { const t = p.status && p.status.tone; if (t === 'teal') e++; else if (t === 'blue') a++; else n++; });
+      const set = (k, v) => { const el = document.querySelector('[data-c="' + k + '"]'); if (el) el.textContent = v; };
+      set('all', P.length); set('eligible', e); set('almost', a); set('noteligible', n);
+      const lc = document.querySelector('[data-list-count]'); if (lc) lc.textContent = P.length;
+    }
+    fillCounts();
+    const chronic = p => p.meds.filter(m => m.type === 'chronic').length;
+    const dotClass = t => ({teal:'dot-teal', blue:'dot-blue', gray:'dot-gray', brown:'dot-brown'}[t] || 'dot-gray');
+    const pillClass = t => ({
+      teal:'border-brand-teal/30 bg-brand-teal/10 text-brand-teal2',
+      blue:'border-brand-blue/20 bg-brand-blue/10 text-brand-blue',
+      gray:'border-surface-line bg-surface-soft text-muted',
+      brown:'badge-pathway'
+    }[t] || 'border-surface-line bg-surface-soft text-muted');
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+    function renderList() {
+      const term = q.value.trim().toLowerCase();
+      let items = P.filter(p => matchF(p) && (!term || (p.first + ' ' + p.last + ' ' + p.last + ' ' + p.first).toLowerCase().includes(term)));
+      const order = {teal:0, blue:1, gray:2, brown:3};
+      if (sortSel.value === 'eligible') items.sort((a,b) => ((a.status ? order[a.status.tone] : 9) - (b.status ? order[b.status.tone] : 9)) || a.last.localeCompare(b.last));
+      else items.sort((a,b) => a.last.localeCompare(b.last) || a.first.localeCompare(b.first));
+
+      listEl.innerHTML = items.map(p => {
+        const sel = p.id === selectedId;
+        const warn = p.warn ? `<svg class="shrink-0 text-amber-600" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-label="${esc(p.warn)}"><title>${esc(p.warn)}</title><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h16.9a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>` : '';
+        const status = p.status ? `<span class="mt-1 flex items-center gap-1.5 text-[12px] text-muted"><span class="dot ${dotClass(p.status.tone)}"></span><span class="truncate">${esc(p.status.text)}</span></span>` : '';
+        return `<li><button type="button" data-id="${p.id}" aria-current="${sel}" class="patient-row block w-full rounded-xl border border-transparent px-3 py-2.5 text-left">
+          <span class="flex items-center gap-1.5"><span class="truncate text-[13.5px] font-semibold text-ink">${esc(p.last)}, ${esc(p.first)}</span>${warn}</span>
+          <span class="mt-0.5 block text-[12px] text-muted">${p.age} ${p.sex} · ${chronic(p)} chronic</span>
+          ${status}
+        </button></li>`;
+      }).join('');
+      none.hidden = items.length > 0;
+      shown.textContent = items.length + (items.length === 1 ? ' patient' : ' patients');
+    }
+
+    function renderDetail() {
+      const p = P.find(x => x.id === selectedId);
+      if (!p) { detailEl.innerHTML = ''; return; }
+      const pills = (p.pills || []).map(pl => `<span class="inline-flex items-center rounded-full border px-2.5 py-1 text-[11.5px] font-semibold ${pillClass(pl.tone)}">${esc(pl.text)}</span>`).join('');
+      const eligible = p.status && p.status.tone === 'teal';
+      const meds = p.meds.length
+        ? `<div class="mt-3 sm:overflow-x-auto sm:rounded-xl sm:border sm:border-surface-line">
+             <table class="med-table w-full text-left text-[13px] sm:min-w-[34rem]">
+               <thead class="bg-surface-soft text-[10.5px] uppercase tracking-wide text-muted/70">
+                 <tr><th class="px-3 py-2 font-semibold">Medication</th><th class="px-3 py-2 font-semibold">Strength</th><th class="px-3 py-2 font-semibold">Directions</th><th class="px-3 py-2 text-right font-semibold">Type</th></tr>
+               </thead>
+               <tbody class="sm:divide-y sm:divide-surface-line">${p.meds.map(m => `<tr>
+                 <td class="px-3 py-2 font-semibold text-ink">${esc(m.name)}</td>
+                 <td class="whitespace-nowrap px-3 py-2 text-muted" data-label="Strength" style="font-variant-numeric:tabular-nums;">${esc(m.strength)}</td>
+                 <td class="px-3 py-2 text-muted" data-label="Directions">${esc(m.dir)}</td>
+                 <td class="px-3 py-2 sm:text-right"><span class="rounded bg-surface-soft px-1.5 py-0.5 text-[10.5px] font-medium text-muted">${esc(m.type)}</span></td>
+               </tr>`).join('')}</tbody>
+             </table>
+           </div>`
+        : `<p class="mt-3 rounded-xl border border-surface-line py-4 text-center text-[13px] text-muted">No medications on file.</p>`;
+      const hist = (p.history || []).length ? p.history.map(h => `<div class="flex flex-wrap items-center justify-between gap-3 border-t border-surface-line py-3">
+          <div class="flex flex-wrap items-center gap-x-2.5 gap-y-1"><span class="text-sm font-semibold text-ink">${esc(h.svc)}</span><span class="text-[12px] text-muted">${esc(h.date)}</span><span class="rounded px-1.5 py-0.5 text-[10.5px] font-semibold ${h.badge === 'billed' ? 'bg-emerald-50 text-emerald-600' : 'bg-surface-soft text-muted'}">${esc(h.badge)}</span></div>
+          <a href="#" class="btn text-[13px] font-semibold text-brand-teal2 hover:text-brand-teal">Open</a></div>`).join('')
+        : `<p class="border-t border-surface-line py-4 text-[13px] text-muted">No services recorded yet.</p>`;
+      const hnLine = p.hn ? `HN ${esc(p.hn)}` : `<span class="font-medium text-amber-600">No health number</span>`;
+
+      detailEl.innerHTML = `
+        <section class="reveal in rounded-2xl border border-surface-line bg-white p-4 shadow-card sm:p-5">
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div class="min-w-0">
+              <h2 class="h-display text-xl font-extrabold text-ink">${esc(p.first)} ${esc(p.last)} <span class="text-base font-semibold text-muted">${p.age} ${p.sex}</span></h2>
+              <p class="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12.5px] text-muted">${hnLine} · ${esc(p.addr)} <span class="rounded border border-surface-line bg-surface-soft px-1.5 py-0.5 text-[10.5px] font-medium">Fillware ${esc(p.fw)}</span></p>
+            </div>
+            <div class="flex flex-col items-start gap-2 sm:items-end">
+              <div class="flex flex-wrap gap-2 sm:justify-end">${pills}</div>
+              ${eligible ? `<a href="medscheck-session.html" class="btn inline-flex items-center gap-1.5 rounded-xl bg-brand-teal2 px-3.5 py-2 text-[13px] font-semibold text-white shadow-soft hover:bg-brand-teal"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 15h6M12 12v6"/></svg>Start a MedsCheck</a>` : ''}
+            </div>
+          </div>
+          <div class="mt-4 grid grid-cols-2 gap-4 border-t border-surface-line pt-4 sm:grid-cols-4">
+            <div><p class="text-[11px] font-semibold uppercase tracking-wide text-muted/70">Allergies</p><p class="mt-1 text-[13px] text-ink">${esc(p.allergies)}</p></div>
+            <div><p class="text-[11px] font-semibold uppercase tracking-wide text-muted/70">Conditions</p><p class="mt-1 text-[13px] text-ink">${esc(p.conditions.join(', '))}</p></div>
+            <div><p class="text-[11px] font-semibold uppercase tracking-wide text-muted/70">Primary care</p><p class="mt-1 text-[13px] text-ink">${esc(p.primary)}</p></div>
+            <div><p class="text-[11px] font-semibold uppercase tracking-wide text-muted/70">Coverage</p><p class="mt-1 text-[13px] text-ink">${esc(p.coverage)}</p></div>
+          </div>
+        </section>
+
+        <section class="reveal in rounded-2xl border border-surface-line bg-white p-4 shadow-card sm:p-5">
+          <h3 class="text-sm font-semibold text-ink">Medications <span class="font-normal text-muted">(${p.meds.length}, from Fillware)</span></h3>
+          ${meds}
+        </section>
+
+        <section class="reveal in rounded-2xl border border-surface-line bg-white p-4 shadow-card sm:p-5">
+          <h3 class="text-sm font-semibold text-ink">Service history</h3>
+          <div class="mt-1">${hist}</div>
+        </section>`;
+    }
+
+    listEl.addEventListener('click', e => {
+      const b = e.target.closest('[data-id]');
+      if (!b) return;
+      selectedId = b.dataset.id;
+      renderList();
+      renderDetail();
+      if (window.innerWidth < 1024) detailEl.scrollIntoView({ behavior:'smooth', block:'start' });
+    });
+    q.addEventListener('input', renderList);
+    sortSel.addEventListener('change', renderList);
+    chips.forEach(c => c.addEventListener('click', () => {
+      filter = c.dataset.filter;
+      chips.forEach(x => {
+        const on = x === c;
+        x.setAttribute('aria-pressed', String(on));
+        x.className = on
+          ? 'ptab shrink-0 rounded-full border border-brand-teal2 bg-brand-teal2 px-2.5 py-1 text-[11.5px] font-semibold text-white'
+          : 'ptab shrink-0 rounded-full border border-surface-line bg-surface-soft px-2.5 py-1 text-[11.5px] font-semibold text-muted hover:text-ink';
+      });
+      renderList();
+    }));
+
+    // toast + header actions (Add / Import are prototype stubs; Sync updates the last-sync time)
+    let toastT;
+    const toast = (msg) => {
+      const el = document.querySelector('[data-toast]');
+      el.textContent = msg; el.hidden = false;
+      clearTimeout(toastT); toastT = setTimeout(() => { el.hidden = true; }, 2600);
+    };
+    const addBtn = document.querySelector('[data-add]');
+    const importBtn = document.querySelector('[data-import]');
+    const syncBtn = document.querySelector('[data-sync]');
+    // Add-patient sheet — full-screen (slides up) on mobile, side drawer (slides in from the right) on tablet/desktop
+    const drawer = document.querySelector('[data-drawer]');
+    const drawerOv = document.querySelector('[data-drawer-overlay]');
+    const addForm = document.querySelector('[data-add-form]');
+    const addErr = document.querySelector('[data-add-error]');
+    let added = 0;
+    function openDrawer () {
+      drawer.classList.add('is-open');
+      drawer.setAttribute('aria-hidden', 'false');
+      drawerOv.classList.remove('opacity-0', 'pointer-events-none');
+      if (addForm) addForm.reset();
+      if (addErr) addErr.hidden = true;
+      const f = addForm && addForm.querySelector('[name="first"]');
+      if (f) setTimeout(() => f.focus(), 80);
+    }
+    function closeDrawer () {
+      drawer.classList.remove('is-open');
+      drawer.setAttribute('aria-hidden', 'true');
+      drawerOv.classList.add('opacity-0', 'pointer-events-none');
+    }
+    if (addBtn) addBtn.addEventListener('click', openDrawer);
+    if (drawerOv) drawerOv.addEventListener('click', closeDrawer);
+    document.querySelectorAll('[data-drawer-close]').forEach(b => b.addEventListener('click', closeDrawer));
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && drawer.getAttribute('aria-hidden') === 'false') closeDrawer(); });
+    if (addForm) addForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const val = n => (addForm.elements[n] ? addForm.elements[n].value.trim() : '');
+      const first = val('first'), last = val('last'), age = val('age'), sex = val('sex');
+      if (!first || !last || !age || !sex) { if (addErr) addErr.hidden = false; return; }
+      added++;
+      const np = {
+        id: 'new-' + added, last, first, age: Number(age), sex,
+        hn: val('hn'), addr: val('addr') || '—', fw: 'FW-' + (1064 + added),
+        allergies: val('allergies') || 'None known',
+        conditions: val('conditions') ? val('conditions').split(',').map(s => s.trim()).filter(Boolean) : ['—'],
+        primary: val('primary') || '—', coverage: val('coverage') || 'ODB eligible',
+        status: null, pills: [], meds: [], history: []
+      };
+      P.push(np);
+      selectedId = np.id;
+      fillCounts();
+      document.querySelector('[data-count]').textContent = P.length;
+      addForm.reset();
+      closeDrawer();
+      renderList();
+      renderDetail();
+      toast(first + ' ' + last + ' added to Fillware.');
+      if (window.innerWidth < 1024) detailEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    // ---- Import CSV (parse → preview → commit) ----
+    const importModal = document.querySelector('[data-import-modal]');
+    const importFile = document.querySelector('[data-import-file]');
+    const importZone = document.querySelector('[data-import-zone]');
+    const importDropView = document.querySelector('[data-import-drop]');
+    const importSummary = document.querySelector('[data-import-summary]');
+    const importConfirm = document.querySelector('[data-import-confirm]');
+    const importErr = document.querySelector('[data-import-err]');
+    let parsedRows = [];
+    const COLS = {
+      first:['first','first name','firstname','given name','given'],
+      last:['last','last name','lastname','surname','family name','family'],
+      age:['age'], sex:['sex','gender'],
+      hn:['hn','health number','healthnumber','health card','ohip','health #'],
+      addr:['address','addr'], allergies:['allergies','allergy'],
+      conditions:['conditions','condition','diagnoses','problems'],
+      primary:['primary care','primary','provider','physician','doctor','pcp'],
+      coverage:['coverage','plan','insurance']
+    };
+    function parseCSV (text) {
+      const rows = []; let row = [], f = '', q = false;
+      text = text.replace(/\r\n?/g, '\n');
+      for (let i = 0; i < text.length; i++) {
+        const c = text[i];
+        if (q) { if (c === '"') { if (text[i + 1] === '"') { f += '"'; i++; } else q = false; } else f += c; }
+        else if (c === '"') q = true;
+        else if (c === ',') { row.push(f); f = ''; }
+        else if (c === '\n') { row.push(f); rows.push(row); row = []; f = ''; }
+        else f += c;
+      }
+      if (f.length || row.length) { row.push(f); rows.push(row); }
+      return rows.filter(r => r.some(x => x.trim() !== ''));
+    }
+    const showImportErr = m => { if (importErr) { importErr.textContent = m; importErr.hidden = false; } };
+    function resetImport () {
+      parsedRows = []; importFile.value = '';
+      importDropView.hidden = false; importSummary.hidden = true;
+      importConfirm.disabled = true; if (importErr) importErr.hidden = true;
+    }
+    function openImport () { importModal.hidden = false; resetImport(); }
+    function closeImport () { importModal.hidden = true; }
+    function readFile (file) {
+      if (!file) return;
+      if (!/\.csv$/i.test(file.name) && !(file.type && /csv|text/.test(file.type))) { showImportErr('Please choose a .csv file.'); return; }
+      const rd = new FileReader();
+      rd.onload = () => processCSV(String(rd.result));
+      rd.onerror = () => showImportErr('Could not read that file.');
+      rd.readAsText(file);
+    }
+    function processCSV (text) {
+      const rows = parseCSV(text);
+      if (rows.length < 2) { showImportErr('That CSV has no data rows.'); return; }
+      const header = rows[0].map(h => h.trim().toLowerCase());
+      const idx = {}; Object.keys(COLS).forEach(f => { idx[f] = header.findIndex(h => COLS[f].includes(h)); });
+      if (idx.first < 0 || idx.last < 0) { showImportErr('CSV must include “first” and “last” columns.'); return; }
+      parsedRows = rows.slice(1).map(r => {
+        const g = f => idx[f] >= 0 ? (r[idx[f]] || '').trim() : '';
+        const first = g('first'), last = g('last'), age = g('age'), sexr = g('sex');
+        const sex = /^m/i.test(sexr) ? 'M' : /^f/i.test(sexr) ? 'F' : (sexr ? sexr.toUpperCase().slice(0, 1) : '');
+        const name = (last || '—') + ', ' + (first || '—');
+        if (!first || !last || !age || !sex) return { ok:false, name, ageSex:(age || '—') + ' ' + (sex || ''), hn:g('hn') || '—', reason:'Missing required field' };
+        if (isNaN(Number(age))) return { ok:false, name, ageSex:age + ' ' + sex, hn:g('hn') || '—', reason:'Age not a number' };
+        return { ok:true, name, ageSex:age + ' ' + sex, hn:g('hn') || '—', data:{
+          first, last, age:Number(age), sex, hn:g('hn'), addr:g('addr') || '—',
+          allergies:g('allergies') || 'None known',
+          conditions: g('conditions') ? g('conditions').split(/\s*[;,]\s*/).filter(Boolean) : ['—'],
+          primary:g('primary') || '—', coverage:g('coverage') || 'ODB eligible' } };
+      });
+      renderImport();
+    }
+    function renderImport () {
+      const ok = parsedRows.filter(p => p.ok).length, skip = parsedRows.length - ok;
+      document.querySelector('[data-import-total]').textContent = parsedRows.length;
+      document.querySelector('[data-import-ok]').textContent = ok;
+      document.querySelector('[data-import-skip]').textContent = skip;
+      document.querySelector('[data-import-rows]').innerHTML = parsedRows.slice(0, 8).map(p => '<tr>'
+        + '<td class="px-3 py-2 font-medium text-ink">' + esc(p.name) + '</td>'
+        + '<td class="px-3 py-2 text-muted">' + esc(p.ageSex) + '</td>'
+        + '<td class="px-3 py-2 text-muted">' + esc(p.hn) + '</td>'
+        + '<td class="px-3 py-2">' + (p.ok
+            ? '<span class="inline-flex items-center gap-1 font-semibold text-brand-teal2"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Ready</span>'
+            : '<span class="font-semibold text-amber-600">Skipped · ' + esc(p.reason) + '</span>') + '</td></tr>').join('');
+      const more = document.querySelector('[data-import-more]');
+      if (parsedRows.length > 8) { more.hidden = false; more.textContent = '+ ' + (parsedRows.length - 8) + ' more row(s) not shown'; } else more.hidden = true;
+      importDropView.hidden = true; importSummary.hidden = false;
+      importConfirm.disabled = ok === 0;
+      document.querySelector('[data-import-confirm-label]').textContent = ok ? ('Import ' + ok + (ok === 1 ? ' patient' : ' patients')) : 'Import';
+    }
+    function doImport () {
+      const valid = parsedRows.filter(p => p.ok);
+      if (!valid.length) return;
+      let firstId = null;
+      valid.forEach(p => {
+        added++;
+        const np = { id:'imp-' + added, last:p.data.last, first:p.data.first, age:p.data.age, sex:p.data.sex,
+          hn:p.data.hn, addr:p.data.addr, fw:'FW-' + (1064 + added), allergies:p.data.allergies,
+          conditions:p.data.conditions, primary:p.data.primary, coverage:p.data.coverage,
+          status:null, pills:[], meds:[], history:[] };
+        P.push(np); if (!firstId) firstId = np.id;
+      });
+      if (firstId) selectedId = firstId;
+      fillCounts();
+      document.querySelector('[data-count]').textContent = P.length;
+      renderList(); renderDetail(); closeImport();
+      toast('Imported ' + valid.length + (valid.length === 1 ? ' patient' : ' patients') + ' from CSV.');
+    }
+    function downloadSample () {
+      const csv = 'first,last,age,sex,hn,address,allergies,conditions,primary,coverage\n'
+        + 'Jane,Doe,71,F,1234567890,"10 Main St, Oakville ON",Penicillin,"Hypertension; Type 2 diabetes",Dr. Smith,ODB eligible\n'
+        + 'John,Roe,68,M,,"5 King St, Oakville ON",None known,Dyslipidemia,Dr. Lee,Non-ODB\n'
+        + 'Mary,Ng,74,F,9988776655,"3 Bay St, Oakville ON","Sulfa drugs; Latex","COPD; Osteoporosis",Dr. Patel,ODB eligible\n';
+      const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+      const a = document.createElement('a'); a.href = url; a.download = 'agilerx-patients-sample.csv';
+      document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    if (importBtn) importBtn.addEventListener('click', openImport);
+    document.querySelectorAll('[data-import-close]').forEach(b => b.addEventListener('click', closeImport));
+    document.querySelector('[data-import-overlay]').addEventListener('click', closeImport);
+    document.querySelector('[data-import-browse]').addEventListener('click', () => importFile.click());
+    importFile.addEventListener('change', () => readFile(importFile.files[0]));
+    document.querySelector('[data-import-reset]').addEventListener('click', resetImport);
+    document.querySelector('[data-import-sample]').addEventListener('click', downloadSample);
+    importConfirm.addEventListener('click', doImport);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && !importModal.hidden) closeImport(); });
+    ['dragenter', 'dragover'].forEach(ev => importZone.addEventListener(ev, e => { e.preventDefault(); importZone.classList.add('border-brand-teal2'); }));
+    ['dragleave', 'drop'].forEach(ev => importZone.addEventListener(ev, e => { e.preventDefault(); importZone.classList.remove('border-brand-teal2'); }));
+    importZone.addEventListener('drop', e => { const f = e.dataTransfer.files[0]; if (f) readFile(f); });
+    if (syncBtn) {
+      const original = syncBtn.innerHTML; let syncing = false;
+      syncBtn.addEventListener('click', () => {
+        if (syncing) return;
+        syncing = true; syncBtn.disabled = true; syncBtn.classList.add('opacity-70');
+        syncBtn.innerHTML = '<svg class="animate-spin" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/></svg> Syncing…';
+        setTimeout(() => {
+          const d = new Date(); let h = d.getHours(); const m = String(d.getMinutes()).padStart(2, '0');
+          const ap = h < 12 ? 'a.m.' : 'p.m.'; h = h % 12 || 12;
+          const t = h + ':' + m + ' ' + ap;
+          const st = document.querySelector('[data-synctime]'); if (st) st.textContent = t;
+          syncBtn.innerHTML = original; syncBtn.disabled = false; syncBtn.classList.remove('opacity-70'); syncing = false;
+          toast('Synced ' + P.length + ' patients from Fillware · ' + t);
+        }, 1100);
+      });
+    }
+
+    // ---- Collapsible patient list (detail takes the full width when collapsed) ----
+    const listPanel = document.querySelector('[data-list-panel]');
+    const listShow = document.querySelector('[data-list-show]');
+    function setListCollapsed (c) {
+      listPanel.hidden = c;
+      listShow.hidden = !c;
+      if (!c) listPanel.classList.add('in');   // ensure the reveal-animated panel is visible when re-opened
+      detailEl.classList.toggle('lg:col-span-3', c);
+      detailEl.classList.toggle('lg:col-span-2', !c);
+      try { localStorage.setItem('agilerx-patients-list', c ? '1' : '0'); } catch (e) {}
+    }
+    document.querySelectorAll('[data-list-hide]').forEach(b => b.addEventListener('click', () => setListCollapsed(true)));
+    if (listShow) listShow.addEventListener('click', () => setListCollapsed(false));
+    let listCollapsed = false; try { listCollapsed = localStorage.getItem('agilerx-patients-list') === '1'; } catch (e) {}
+    setListCollapsed(listCollapsed);
+
+    renderList();
+    renderDetail();
+  })();
+
+  // ===================== Type-ahead + multi-select chips (Allergies & Conditions) =====================
+  (function () {
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+    const LISTS = {
+      allergens: [
+        'Penicillin','Amoxicillin','Ampicillin','Cephalosporins','Sulfa drugs (Sulfonamides)','Aspirin (ASA)',
+        'Ibuprofen','Naproxen','NSAIDs','Codeine','Morphine','Oxycodone','Tramadol','Erythromycin','Azithromycin',
+        'Clarithromycin','Ciprofloxacin','Levofloxacin','Tetracycline','Doxycycline','Metronidazole','Vancomycin',
+        'Clindamycin','Trimethoprim','Nitrofurantoin','Allopurinol','Carbamazepine','Phenytoin','Lamotrigine',
+        'Warfarin','Heparin','Insulin','Metformin','ACE inhibitors','Statins','Lidocaine','Iodine / contrast dye',
+        'Latex','Eggs','Peanuts','Tree nuts','Shellfish','Fish','Soy','Milk / dairy','Wheat / gluten','Sesame',
+        'Bee / wasp stings','Adhesive tape'
+      ],
+      conditions: [
+        'Hypertension','Type 2 diabetes','Type 1 diabetes','Dyslipidemia','Hypothyroidism','Hyperthyroidism',
+        'GERD','Asthma','COPD','Atrial fibrillation','Heart failure','Coronary artery disease','Chronic kidney disease',
+        'Osteoporosis','Osteoarthritis','Rheumatoid arthritis','Depression','Anxiety','Bipolar disorder','Epilepsy',
+        'Parkinson’s disease','Dementia','Migraine','Chronic pain','Neuropathy','Gout','Benign prostatic hyperplasia',
+        'Glaucoma','Psoriasis','Eczema','Allergic rhinitis','Anemia','Insomnia','Irritable bowel syndrome',
+        'Crohn’s disease','Ulcerative colitis','Hepatitis C','Obesity','Sleep apnea','Stroke / TIA'
+      ]
+    };
+    const noun = { allergens: 'allergy', conditions: 'condition' };
+
+    document.querySelectorAll('[data-ac]').forEach(root => {
+      const LIST = LISTS[root.dataset.list] || [];
+      const box = root.querySelector('[data-ac-box]');
+      const input = root.querySelector('[data-ac-input]');
+      const hidden = root.querySelector('[data-ac-value]');
+      const list = root.querySelector('[data-ac-list]');
+      const form = root.closest('form');
+      let selected = [], opts = [], active = -1;
+      const sync = () => { hidden.value = selected.join(', '); };
+      const hidn = () => { list.classList.add('hidden'); box.setAttribute('aria-expanded', 'false'); active = -1; };
+
+      function chips () {
+        box.querySelectorAll('[data-chip]').forEach(c => c.remove());
+        selected.forEach((s, i) => {
+          const el = document.createElement('span');
+          el.className = 'ac-chip'; el.setAttribute('data-chip', '');
+          el.innerHTML = '<span>' + esc(s) + '</span>';
+          const x = document.createElement('button');
+          x.type = 'button'; x.setAttribute('aria-label', 'Remove ' + s); x.textContent = '×';
+          x.addEventListener('click', () => { selected.splice(i, 1); chips(); sync(); input.focus(); show(); });
+          el.appendChild(x); box.insertBefore(el, input);
+        });
+      }
+      function mark (a, term) {
+        if (!term) return esc(a);
+        const i = a.toLowerCase().indexOf(term);
+        if (i < 0) return esc(a);
+        return esc(a.slice(0, i)) + '<mark>' + esc(a.slice(i, i + term.length)) + '</mark>' + esc(a.slice(i + term.length));
+      }
+      function show () {
+        const term = input.value.trim().toLowerCase();
+        let items = LIST.filter(a => !selected.includes(a));
+        if (term) items = items.filter(a => a.toLowerCase().includes(term))
+                               .sort((a, b) => (b.toLowerCase().startsWith(term) ? 1 : 0) - (a.toLowerCase().startsWith(term) ? 1 : 0));
+        opts = items.slice(0, 50);
+        active = opts.length ? 0 : -1;
+        const exact = term && LIST.concat(selected).some(a => a.toLowerCase() === term);
+        let html = opts.map((a, i) => '<li class="ac-opt" role="option" data-i="' + i + '" aria-selected="' + (i === active) + '">' + mark(a, term) + '</li>').join('');
+        if (term && !exact) html += '<li class="ac-opt" role="option" data-add aria-selected="' + (active < 0) + '">Add “' + esc(input.value.trim()) + '”</li>';
+        if (!html) html = '<li class="ac-empty">Type a ' + noun[root.dataset.list] + ' to add it</li>';
+        list.innerHTML = html;
+        list.querySelectorAll('.ac-opt').forEach(li => li.addEventListener('mousedown', e => {
+          e.preventDefault();
+          if (li.hasAttribute('data-add')) addTerm(input.value.trim());
+          else add(opts[+li.dataset.i]);
+        }));
+        list.classList.remove('hidden'); box.setAttribute('aria-expanded', 'true');
+      }
+      function add (a) { if (!a || selected.includes(a)) return; selected.push(a); input.value = ''; chips(); sync(); show(); }
+      function addTerm (t) { t = (t || '').trim(); if (!t) return; add(LIST.find(a => a.toLowerCase() === t.toLowerCase()) || t); }
+      function move (d) {
+        const items = list.querySelectorAll('.ac-opt'); if (!items.length) return;
+        active = (active + d + items.length) % items.length;
+        items.forEach((li, i) => li.setAttribute('aria-selected', String(i === active)));
+        items[active].scrollIntoView({ block: 'nearest' });
+      }
+
+      input.addEventListener('focus', show);
+      input.addEventListener('input', show);
+      input.addEventListener('keydown', e => {
+        const openList = !list.classList.contains('hidden');
+        if (e.key === 'ArrowDown') { e.preventDefault(); openList ? move(1) : show(); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); if (openList) move(-1); }
+        else if (e.key === 'Enter') {
+          if (openList) { e.preventDefault(); const cur = list.querySelectorAll('.ac-opt')[active];
+            if (cur && cur.hasAttribute('data-add')) addTerm(input.value.trim());
+            else if (cur) add(opts[+cur.dataset.i]);
+            else addTerm(input.value.trim()); }
+        }
+        else if (e.key === ',') { e.preventDefault(); addTerm(input.value.trim()); }
+        else if (e.key === 'Escape') { if (openList) { e.stopPropagation(); hidn(); } }
+        else if (e.key === 'Backspace' && !input.value && selected.length) { selected.pop(); chips(); sync(); show(); }
+      });
+      box.addEventListener('click', e => { if (e.target === box) input.focus(); });
+      document.addEventListener('click', e => { if (!root.contains(e.target)) hidn(); });
+      if (form) form.addEventListener('reset', () => { selected = []; input.value = ''; chips(); sync(); hidn(); });
+    });
+  })();
+
+  // Reveal on scroll
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold:.08, rootMargin:'0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>

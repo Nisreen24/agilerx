@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Intake &amp; screening — Agile Pharmas</title>
+<meta name="description" content="Intake & screening for a medicine injection — Lakeview Pharmacy, synced with Fillware." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          ink:     '#0F172A',
+          muted:   '#64748B',
+          brand:   { blue:'#2563EB', blue2:'#1D4FD8', teal:'#12BEA6', teal2:'#0BA891', sky:'#7CC8FF' },
+          surface: { soft:'#F6F8FC', line:'#E7ECF4' },
+        },
+        fontFamily: { sans: ['Inter','system-ui','-apple-system','Segoe UI','sans-serif'] },
+        boxShadow: {
+          card:      '0 1px 2px rgba(16,42,84,.04), 0 10px 28px -14px rgba(16,42,84,.20)',
+          cardhover: '0 2px 6px rgba(16,42,84,.06), 0 22px 48px -18px rgba(37,99,235,.30)',
+          float:     '0 26px 70px -24px rgba(37,99,235,.40)',
+          soft:      '0 1px 2px rgba(16,42,84,.05), 0 6px 18px -10px rgba(16,42,84,.18)',
+        },
+      },
+    },
+  };
+</script>
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('agilerx-theme');
+      if (!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      document.documentElement.classList.toggle('dark', t === 'dark');
+    } catch (e) {}
+  })();
+</script>
+<style>
+  :root { --ease-spring: cubic-bezier(.16,1,.3,1); }
+  html, body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  body { background:#fff; color:#0F172A; overflow-x:hidden; }
+  [hidden] { display:none !important; }
+  .h-display { letter-spacing:-.03em; line-height:1.05; }
+  .brand-grad { background-image:linear-gradient(100deg,#12BEA6 0%,#2563EB 60%); }
+  .btn { transition:transform .25s var(--ease-spring), box-shadow .25s var(--ease-spring), background-color .2s ease, color .2s ease, border-color .2s ease; will-change:transform; }
+  .btn:active { transform:scale(.99); }
+  .btn:focus-visible { outline:2px solid #2563EB; outline-offset:3px; }
+  .reveal { opacity:0; transform:translateY(22px); transition:opacity .7s var(--ease-spring), transform .7s var(--ease-spring); }
+  .reveal.in { opacity:1; transform:none; }
+  @media (prefers-reduced-motion: reduce){ .reveal{opacity:1;transform:none;transition:none;} .btn{transition:none;} html{scroll-behavior:auto;} }
+  ::selection{ background:#c9e3ff; color:#0b2c66; }
+  .side-item { transition:color .2s ease, background-color .2s ease; }
+  .side-item:hover { color:#0F172A; background-color:#F6F8FC; }
+  .side-item:focus-visible { outline:2px solid #2563EB; outline-offset:-2px; }
+
+  /* form controls (same radius/spacing/focus as the rest of the app) */
+  .w-in { width:100%; border-radius:.65rem; border:1px solid #E7ECF4; background:#F6F8FC; padding:.55rem .7rem; font-size:.8125rem; color:#0F172A; transition:border-color .15s ease, box-shadow .15s ease; }
+  .w-in::placeholder { color:#9AA6BC; }
+  .w-in:focus { outline:none; border-color:#0BA891; box-shadow:0 0 0 3px rgba(18,190,166,.16); }
+  html.dark .w-in { background:#0E1626; border-color:#26314A; color:#E8EDF6; }
+
+  /* AI DRAFT — the ONE approved violet/purple exception. AI-generated content ONLY. */
+  .ai-badge   { background:linear-gradient(100deg,rgba(139,92,246,.14),rgba(124,58,237,.20)); border:1px solid rgba(139,92,246,.34); color:#6D28D9; }
+  .ai-drafted { border-color:#C4B5FD !important; background:linear-gradient(180deg,rgba(139,92,246,.05),transparent); box-shadow:0 0 0 3px rgba(139,92,246,.10); }
+  html.dark .ai-badge   { background:linear-gradient(100deg,rgba(139,92,246,.24),rgba(124,58,237,.30)); border-color:rgba(167,139,250,.5); color:#C4B5FD; }
+  html.dark .ai-drafted { border-color:rgba(167,139,250,.55) !important; background:linear-gradient(180deg,rgba(139,92,246,.12),transparent); }
+
+  /* "Record & continue" softer teal (screening-clear) — same token as elsewhere */
+  .btn-teal-soft { background:rgba(18,190,166,.14); color:#0BA891; border:1px solid rgba(11,168,145,.32); }
+  .btn-teal-soft:hover { background:rgba(18,190,166,.22); }
+  html.dark .btn-teal-soft { background:rgba(18,190,166,.18); color:#2FD9C0; border-color:rgba(47,217,192,.34); }
+
+  /* "needs action, no signature" solid amber (same family as MedsCheck Log DTP / Save) */
+  .btn-amber { background:#D97706; color:#fff; }
+  .btn-amber:hover { background:#B45309; }
+
+  /* single-select teal toggles (dispensed-source + first-dose) */
+  [data-seg2][aria-pressed="true"] { border-color:#0BA891; background:rgba(18,190,166,.10); color:#0BA891; }
+  html.dark [data-seg2][aria-pressed="true"] { background:rgba(18,190,166,.16); color:#2FD9C0; }
+
+  /* screening No/Yes toggle — No = teal (routine, clear); Yes = red (genuinely flagged) */
+  .seg { border:1px solid #E7ECF4; background:#fff; color:#64748B; }
+  .seg-no[aria-pressed="true"]  { background:rgba(18,190,166,.14); color:#0BA891; border-color:rgba(11,168,145,.45); }
+  .seg-yes[aria-pressed="true"] { background:rgba(239,68,68,.13); color:#B91C1C; border-color:#FCA5A5; }
+  html.dark .seg { background:#0E1626; border-color:#26314A; color:#95A3B8; }
+  html.dark .seg-no[aria-pressed="true"]  { background:rgba(18,190,166,.18); color:#2FD9C0; border-color:rgba(47,217,192,.4); }
+  html.dark .seg-yes[aria-pressed="true"] { background:rgba(239,68,68,.18); color:#FCA5A5; border-color:rgba(248,113,113,.5); }
+
+  /* ===== DARK MODE (token-derived, scoped override) ===== */
+  html.dark { color-scheme:dark; }
+  html.dark body { background:#0B1220; color:#E8EDF6; }
+  html.dark .bg-surface-soft            { background-color:#0B1220; }
+  html.dark .bg-white                   { background-color:#141C2B; }
+  html.dark .bg-white\/80               { background-color:rgba(20,28,43,.84); }
+  html.dark .border-surface-line        { border-color:#26314A; }
+  html.dark .border-white\/60           { border-color:rgba(255,255,255,.08); }
+  html.dark .text-ink                   { color:#E8EDF6; }
+  html.dark .text-muted                 { color:#95A3B8; }
+  html.dark .text-muted\/70             { color:rgba(149,163,184,.78); }
+  html.dark .bg-ink\/30                 { background-color:rgba(2,6,18,.62); }
+  html.dark .side-item:hover            { color:#E8EDF6; background-color:rgba(255,255,255,.06); }
+  html.dark .text-brand-blue    { color:#7CC8FF; }
+  html.dark .bg-brand-blue\/10  { background-color:rgba(124,200,255,.14); }
+  html.dark .border-brand-blue\/25 { border-color:rgba(124,200,255,.30); }
+  html.dark .text-brand-teal2   { color:#2FD9C0; }
+  html.dark .bg-brand-teal\/10  { background-color:rgba(18,190,166,.16); }
+  html.dark .bg-brand-teal\/5   { background-color:rgba(18,190,166,.10); }
+  html.dark .border-brand-teal2\/30 { border-color:rgba(47,217,192,.34); }
+  html.dark .text-amber-600     { color:#FBBF24; }
+  html.dark .text-amber-700     { color:#FBBF24; }
+  html.dark .bg-amber-50        { background-color:rgba(251,191,36,.12); }
+  html.dark .border-amber-200   { border-color:rgba(251,191,36,.40); }
+  html.dark .text-red-700       { color:#FCA5A5; }
+  html.dark .bg-red-50          { background-color:rgba(239,68,68,.13); }
+  html.dark .bg-slate-300       { background-color:#3A4A63; }
+  html.dark .shadow-soft { --tw-shadow:0 1px 2px rgba(0,0,0,.45), 0 6px 18px -10px rgba(0,0,0,.65); --tw-shadow-colored:var(--tw-shadow); }
+  html.dark .shadow-card { --tw-shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 28px -14px rgba(0,0,0,.75); --tw-shadow-colored:var(--tw-shadow); }
+  html.dark ::selection { background:#12BEA6; color:#04211C; }
+  /* custom select arrow — inset chevron instead of the far-edge native one */
+  select[class]{ -webkit-appearance:none; -moz-appearance:none; appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 0.7rem center; background-size:15px 15px; padding-right:2.2rem; }
+  html.dark select[class]{ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2395A3B8' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); }
+</style>
+</head>
+<body class="font-sans antialiased bg-surface-soft">
+
+<div class="relative min-h-screen lg:flex">
+  <div class="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(60%_50%_at_15%_0%,rgba(18,190,166,.10),transparent),radial-gradient(55%_50%_at_100%_10%,rgba(37,99,235,.12),transparent)]"></div>
+
+  <!-- ============ SIDEBAR (shared shell; Vaccinations & Injections active) ============ -->
+  <aside data-side class="fixed inset-y-0 left-0 z-50 hidden w-64 shrink-0 overflow-y-auto border-r border-surface-line bg-white p-4 backdrop-blur-md lg:sticky lg:top-0 lg:block lg:h-screen">
+    <div class="mb-5 flex items-center gap-2 px-1">
+      <span class="grid h-7 w-7 place-items-center rounded-lg brand-grad text-[11px] font-bold text-white">A</span>
+      <span class="text-sm font-bold text-ink">Agile Pharmas</span>
+      <button data-side-close class="ml-auto grid h-8 w-8 place-items-center rounded-lg border border-surface-line text-muted lg:hidden" aria-label="Close menu">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <p class="px-2 pb-2 text-[10px] font-semibold uppercase tracking-wider text-muted/70">Menu</p>
+    <nav class="space-y-1 text-[13px]">
+      <a href="dashboard.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Dashboard</a>
+    </nav>
+    <p class="mt-5 px-2 pb-2 text-[10px] font-semibold uppercase tracking-wider text-muted/70">Clinical Services</p>
+    <nav class="space-y-1 text-[13px]">
+      <a href="medscheck.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>MedsCheck</a>
+      <a href="minor-ailments.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Minor Ailments</a>
+      <a href="vaccinations-injections.html" aria-current="page" class="side-item flex items-center gap-2.5 rounded-lg bg-brand-blue/10 px-3 py-2 font-semibold text-brand-blue"><span class="h-2 w-2 rounded-full bg-brand-blue"></span>Vaccinations &amp; Injections</a>
+    </nav>
+    <p class="mt-5 px-2 pb-2 text-[10px] font-semibold uppercase tracking-wider text-muted/70">Operations</p>
+    <nav class="space-y-1 text-[13px]">
+      <a href="billing.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Billing</a>
+      <a href="billing-guard.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Billing Guard</a>
+      <a href="incidents.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Incidents</a>
+      <a href="filing-worklist.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Filing Worklist</a>
+      <a href="calendar.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Calendar</a>
+    </nav>
+    <p class="mt-5 px-2 pb-2 text-[10px] font-semibold uppercase tracking-wider text-muted/70">Records</p>
+    <nav class="space-y-1 text-[13px]">
+      <a href="patients.html" class="side-item flex items-center gap-2.5 rounded-lg px-3 py-2 text-muted"><span class="h-2 w-2 rounded-full bg-slate-300"></span>Patients</a>
+    </nav>  </aside>
+  <div data-side-overlay class="fixed inset-0 z-40 hidden bg-ink/30 backdrop-blur-sm lg:hidden"></div>
+
+  <!-- ============ MAIN ============ -->
+  <div class="min-w-0 flex-1">
+    <div class="mx-auto max-w-none px-4 py-4 sm:px-6 lg:px-8 lg:py-6 2xl:px-10">
+
+      <!-- breadcrumb -->
+      <div class="reveal mb-3 flex items-center gap-2">
+        <button data-side-btn class="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-surface-line bg-white text-ink shadow-soft lg:hidden" aria-label="Open menu">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+        <a href="vaccinations-injections.html?tab=inj" class="btn inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-[13px] font-semibold text-muted hover:text-ink">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+          Back to Injections
+        </a>
+      </div>
+
+      <!-- header banner -->
+      <section class="reveal relative isolate mb-4 overflow-hidden rounded-2xl border border-white/60 shadow-soft">
+        <img src="brand.assets/cta-bg.jpg" alt="" aria-hidden="true" class="absolute inset-0 -z-10 h-full w-full object-cover object-center" />
+        <div class="absolute inset-0 -z-10 bg-gradient-to-r from-white/85 via-white/45 to-transparent"></div>
+        <div class="flex items-center justify-between gap-4 p-5 sm:px-6 sm:py-6">
+          <div class="flex min-w-0 items-center gap-3.5">
+            <span data-av class="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-white/85 text-[15px] font-extrabold text-[#0B7C6B] shadow-soft ring-1 ring-white/70 backdrop-blur">AO</span>
+            <div class="min-w-0">
+              <p class="text-[11px] font-bold uppercase tracking-wider text-[#0B7C6B]">Injection · <span data-drug-eyebrow>—</span><span class="sm:hidden"> · Jul 29, 2026</span></p>
+              <h1 data-name class="h-display text-2xl font-extrabold text-[#0F172A] sm:text-[28px]">Ama Osei</h1>
+            </div>
+          </div>
+          <span class="hidden shrink-0 items-center gap-1.5 rounded-full border border-white/70 bg-white/80 px-3 py-1.5 text-[12.5px] font-semibold text-[#0F172A] shadow-soft backdrop-blur sm:inline-flex">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg>
+            Jul 29, 2026
+          </span>
+        </div>
+      </section>
+
+      <!-- workspace grid -->
+      <div class="grid gap-4 lg:grid-cols-3">
+
+        <!-- LEFT: intake & screening -->
+        <div class="space-y-4 lg:col-span-2">
+
+          <!-- ===== INTAKE & SCREENING CARD ===== -->
+          <section data-intake class="reveal rounded-2xl border border-surface-line bg-white p-4 shadow-card sm:p-5">
+            <h2 class="text-sm font-semibold text-ink">Intake &amp; screening — <span data-drug-name>—</span></h2>
+            <p data-basis class="mt-0.5 text-[12px] leading-relaxed text-muted"></p>
+
+            <!-- Dispensed prescription -->
+            <p class="mt-4 text-[11px] font-semibold uppercase tracking-wider text-muted/70">Dispensed prescription</p>
+            <div class="mt-2 flex flex-col gap-2 sm:flex-row">
+              <button type="button" data-disp="here" data-seg2 aria-pressed="true"  class="btn flex-1 rounded-xl border border-surface-line bg-white px-3.5 py-2.5 text-left text-[13px] font-semibold text-ink sm:text-center">Dispensed here (Fillware profile)</button>
+              <button type="button" data-disp="else" data-seg2 aria-pressed="false" class="btn flex-1 rounded-xl border border-surface-line bg-white px-3.5 py-2.5 text-left text-[13px] font-semibold text-ink sm:text-center">Dispensed elsewhere</button>
+            </div>
+            <div data-disp-here class="mt-2">
+              <label class="mb-1 block text-[12px] font-medium text-ink">Prescription on profile</label>
+              <select data-rx-select class="w-in"><option value="">Select the prescription on the patient’s profile…</option></select>
+            </div>
+            <div data-disp-else hidden class="mt-2">
+              <label class="mb-1 block text-[12px] font-medium text-ink">Where was it dispensed?</label>
+              <input data-rx-else class="w-in" placeholder="e.g., another pharmacy, clinic, or hospital" />
+            </div>
+
+            <!-- Last dose -->
+            <p class="mt-4 text-[11px] font-semibold uppercase tracking-wider text-muted/70">Last dose</p>
+            <div class="mt-2 flex flex-col gap-2 sm:flex-row sm:items-end">
+              <div class="flex-1">
+                <label class="mb-1 block text-[12px] font-medium text-ink">Last dose date</label>
+                <input data-last-date type="date" class="w-in" />
+              </div>
+              <button type="button" data-first-dose data-seg2 aria-pressed="false" class="btn min-h-[2.75rem] rounded-xl border border-surface-line bg-white px-3.5 py-2.5 text-[13px] font-semibold text-ink">First dose</button>
+            </div>
+            <p data-first-help hidden class="mt-2 flex items-start gap-2 rounded-lg bg-brand-teal/5 px-3 py-2 text-[12px] font-medium text-brand-teal2">
+              <svg width="14" height="14" class="mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2.5 1.5"/></svg>
+              First dose on record — next dose will be scheduled from today.
+            </p>
+            <div data-dose-calc hidden class="mt-2 space-y-1">
+              <span data-dose-badge></span>
+              <p data-dose-due class="text-[12px] leading-relaxed text-muted"></p>
+            </div>
+
+            <!-- Screening -->
+            <p class="mt-4 text-[11px] font-semibold uppercase tracking-wider text-muted/70">Screening</p>
+            <div data-screen class="mt-2 space-y-2"></div>
+
+            <!-- primary action -->
+            <div class="mt-4">
+              <button type="button" data-primary class="btn btn-teal-soft inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold sm:w-auto">
+                <svg data-primary-icon width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                <span data-primary-label>Screening clear — continue to consent</span>
+              </button>
+            </div>
+
+            <!-- ===== DEFER CARD (amber) — revealed when a screening item is Yes ===== -->
+            <div data-defer-card hidden class="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+              <div class="flex items-start gap-2.5">
+                <svg width="17" height="17" class="mt-0.5 shrink-0 text-amber-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg>
+                <div class="min-w-0">
+                  <p class="text-[13px] font-bold text-amber-700">Screening item triggered — defer injection</p>
+                  <p class="mt-0.5 text-[12px] leading-relaxed text-amber-600">One or more items were flagged. Document the reason and defer today’s dose — no administration, no charge.</p>
+                </div>
+              </div>
+              <div class="mt-3">
+                <div class="mb-1 flex items-center justify-between gap-3">
+                  <label class="text-[12px] font-medium text-ink">Documented reason &amp; next step</label>
+                  <button type="button" data-defer-ai class="btn ai-badge inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9Z"/></svg>
+                    AI draft
+                  </button>
+                </div>
+                <textarea data-defer-reason rows="4" class="w-in" placeholder="Reason for deferral and recommended next step…"></textarea>
+              </div>
+              <div class="mt-3 flex">
+                <button type="button" data-defer-btn class="btn btn-amber inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold sm:w-auto">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                  Defer — no dose, no charge
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <!-- ===== DEFERRED OUTCOME (amber) ===== -->
+          <section data-deferred hidden class="reveal rounded-2xl border border-amber-200 bg-amber-50 p-5 shadow-card">
+            <div class="flex items-start gap-3">
+              <svg width="20" height="20" class="mt-0.5 shrink-0 text-amber-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg>
+              <div class="min-w-0">
+                <h2 class="text-base font-bold text-amber-700">Deferred — no dose, no charge.</h2>
+                <p class="mt-2 text-[13px] font-semibold text-ink">No dose was administered and no charge was applied.</p>
+                <p data-deferred-body class="mt-1.5 text-[13px] leading-relaxed text-ink"></p>
+                <a href="vaccinations-injections.html?tab=inj" class="mt-4 inline-flex items-center gap-1.5 text-[13px] font-semibold text-brand-teal2 hover:underline">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+                  Back to Injections
+                </a>
+              </div>
+            </div>
+          </section>
+
+          <!-- ===== CONSENT PLACEHOLDER (screening clear → next step) ===== -->
+          <section data-consent hidden class="reveal rounded-2xl border border-surface-line bg-white p-5 shadow-card">
+            <p class="text-[11px] font-semibold uppercase tracking-wider text-brand-teal2">Next step</p>
+            <h2 class="mt-1 text-base font-bold text-ink">Consent &amp; administration</h2>
+            <p class="mt-1.5 text-[13px] leading-relaxed text-muted">Screening is clear. Consent, administration (lot / site / counselling), and documentation are the next steps — coming in a follow-up build.</p>
+            <button type="button" data-consent-back class="btn mt-4 inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-[13px] font-semibold text-muted hover:text-ink">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+              Back to screening
+            </button>
+          </section>
+        </div>
+
+        <!-- RIGHT: patient rail — collapsible on mobile, sticky on desktop -->
+        <aside class="order-first space-y-3 lg:order-none lg:space-y-4 lg:sticky lg:top-6 lg:self-start">
+          <button type="button" data-patient-toggle aria-expanded="false" class="btn flex w-full items-center gap-3 rounded-2xl border border-surface-line bg-white p-3.5 text-left shadow-card lg:hidden">
+            <span data-av class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brand-teal/10 text-[11px] font-bold text-brand-teal2">AO</span>
+            <span class="min-w-0 flex-1">
+              <span class="block text-sm font-bold text-ink"><span data-name>Ama Osei</span></span>
+              <span class="block text-[11.5px] text-muted">Tap to view patient &amp; medications</span>
+            </span>
+            <svg data-patient-chevron class="h-4 w-4 shrink-0 text-muted transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+
+          <div data-patient-body class="hidden space-y-4 lg:block">
+            <section class="reveal rounded-2xl border border-surface-line bg-white p-4 shadow-card sm:p-5">
+              <p class="text-[10px] font-semibold uppercase tracking-wider text-muted/70">Patient</p>
+              <p class="mt-1 text-base font-bold text-ink"><span data-name>Ama Osei</span></p>
+              <p data-meta class="text-[12px] text-muted">34 F · HN 4821 993 210</p>
+              <div class="mt-3 flex items-center gap-2 rounded-lg bg-brand-teal/5 px-3 py-2 text-[12px] font-medium text-brand-teal2">
+                <svg width="14" height="14" class="shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                Profile pre-populated from Fillware
+              </div>
+              <div data-allergy class="mt-3 rounded-lg bg-surface-soft px-3 py-2 text-[12px] font-medium text-muted">No known allergies</div>
+            </section>
+
+            <section class="reveal rounded-2xl border border-surface-line bg-white p-4 shadow-card sm:p-5">
+              <p class="text-[10px] font-semibold uppercase tracking-wider text-muted/70">Medications</p>
+              <ul data-med-list class="mt-2 space-y-1.5 text-[12.5px] text-ink"></ul>
+              <p class="mt-3 text-[11px] text-muted">Active prescriptions on the Fillware profile.</p>
+            </section>
+
+            <section class="reveal rounded-2xl border border-surface-line bg-white p-4 shadow-card sm:p-5">
+              <div class="flex items-center justify-between gap-2">
+                <p class="text-[10px] font-semibold uppercase tracking-wider text-muted/70">Injection history</p>
+                <p class="text-[11px] text-muted">Fillware · today</p>
+              </div>
+              <p class="mt-2 text-[12.5px] text-muted">Dose timing for <span data-drug-name class="font-medium text-ink">—</span> is checked against the last injection entered at intake.</p>
+            </section>
+          </div>
+        </aside>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  // ---- Mobile sidebar ----
+  const side = document.querySelector('[data-side]');
+  const overlay = document.querySelector('[data-side-overlay]');
+  const openSide  = () => { side.classList.remove('hidden'); overlay.classList.remove('hidden'); };
+  const closeSide = () => { side.classList.add('hidden'); overlay.classList.add('hidden'); };
+  document.querySelector('[data-side-btn]').addEventListener('click', openSide);
+  document.querySelector('[data-side-close]').addEventListener('click', closeSide);
+  overlay.addEventListener('click', closeSide);
+  side.querySelectorAll('a').forEach(a => a.addEventListener('click', closeSide));
+
+  // ---- Mobile collapsible patient panel ----
+  (function () {
+    const btn = document.querySelector('[data-patient-toggle]');
+    const body = document.querySelector('[data-patient-body]');
+    const chev = document.querySelector('[data-patient-chevron]');
+    if (!btn || !body) return;
+    btn.addEventListener('click', () => {
+      const open = !body.classList.toggle('hidden');
+      btn.setAttribute('aria-expanded', String(open));
+      if (chev) chev.style.transform = open ? 'rotate(180deg)' : '';
+      if (open) body.querySelectorAll('.reveal').forEach(el => el.classList.add('in'));
+    });
+  })();
+
+  // ============================================================
+  //  Intake & screening
+  // ============================================================
+  (function () {
+    const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
+    const params  = new URLSearchParams(location.search);
+    const patient = params.get('patient') || 'Ama Osei';
+    const age     = params.get('age') || '';
+    const sex     = params.get('sex') || '';
+    const hn      = params.get('hn') || '';
+    const drug    = params.get('drug') || 'Vitamin B12 (cyanocobalamin)';
+    const route   = params.get('route') || 'IM';
+    const interval = params.get('interval') || 'q4wk';
+    const deleg   = params.get('deleg') === '1';
+    const TODAY   = new Date(2026, 6, 29); // Jul 29, 2026 — the app's fixed demo date
+    const initials = n => n.trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+
+    // ---- fill context ----
+    document.querySelectorAll('[data-name]').forEach(el => el.textContent = patient);
+    document.querySelectorAll('[data-av]').forEach(el => el.textContent = initials(patient));
+    document.querySelectorAll('[data-drug-name]').forEach(el => el.textContent = drug);
+    document.querySelectorAll('[data-drug-eyebrow]').forEach(el => el.textContent = drug);
+    const metaEl = document.querySelector('[data-meta]');
+    if (metaEl) {
+      const bits = [ [age, sex].filter(Boolean).join(' ').trim(), hn ? ('HN ' + hn) : '' ].filter(Boolean);
+      metaEl.textContent = bits.length ? bits.join(' · ') : 'Profile synced from Fillware';
+    }
+    document.title = 'Intake & screening · ' + drug + ' — ' + patient;
+
+    document.querySelector('[data-basis]').textContent = deleg
+      ? 'Administered under delegation or a medical directive — a direct order must be on file; the drug itself is dispensed on a prescription.'
+      : 'Schedule 1 of O. Reg. 256/24 — administered on the pharmacist’s own authority; the drug itself is dispensed on a prescription.';
+
+    // ---- dispensed-source toggle ----
+    const MEDS = {
+      'Ama Osei':       ['Ramipril 5 mg cap', 'Atorvastatin 20 mg tab'],
+      'Daniel Osei':    ['Salbutamol 100 mcg inhaler'],
+      'Priya Nair':     ['Levothyroxine 50 mcg tab', 'Vitamin D 1000 IU tab'],
+      'Marcus Bell':    ['Metformin 500 mg tab', 'Amlodipine 5 mg tab'],
+      'Sofia Rossi':    ['Alendronate 70 mg tab', 'Calcium/Vit D tab'],
+      'Liang Chen':     ['Tamsulosin 0.4 mg cap', 'Rosuvastatin 10 mg tab'],
+      'Fatima Khan':    ['Sertraline 50 mg tab'],
+      'Grace Thompson': ['Risperidone 2 mg tab', 'Pantoprazole 40 mg tab'],
+    };
+    const profileMeds = MEDS[patient] || ['Amlodipine 5 mg tab', 'Levothyroxine 50 mcg tab'];
+    const rxSelect = document.querySelector('[data-rx-select]');
+    const rxOptions = [drug + ' — dispensed here (active Rx)'].concat(profileMeds);
+    rxOptions.forEach(o => { const opt = document.createElement('option'); opt.textContent = o; rxSelect.appendChild(opt); });
+    rxSelect.selectedIndex = 1; // preselect the matching Rx for this injection
+
+    // patient rail medication list
+    const medList = document.querySelector('[data-med-list]');
+    if (medList) medList.innerHTML = [drug].concat(profileMeds)
+      .map(m => `<li class="flex items-start gap-2"><span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-teal2"></span><span>${esc(m)}</span></li>`).join('');
+
+    document.querySelectorAll('[data-disp]').forEach(b => b.addEventListener('click', () => {
+      const here = b.dataset.disp === 'here';
+      document.querySelectorAll('[data-disp]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+      document.querySelector('[data-disp-here]').hidden = !here;
+      document.querySelector('[data-disp-else]').hidden = here;
+    }));
+
+    // ---- last-dose / interval calc ----
+    const weeksMatch = /q(\d+)wk/i.exec(interval);
+    const weeks = weeksMatch ? Number(weeksMatch[1]) : null;
+    const intervalDays = weeks ? weeks * 7 : null;
+    const lastDate  = document.querySelector('[data-last-date]');
+    const firstBtn  = document.querySelector('[data-first-dose]');
+    const firstHelp = document.querySelector('[data-first-help]');
+    const calc      = document.querySelector('[data-dose-calc]');
+    const badge     = document.querySelector('[data-dose-badge]');
+    const dueLine   = document.querySelector('[data-dose-due]');
+    const TEAL_BADGE  = 'inline-flex items-center rounded-full bg-brand-teal/10 px-2.5 py-0.5 text-[11.5px] font-semibold text-brand-teal2';
+    const AMBER_BADGE = 'inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-[11.5px] font-semibold text-amber-600';
+    let firstDose = false;
+    const fmt = d => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+    function updateDose() {
+      if (firstDose) { firstHelp.hidden = false; calc.hidden = true; lastDate.value = ''; lastDate.disabled = true; return; }
+      lastDate.disabled = false; firstHelp.hidden = true;
+      if (!lastDate.value) { calc.hidden = true; return; }
+      const last = new Date(lastDate.value + 'T00:00:00');
+      const daysSince = Math.round((TODAY - last) / 86400000);
+      calc.hidden = false;
+      if (intervalDays) {
+        const due = new Date(last.getTime() + intervalDays * 86400000);
+        if (daysSince >= intervalDays) {
+          badge.className = TEAL_BADGE;
+          badge.textContent = `In window · ${daysSince} d since last`;
+          dueLine.textContent = `Due ${fmt(due)} — on or past the q${weeks}wk target; a late dose may be given and the schedule resumes from today.`;
+        } else {
+          badge.className = AMBER_BADGE;
+          badge.textContent = `Too early · ${intervalDays - daysSince} d to go`;
+          dueLine.textContent = `Due ${fmt(due)} — earlier than the q${weeks}wk interval; confirm before administering.`;
+        }
+      } else {
+        badge.className = TEAL_BADGE;
+        badge.textContent = `${daysSince} d since last`;
+        dueLine.textContent = 'Per prescription — follow the interval stated on the dispensed Rx.';
+      }
+    }
+    lastDate.addEventListener('input', updateDose);
+    firstBtn.addEventListener('click', () => { firstDose = !firstDose; firstBtn.setAttribute('aria-pressed', String(firstDose)); updateDose(); });
+
+    // ---- screening questions ----
+    const QUESTIONS = [
+      { id: 'allergy',   text: 'Known allergy or previous severe reaction to this medication or its components',   doc: 'a documented allergy or previous severe reaction to this medication or one of its components' },
+      { id: 'illness',   text: 'Moderate or severe acute illness, with or without fever, today',                   doc: 'a moderate-to-severe acute illness present today' },
+      { id: 'bleeding',  text: 'Bleeding disorder or anticoagulant concern not manageable in pharmacy',            doc: 'a bleeding disorder or anticoagulant concern that cannot be safely managed in the pharmacy' },
+      { id: 'infection', text: 'Active infection or fever (hold biologic until resolved)',                         doc: 'an active infection or fever, warranting that the biologic be held until it resolves' },
+    ];
+    const answers = {};
+    QUESTIONS.forEach(q => answers[q.id] = 'no');
+
+    const screenEl = document.querySelector('[data-screen]');
+    screenEl.innerHTML = QUESTIONS.map(q => `
+      <div class="flex items-center justify-between gap-3 rounded-xl border border-surface-line bg-white px-3.5 py-3">
+        <span class="min-w-0 flex-1 text-[13px] leading-snug text-ink">${esc(q.text)}</span>
+        <span class="inline-flex shrink-0 gap-1" role="group" aria-label="No or yes">
+          <button type="button" data-ans="${q.id}" data-choice="no"  aria-pressed="true"  class="btn seg seg-no  min-h-[2.75rem] min-w-[3rem] rounded-lg px-3 text-[13px] font-semibold">No</button>
+          <button type="button" data-ans="${q.id}" data-choice="yes" aria-pressed="false" class="btn seg seg-yes min-h-[2.75rem] min-w-[3rem] rounded-lg px-3 text-[13px] font-semibold">Yes</button>
+        </span>
+      </div>`).join('');
+
+    const primary      = document.querySelector('[data-primary]');
+    const primaryLabel = document.querySelector('[data-primary-label]');
+    const primaryIcon  = document.querySelector('[data-primary-icon]');
+    const deferCard    = document.querySelector('[data-defer-card]');
+    const reason       = document.querySelector('[data-defer-reason]');
+
+    const anyYes = () => QUESTIONS.some(q => answers[q.id] === 'yes');
+
+    function refresh() {
+      if (anyYes()) {
+        primary.className = 'btn inline-flex w-full items-center justify-center gap-2 rounded-xl border border-surface-line bg-white px-4 py-2.5 text-sm font-semibold text-ink hover:bg-surface-soft sm:w-auto';
+        primaryLabel.textContent = 'Review screening trigger';
+        if (primaryIcon) primaryIcon.style.display = 'none';
+        deferCard.hidden = false;
+      } else {
+        primary.className = 'btn btn-teal-soft inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold sm:w-auto';
+        primaryLabel.textContent = 'Screening clear — continue to consent';
+        if (primaryIcon) primaryIcon.style.display = '';
+        deferCard.hidden = true;
+      }
+    }
+
+    screenEl.addEventListener('click', e => {
+      const b = e.target.closest('[data-ans]');
+      if (!b) return;
+      const id = b.dataset.ans, choice = b.dataset.choice;
+      answers[id] = choice;
+      screenEl.querySelectorAll(`[data-ans="${id}"]`).forEach(x => x.setAttribute('aria-pressed', String(x.dataset.choice === choice)));
+      refresh();
+    });
+    refresh();
+
+    // ---- AI draft — references ONLY the items actually flagged "Yes" ----
+    function listJoin(arr) {
+      if (arr.length <= 1) return arr[0] || '';
+      if (arr.length === 2) return arr[0] + ' and ' + arr[1];
+      return arr.slice(0, -1).join(', ') + ', and ' + arr[arr.length - 1];
+    }
+    function draftText() {
+      const docs = QUESTIONS.filter(q => answers[q.id] === 'yes').map(q => q.doc);
+      if (!docs.length) return '';
+      const many = docs.length > 1;
+      return `Screening for ${drug} identified ${listJoin(docs)}. Given ${many ? 'these findings' : 'this finding'}, today’s injection is being deferred as a precaution — no dose was administered and no charge applied. The patient was advised, and follow-up with their primary care provider is recommended before the dose is given.`;
+    }
+    document.querySelector('[data-defer-ai]').addEventListener('click', () => {
+      reason.value = draftText();
+      reason.classList.add('ai-drafted');
+      reason.focus();
+    });
+
+    // ---- primary button: clear → consent placeholder; triggered → focus defer card ----
+    primary.addEventListener('click', () => {
+      if (anyYes()) {
+        deferCard.hidden = false;
+        deferCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        reason.focus();
+      } else {
+        document.querySelector('[data-intake]').hidden = true;
+        const c = document.querySelector('[data-consent]');
+        c.hidden = false;
+        c.querySelectorAll('.reveal').forEach(el => el.classList.add('in'));
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    });
+    const consentBack = document.querySelector('[data-consent-back]');
+    if (consentBack) consentBack.addEventListener('click', () => {
+      document.querySelector('[data-consent]').hidden = true;
+      document.querySelector('[data-intake]').hidden = false;
+    });
+
+    // ---- defer → deferred outcome ----
+    document.querySelector('[data-defer-btn]').addEventListener('click', () => {
+      let txt = reason.value.trim() || draftText();
+      if (!txt) txt = `Today’s injection of ${drug} is being deferred following intake screening. Follow-up with the patient’s primary care provider is recommended before proceeding.`;
+      document.querySelector('[data-deferred-body]').textContent = txt;
+      document.querySelector('[data-intake]').hidden = true;
+      const d = document.querySelector('[data-deferred]');
+      d.hidden = false;
+      d.querySelectorAll('.reveal').forEach(el => el.classList.add('in'));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  })();
+
+  // ---- Reveal on scroll ----
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold:.12, rootMargin:'0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>
