@@ -65,6 +65,11 @@
   .codeblock { background:#0e1a2b; color:#d6e2f2; }
   .codeblock .k { color:#7CC8FF; }
   .codeblock .s { color:#8ee6c8; }
+  /* details/summary — custom chevron, no default marker */
+  summary { list-style:none; }
+  summary::-webkit-details-marker { display:none; }
+  summary .chev { transition:transform .2s var(--ease-spring); }
+  details[open] > summary .chev { transform:rotate(90deg); }
 
   /* ---------------- DARK MODE ---------------- */
   html.dark { color-scheme:dark; }
@@ -279,20 +284,28 @@
               <h2 class="text-base font-bold text-brand-blue">Sent to NIDR (ISMP Canada)</h2>
               <span class="rounded-full bg-brand-blue/10 px-2 py-0.5 text-[11px] font-semibold text-brand-blue">pending daily sync</span>
             </div>
-            <p class="text-[12.5px] leading-relaxed text-muted">Only this de-identified minimum data set leaves the pharmacy:</p>
-            <dl class="mt-3 divide-y divide-surface-line overflow-hidden rounded-xl border border-surface-line">
-              <div class="flex items-baseline justify-between gap-3 px-3.5 py-2"><dt class="text-[12px] font-medium text-muted">Event type</dt><dd data-n="event_type" class="text-right text-[13px] font-semibold text-ink">—</dd></div>
-              <div class="flex items-baseline justify-between gap-3 px-3.5 py-2"><dt class="text-[12px] font-medium text-muted">Date</dt><dd data-n="date" class="text-right text-[13px] font-semibold text-ink">—</dd></div>
-              <div class="flex items-baseline justify-between gap-3 px-3.5 py-2"><dt class="text-[12px] font-medium text-muted">Incident type</dt><dd data-n="incident_type" class="text-right text-[13px] font-semibold text-ink">—</dd></div>
-              <div class="flex items-baseline justify-between gap-3 px-3.5 py-2"><dt class="text-[12px] font-medium text-muted">Discovered by</dt><dd data-n="discovered_by" class="text-right text-[13px] font-semibold text-ink">—</dd></div>
-              <div class="flex items-baseline justify-between gap-3 px-3.5 py-2"><dt class="text-[12px] font-medium text-muted">Stage(s)</dt><dd data-n="stages" class="text-right text-[13px] font-semibold text-ink">—</dd></div>
-              <div class="flex items-baseline justify-between gap-3 px-3.5 py-2"><dt class="text-[12px] font-medium text-muted">Medications</dt><dd data-n="medications" class="text-right text-[13px] font-semibold text-ink">—</dd></div>
-              <div class="flex items-baseline justify-between gap-3 px-3.5 py-2"><dt class="text-[12px] font-medium text-muted">Patient age range</dt><dd data-n="age_range" class="text-right text-[13px] font-semibold text-ink">—</dd></div>
-              <div class="flex items-baseline justify-between gap-3 px-3.5 py-2"><dt class="text-[12px] font-medium text-muted">Patient gender</dt><dd data-n="gender" class="text-right text-[13px] font-semibold text-ink">—</dd></div>
-            </dl>
+            <!-- the point: reassurance about what is NOT sent -->
+            <div class="flex items-start gap-2.5 rounded-xl border border-brand-blue/15 bg-brand-blue/5 p-3">
+              <svg class="mt-0.5 h-5 w-5 shrink-0 text-brand-blue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+              <p class="text-[12.5px] leading-relaxed text-ink"><span class="font-semibold">De-identified before it leaves.</span> <span class="text-muted">No names, health numbers, birthdates, or contact details are transmitted — the patient is described only by an </span><span class="font-semibold">age band</span><span class="text-muted"> and </span><span class="font-semibold">gender</span><span class="text-muted">.</span></p>
+            </div>
+
+            <!-- exact fields + raw payload, tucked away for audit/compliance -->
             <details class="mt-3">
-              <summary class="inline-flex cursor-pointer items-center gap-1 text-[12px] font-semibold text-brand-teal2 hover:text-brand-teal">View raw payload</summary>
-              <pre data-nidr class="codeblock mt-2 overflow-x-auto rounded-xl p-4 text-[12px] leading-relaxed" style="font-family:'JetBrains Mono',ui-monospace,monospace;"></pre>
+              <summary class="inline-flex cursor-pointer items-center gap-1.5 text-[12px] font-semibold text-brand-teal2 hover:text-brand-teal">
+                <svg class="chev h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
+                See exactly what's sent
+              </summary>
+              <dl class="mt-2.5 divide-y divide-surface-line overflow-hidden rounded-xl border border-surface-line">
+                <div class="flex items-baseline justify-between gap-3 px-3.5 py-2"><dt class="text-[12px] font-medium text-muted">Event type</dt><dd data-n="event_type" class="text-right text-[13px] font-semibold text-ink">—</dd></div>
+                <div class="flex items-baseline justify-between gap-3 px-3.5 py-2"><dt class="text-[12px] font-medium text-muted">Date</dt><dd data-n="date" class="text-right text-[13px] font-semibold text-ink">—</dd></div>
+                <div class="flex items-baseline justify-between gap-3 px-3.5 py-2"><dt class="text-[12px] font-medium text-muted">Incident type</dt><dd data-n="incident_type" class="text-right text-[13px] font-semibold text-ink">—</dd></div>
+                <div class="flex items-baseline justify-between gap-3 px-3.5 py-2"><dt class="text-[12px] font-medium text-muted">Discovered by</dt><dd data-n="discovered_by" class="text-right text-[13px] font-semibold text-ink">—</dd></div>
+                <div class="flex items-baseline justify-between gap-3 px-3.5 py-2"><dt class="text-[12px] font-medium text-muted">Stage(s)</dt><dd data-n="stages" class="text-right text-[13px] font-semibold text-ink">—</dd></div>
+                <div class="flex items-baseline justify-between gap-3 px-3.5 py-2"><dt class="text-[12px] font-medium text-muted">Medications</dt><dd data-n="medications" class="text-right text-[13px] font-semibold text-ink">—</dd></div>
+                <div class="flex items-baseline justify-between gap-3 px-3.5 py-2"><dt class="text-[12px] font-medium text-muted">Patient age range</dt><dd data-n="age_range" class="text-right text-[13px] font-semibold text-ink">—</dd></div>
+                <div class="flex items-baseline justify-between gap-3 px-3.5 py-2"><dt class="text-[12px] font-medium text-muted">Patient gender</dt><dd data-n="gender" class="text-right text-[13px] font-semibold text-ink">—</dd></div>
+              </dl>
             </details>
           </section>
 
@@ -375,12 +388,6 @@
       patient_age_range: rec.ageRange,
       patient_gender: genderLetter
     };
-    const json = JSON.stringify(payload, null, 2)
-      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-      .replace(/"([^"]+)":/g, '<span class="k">"$1"</span>:')
-      .replace(/: ("[^"]*")/g, ': <span class="s">$1</span>');
-    document.querySelector('[data-nidr]').innerHTML = json;
-
     // human-readable summary (the clean, pharmacist-facing view)
     const R = {
       event_type: isNear ? 'Near miss' : 'Incident',
