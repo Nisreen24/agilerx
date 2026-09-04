@@ -92,6 +92,14 @@
   .mic-dot { animation:micpulse 1s ease-in-out infinite; }
   @media (prefers-reduced-motion: reduce){ .mic-dot{ animation:none; } }
 
+  /* ---- AI draft — violet, reserved exclusively for AI-generated content ---- */
+  .ai-chip { background:#f1edfc; color:#7c5cd6; border:1px solid #ddd3f6; transition:border-color .2s ease, background-color .2s ease, transform .2s var(--ease-spring); }
+  .ai-chip:hover { transform:translateY(-1px); }
+  .ai-chip:active { transform:scale(.96); }
+  .ai-chip:focus-visible { outline:2px solid #7c5cd6; outline-offset:2px; }
+  .ai-note { color:#7c5cd6; }
+  .ai-field { border-left:3px solid #7c5cd6 !important; background:#faf9ff; }
+
   /* ============================================================ DARK MODE ============================================================ */
   html.dark { color-scheme:dark; }
   html.dark body { background:#0B1220; color:#E8EDF6; }
@@ -123,6 +131,9 @@
   html.dark .shadow-card { --tw-shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 28px -14px rgba(0,0,0,.75); --tw-shadow-colored:var(--tw-shadow); }
   html.dark .finput:focus { border-color:#12BEA6; box-shadow:0 0 0 3px rgba(18,190,166,.22); }
   html.dark .chip[aria-pressed="true"] { color:#2FD9C0; }
+  html.dark .ai-chip { background:rgba(124,92,214,.18); color:#c4b3f5; border-color:rgba(124,92,214,.4); }
+  html.dark .ai-note { color:#c4b3f5; }
+  html.dark .ai-field { background:rgba(124,92,214,.08); }
   html.dark ::selection { background:#12BEA6; color:#04211C; }
   /* custom select arrow — inset chevron instead of the far-edge native one */
   select[class]{ -webkit-appearance:none; -moz-appearance:none; appearance:none;
@@ -139,7 +150,7 @@
   <!-- ============ SIDEBAR (Incidents active) ============ -->
   <aside data-side class="fixed inset-y-0 left-0 z-50 hidden w-64 shrink-0 overflow-y-auto border-r border-surface-line bg-white p-4 backdrop-blur-md lg:sticky lg:top-0 lg:block lg:h-screen">
     <div class="mb-5 flex items-center gap-2 px-1">
-      <span class="grid h-7 w-7 place-items-center rounded-lg brand-grad text-[11px] font-bold text-white">A</span>
+      <img src="brand.assets/Agilepharmalogo.png" alt="Agile Pharmas" class="h-7 w-7 shrink-0 object-contain" />
       <span class="text-sm font-bold text-ink">Agile Pharmas</span>
       <button data-side-close class="ml-auto grid h-8 w-8 place-items-center rounded-lg border border-surface-line text-muted lg:hidden" aria-label="Close menu">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
@@ -179,7 +190,7 @@
         <button data-side-btn class="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-surface-line text-ink lg:hidden" aria-label="Open menu">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
         </button>
-        <img src="brand.assets/aglie%20logo.png" alt="Agile Pharmas" class="hidden h-6 w-auto shrink-0 md:block" />
+        <img src="brand.assets/Agilepharmalogo.png" alt="Agile Pharmas" class="hidden h-6 w-auto shrink-0 md:block" />
         <div class="min-w-0 flex-1">
           <p class="truncate text-[13px] font-semibold text-ink">Incidents</p>
         </div>
@@ -236,17 +247,18 @@
               <div>
                 <label for="date" class="block text-[13px] font-semibold text-ink">Date occurred <span class="text-red-500">*</span></label>
                 <input id="date" data-date type="date" value="2026-08-24" class="finput mt-1.5 w-full rounded-xl border border-surface-line bg-white px-3 py-2.5 text-sm text-ink" />
+                <p data-date-echo class="mt-1 text-[11px] text-muted"></p>
               </div>
               <div>
-                <label for="time" class="block text-[13px] font-semibold text-ink">Time <span class="font-normal text-muted">(approx.)</span></label>
+                <label for="time" class="block text-[13px] font-semibold text-ink">Time <span class="text-red-500">*</span> <span class="font-normal text-muted">(approx.)</span></label>
                 <input id="time" type="time" class="finput mt-1.5 w-full rounded-xl border border-surface-line bg-white px-3 py-2.5 text-sm text-ink" />
               </div>
             </div>
 
             <!-- age range -->
             <div>
-              <label class="block text-[13px] font-semibold text-ink">Patient age range <span class="font-normal text-muted">(never a birthdate)</span></label>
-              <div data-chip-group data-single class="mt-2 flex flex-wrap gap-2">
+              <label class="block text-[13px] font-semibold text-ink">Patient age range <span class="text-red-500">*</span> <span class="font-normal text-muted">(never a birthdate)</span></label>
+              <div data-chip-group data-single data-age class="mt-2 flex flex-wrap gap-2">
                 <button type="button" data-chip class="chip rounded-full border border-surface-line bg-white px-3.5 py-2 text-[13px] font-medium text-ink" aria-pressed="false">0–1</button>
                 <button type="button" data-chip class="chip rounded-full border border-surface-line bg-white px-3.5 py-2 text-[13px] font-medium text-ink" aria-pressed="false">2–12</button>
                 <button type="button" data-chip class="chip rounded-full border border-surface-line bg-white px-3.5 py-2 text-[13px] font-medium text-ink" aria-pressed="false">13–18</button>
@@ -254,20 +266,21 @@
                 <button type="button" data-chip class="chip rounded-full border border-surface-line bg-white px-3.5 py-2 text-[13px] font-medium text-ink" aria-pressed="false">45–64</button>
                 <button type="button" data-chip class="chip rounded-full border border-surface-line bg-white px-3.5 py-2 text-[13px] font-medium text-ink" aria-pressed="false">65–84</button>
                 <button type="button" data-chip class="chip rounded-full border border-surface-line bg-white px-3.5 py-2 text-[13px] font-medium text-ink" aria-pressed="false">85+</button>
+                <button type="button" data-chip class="chip rounded-full border border-surface-line bg-white px-3.5 py-2 text-[13px] font-medium text-ink" aria-pressed="false">Unknown</button>
               </div>
             </div>
 
             <!-- gender + route -->
             <div class="grid grid-cols-2 gap-3">
               <div>
-                <label for="gender" class="block text-[13px] font-semibold text-ink">Patient gender</label>
-                <select id="gender" class="finput mt-1.5 w-full rounded-xl border border-surface-line bg-white px-3 py-2.5 text-sm text-ink">
-                  <option value="">—</option><option>Female</option><option>Male</option><option>Another gender</option><option>Unknown</option>
+                <label for="gender" class="block text-[13px] font-semibold text-ink">Patient gender <span class="text-red-500">*</span></label>
+                <select id="gender" data-gender class="finput mt-1.5 w-full rounded-xl border border-surface-line bg-white px-3 py-2.5 text-sm text-ink">
+                  <option value="">Select…</option><option>Female</option><option>Male</option><option>Unknown</option>
                 </select>
               </div>
               <div>
-                <label for="route" class="block text-[13px] font-semibold text-ink">Route</label>
-                <input id="route" type="text" placeholder="e.g., oral" class="finput mt-1.5 w-full rounded-xl border border-surface-line bg-white px-3 py-2.5 text-sm text-ink" />
+                <label for="route" class="block text-[13px] font-semibold text-ink">Route <span class="text-red-500">*</span></label>
+                <input id="route" data-route type="text" placeholder="e.g., oral" class="finput mt-1.5 w-full rounded-xl border border-surface-line bg-white px-3 py-2.5 text-sm text-ink" />
               </div>
             </div>
 
@@ -284,8 +297,12 @@
                 <option>Incorrect label</option>
                 <option>Omission / missed dose</option>
                 <option>Incorrect duration</option>
+                <option>Drug interaction</option>
+                <option>Known allergy</option>
+                <option>Deteriorated / expired product</option>
                 <option>Other</option>
               </select>
+              <input id="typeOther" data-type-other type="text" hidden placeholder="Describe the incident type" class="finput mt-2 w-full rounded-xl border border-surface-line bg-white px-3 py-2.5 text-sm text-ink" />
             </div>
 
             <!-- discovered by + prescribed by -->
@@ -303,9 +320,9 @@
                 </select>
               </div>
               <div>
-                <label for="prescribed" class="block text-[13px] font-semibold text-ink">Prescribed by</label>
-                <select id="prescribed" class="finput mt-1.5 w-full rounded-xl border border-surface-line bg-white px-3 py-2.5 text-sm text-ink">
-                  <option value="">—</option><option>Physician</option><option>Nurse practitioner</option><option>Dentist</option><option>Other</option>
+                <label for="prescribed" class="block text-[13px] font-semibold text-ink">Prescribed by <span class="text-red-500">*</span></label>
+                <select id="prescribed" data-prescribed class="finput mt-1.5 w-full rounded-xl border border-surface-line bg-white px-3 py-2.5 text-sm text-ink">
+                  <option value="">Select…</option><option>Physician</option><option>Nurse practitioner</option><option>Dentist</option><option>Pharmacist</option><option>Midwife</option><option>Optometrist</option><option>Other</option><option>Unknown</option>
                 </select>
               </div>
             </div>
@@ -325,13 +342,18 @@
 
             <!-- medications -->
             <div>
-              <label class="block text-[13px] font-semibold text-ink">Medication(s) involved</label>
+              <label class="block text-[13px] font-semibold text-ink">Medication(s) involved <span class="text-red-500">*</span> <span class="font-normal text-muted">(name required · DIN optional)</span></label>
               <div data-med-list class="mt-2 space-y-2">
                 <div class="flex gap-2">
-                  <input type="text" placeholder="Drug name" class="finput min-w-0 flex-1 rounded-xl border border-surface-line bg-white px-3 py-2.5 text-sm text-ink" />
+                  <input type="text" list="drugList" data-med-name placeholder="Drug name" class="finput min-w-0 flex-1 rounded-xl border border-surface-line bg-white px-3 py-2.5 text-sm text-ink" />
                   <input type="text" placeholder="DIN" class="finput w-24 shrink-0 rounded-xl border border-surface-line bg-white px-3 py-2.5 text-sm text-ink" />
                 </div>
               </div>
+              <!-- formulary autocomplete — keeps free-typed name variants from fragmenting trend analysis -->
+              <datalist id="drugList">
+                <option value="Amoxicillin"></option><option value="Amoxicillin suspension"></option><option value="Apixaban"></option><option value="Atorvastatin"></option><option value="Amlodipine"></option><option value="Amitriptyline"></option><option value="Azithromycin"></option><option value="Ciprofloxacin"></option><option value="Clopidogrel"></option><option value="Escitalopram"></option><option value="Furosemide"></option><option value="Gabapentin"></option><option value="Hydralazine"></option><option value="Hydrochlorothiazide"></option><option value="Hydroxyzine"></option><option value="Indapamide"></option><option value="Insulin glargine"></option><option value="Levothyroxine"></option><option value="Lisinopril"></option><option value="Metformin"></option><option value="Metoprolol"></option><option value="Pantoprazole"></option><option value="Perindopril"></option><option value="Pregabalin"></option><option value="Ramipril"></option><option value="Rosuvastatin"></option><option value="Sertraline"></option><option value="Tamsulosin"></option><option value="Tretinoin"></option><option value="Warfarin"></option>
+              </datalist>
+              <p data-err-meds hidden class="mt-1.5 text-[12px] font-medium text-red-500">Enter at least one medication name.</p>
               <button type="button" data-add-med class="mt-2 inline-flex items-center gap-1 text-[13px] font-semibold text-brand-teal2 hover:text-brand-teal">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
                 Add another medication
@@ -340,7 +362,7 @@
 
             <!-- associated factors -->
             <div>
-              <label class="block text-[13px] font-semibold text-ink">Associated factors</label>
+              <label class="block text-[13px] font-semibold text-ink">Associated factors <span class="text-red-500">*</span></label>
               <div data-chip-group data-assoc class="mt-2 flex flex-wrap gap-2">
                 <button type="button" data-chip class="chip rounded-full border border-surface-line bg-white px-3.5 py-2 text-[13px] font-medium text-ink" aria-pressed="false">Central fill</button>
                 <button type="button" data-chip class="chip rounded-full border border-surface-line bg-white px-3.5 py-2 text-[13px] font-medium text-ink" aria-pressed="false">Compliance packaging</button>
@@ -349,10 +371,11 @@
                 <button type="button" data-chip class="chip rounded-full border border-surface-line bg-white px-3.5 py-2 text-[13px] font-medium text-ink" aria-pressed="false">Transition of care</button>
                 <button type="button" data-chip data-exclusive class="chip rounded-full border border-surface-line bg-white px-3.5 py-2 text-[13px] font-medium text-ink" aria-pressed="false">None of the above</button>
               </div>
+              <p data-err-assoc hidden class="mt-1.5 text-[12px] font-medium text-red-500">Select at least one associated factor (or “None of the above”).</p>
             </div>
 
-            <!-- degree of harm -->
-            <div>
+            <!-- degree of harm (incidents only — hidden for near miss) -->
+            <div data-harm-section>
               <label class="block text-[13px] font-semibold text-ink">Degree of harm <span class="text-red-500">*</span></label>
               <div data-harm class="mt-2 space-y-2">
                 <button type="button" data-harm-opt aria-checked="false" class="harm-opt flex w-full items-center gap-3 rounded-xl border border-surface-line bg-white px-3.5 py-3 text-left text-sm text-ink">
@@ -380,14 +403,21 @@
 
             <!-- what happened -->
             <div data-mic-group>
-              <div class="flex items-center justify-between gap-2">
+              <div class="flex flex-wrap items-center justify-between gap-2">
                 <label for="what" class="block text-[13px] font-semibold text-ink">What happened <span class="text-red-500">*</span></label>
-                <!-- voice dictation: speak → written paragraph instantly (Web Speech API) -->
-                <button type="button" data-mic data-mic-for="what" aria-label="Dictate — turn speech into text" class="mic-btn inline-flex items-center gap-1.5 rounded-full border border-surface-line bg-white px-3 py-1.5 text-[12px] font-semibold text-brand-teal2 shadow-soft">
-                  <svg data-mic-idle width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 19v3"/></svg>
-                  <svg data-mic-live hidden width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2.5"/></svg>
-                  <span data-mic-label>Dictate</span>
-                </button>
+                <div class="flex items-center gap-1.5">
+                  <!-- AI Tidy: restructure the (often dictated) description into labelled lines -->
+                  <button type="button" data-tidy aria-label="Tidy — restructure the description with AI" class="ai-chip inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-semibold">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l1.6 4.6L18 8l-4.4 1.4L12 14l-1.6-4.6L6 8l4.4-1.4L12 2zm6 10l.9 2.6L21 15l-2.1.4L18 18l-.9-2.6L15 15l2.1-.4L18 12zM6 14l.9 2.6L9 17l-2.1.4L6 20l-.9-2.6L3 17l2.1-.4L6 14z"/></svg>
+                    Tidy
+                  </button>
+                  <!-- voice dictation: speak → written paragraph instantly (Web Speech API) -->
+                  <button type="button" data-mic data-mic-for="what" aria-label="Dictate — turn speech into text" class="mic-btn inline-flex items-center gap-1.5 rounded-full border border-surface-line bg-white px-3 py-1.5 text-[12px] font-semibold text-brand-teal2 shadow-soft">
+                    <svg data-mic-idle width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 19v3"/></svg>
+                    <svg data-mic-live hidden width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2.5"/></svg>
+                    <span data-mic-label>Dictate</span>
+                  </button>
+                </div>
               </div>
               <div class="relative mt-1.5">
                 <textarea id="what" data-what data-guard-field rows="6" placeholder="Describe the sequence of events: what was intended, what actually happened, and how it was discovered…" class="finput w-full resize-y rounded-xl border border-surface-line bg-white px-3.5 py-3 text-sm text-ink"></textarea>
@@ -400,12 +430,13 @@
                 <span>That looks like an identifier (number or email). AIMS records must stay anonymous — describe roles instead.</span>
               </p>
               <p data-mic-unsupported hidden class="mt-1.5 text-[12px] text-muted">Voice input isn't supported in this browser — try Chrome or Edge, or type instead.</p>
+              <p data-ai-cap hidden class="ai-note mt-1.5 flex items-center gap-1.5 text-[11px] font-semibold"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l1.6 4.6L18 8l-4.4 1.4L12 14l-1.6-4.6L6 8l4.4-1.4L12 2z"/></svg>AI suggested — editable draft. Review before recording.</p>
               <p data-err-what hidden class="mt-1.5 text-[12px] font-medium text-red-500">Please describe what happened.</p>
             </div>
 
             <!-- contributing factors -->
             <div>
-              <label class="block text-[13px] font-semibold text-ink">Contributing factors</label>
+              <label class="block text-[13px] font-semibold text-ink">Contributing factors <span class="text-red-500">*</span></label>
               <div data-chip-group data-contrib class="mt-2 flex flex-wrap gap-2">
                 <button type="button" data-chip class="chip rounded-full border border-surface-line bg-white px-3.5 py-2 text-[13px] font-medium text-ink" aria-pressed="false">Interruptions / high volume / workload</button>
                 <button type="button" data-chip class="chip rounded-full border border-surface-line bg-white px-3.5 py-2 text-[13px] font-medium text-ink" aria-pressed="false">Lack of quality-control systems</button>
@@ -415,12 +446,14 @@
                 <button type="button" data-chip class="chip rounded-full border border-surface-line bg-white px-3.5 py-2 text-[13px] font-medium text-ink" aria-pressed="false">Process deviation</button>
                 <button type="button" data-chip class="chip rounded-full border border-surface-line bg-white px-3.5 py-2 text-[13px] font-medium text-ink" aria-pressed="false">Other</button>
               </div>
+              <input id="contribOther" data-contrib-other type="text" hidden placeholder="Describe the contributing factor" class="finput mt-2 w-full rounded-xl border border-surface-line bg-white px-3 py-2.5 text-sm text-ink" />
+              <p data-err-contrib hidden class="mt-1.5 text-[12px] font-medium text-red-500">Select at least one contributing factor.</p>
             </div>
 
             <!-- immediate actions -->
             <div data-mic-group>
               <div class="flex items-center justify-between gap-2">
-                <label for="actions" class="block text-[13px] font-semibold text-ink">Immediate actions taken</label>
+                <label for="actions" class="block text-[13px] font-semibold text-ink">Immediate actions taken <span class="text-red-500">*</span> <span class="font-normal text-muted">(already done — not the action plan)</span></label>
                 <button type="button" data-mic data-mic-for="actions" aria-label="Dictate — turn speech into text" class="mic-btn inline-flex items-center gap-1.5 rounded-full border border-surface-line bg-white px-3 py-1.5 text-[12px] font-semibold text-brand-teal2 shadow-soft">
                   <svg data-mic-idle width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 19v3"/></svg>
                   <svg data-mic-live hidden width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2.5"/></svg>
@@ -438,6 +471,7 @@
                 <span>That looks like an identifier. AIMS records must stay anonymous — describe roles instead.</span>
               </p>
               <p data-mic-unsupported hidden class="mt-1.5 text-[12px] text-muted">Voice input isn't supported in this browser — try Chrome or Edge, or type instead.</p>
+              <p data-err-actions hidden class="mt-1.5 text-[12px] font-medium text-red-500">Note the immediate actions already taken.</p>
             </div>
 
             <!-- submit -->
@@ -447,16 +481,41 @@
                 Recorded anonymously — queued for NIDR submission. Redirecting…
               </div>
               <p data-remaining hidden class="mb-3 flex items-start gap-1.5 rounded-xl border border-amber-400 bg-amber-50 px-3 py-2.5 text-[12.5px] font-medium text-amber-600"></p>
-              <button type="submit" data-submit class="btn brand-grad inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3.5 text-base font-semibold text-white shadow-[0_14px_30px_-12px_rgba(37,99,235,.75)]">
+              <button type="submit" data-submit disabled class="btn brand-grad inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3.5 text-base font-semibold text-white shadow-[0_14px_30px_-12px_rgba(37,99,235,.75)]">
                 <svg data-submit-spin hidden class="animate-spin" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-6.2-8.6" opacity=".9"/></svg>
-                <span data-submit-label>Record anonymously</span>
+                <span data-submit-label>Review &amp; record</span>
               </button>
-              <p class="mt-2.5 text-center text-[12px] text-muted">Recorded under your login for access accountability only — never shown in the record or transmitted.</p>
+              <p class="mt-2.5 text-center text-[12px] text-muted">Recorded by <b class="font-semibold text-ink">the signed-in pharmacist</b> for access accountability only (internal) — never shown in the record or transmitted to NIDR.</p>
             </div>
           </section>
 
         </div>
       </form>
+
+      <!-- ---- REVIEW CHECKPOINT (all mandatory fields, before anonymous submission) ---- -->
+      <div data-review-modal hidden class="fixed inset-0 z-[60] flex items-end justify-center bg-ink/40 p-0 backdrop-blur-sm sm:items-center sm:p-6">
+        <div class="w-full max-w-lg overflow-hidden rounded-t-2xl border border-surface-line bg-white shadow-card sm:rounded-2xl">
+          <div class="flex items-start justify-between gap-3 border-b border-surface-line px-5 py-4">
+            <div>
+              <h3 class="text-base font-bold text-ink">Review before recording</h3>
+              <p class="mt-0.5 text-[12px] text-muted">Anonymous &amp; de-identified for NIDR — check the details, then record.</p>
+            </div>
+            <button type="button" data-review-close class="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-surface-line text-muted hover:text-ink" aria-label="Close review">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+          </div>
+          <div class="max-h-[58vh] overflow-y-auto px-5 py-2">
+            <dl data-review-body class="divide-y divide-surface-line"></dl>
+          </div>
+          <div class="flex items-center gap-2 border-t border-surface-line px-5 py-4">
+            <button type="button" data-review-back class="btn flex-1 rounded-xl border border-surface-line bg-white px-4 py-3 text-sm font-semibold text-ink hover:border-brand-blue/40">Back to form</button>
+            <button type="button" data-review-confirm class="btn brand-grad inline-flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-white">
+              <svg data-review-spin hidden class="animate-spin" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-6.2-8.6" opacity=".9"/></svg>
+              <span data-review-confirm-label>Record anonymously</span>
+            </button>
+          </div>
+        </div>
+      </div>
 
     </div>
   </div>
@@ -603,7 +662,7 @@
     const form = document.querySelector('[data-rec]');
     if (!form) return;
     const KEY = 'agilerx-incident-draft';
-    const ids = ['date','time','gender','route','type','discovered','prescribed','what','actions'];
+    const ids = ['date','time','gender','route','type','typeOther','discovered','prescribed','what','actions','contribOther'];
     let timer = null;
 
     const collect = () => {
@@ -647,90 +706,213 @@
     if (clearBtn) clearBtn.addEventListener('click', () => { try { localStorage.removeItem(KEY); } catch (e) {} location.reload(); });
   })();
 
-  // Clear field error on interaction
-  ['[data-date]','[data-type]','[data-discovered]'].forEach(sel => {
+  // ---- form reference ----
+  const form = document.querySelector('[data-rec]');
+  const byId = id => document.getElementById(id);
+
+  // clear inline field errors on interaction
+  ['[data-date]','[data-type]','[data-discovered]','[data-gender]','[data-prescribed]','[data-route]'].forEach(sel => {
     const el = document.querySelector(sel);
-    if (el) el.addEventListener('input', () => el.removeAttribute('aria-invalid'));
-    if (el) el.addEventListener('change', () => el.removeAttribute('aria-invalid'));
+    if (el) { el.addEventListener('input', () => el.removeAttribute('aria-invalid')); el.addEventListener('change', () => el.removeAttribute('aria-invalid')); }
   });
 
-  // Submit validation
-  const form = document.querySelector('[data-rec]');
+  // current kind (incident vs near miss) — the inline chooser
+  const kindOf = () => { const s = document.querySelector('[data-seg] [aria-pressed="true"]'); return (s && s.dataset.segOpt === 'nearmiss') ? 'nearmiss' : 'incident'; };
+
+  // deep link ?kind=nearmiss|incident preselects the chooser (overrides a restored draft's kind)
+  (function(){
+    const k = new URLSearchParams(location.search).get('kind');
+    if (k === 'nearmiss' || k === 'incident') {
+      document.querySelectorAll('[data-seg] [data-seg-opt]').forEach(o => o.setAttribute('aria-pressed', String(o.dataset.segOpt === (k === 'nearmiss' ? 'nearmiss' : 'incident'))));
+    }
+  })();
+
+  // date echo — kills MM/DD ambiguity
+  const dateEcho = document.querySelector('[data-date-echo]');
+  const echoDate = () => {
+    if (!dateEcho) return; const v = byId('date').value;
+    if (!v) { dateEcho.textContent = ''; return; }
+    const p = v.split('-'), mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    dateEcho.textContent = (p.length === 3) ? ('= ' + (+p[2]) + ' ' + mo[(+p[1])-1] + ' ' + p[0]) : '';
+  };
+
+  // conditional fields: harm (incident only), "Other" free-text reveals
+  const harmSection = document.querySelector('[data-harm-section]');
+  function syncConditional(){
+    const near = kindOf() === 'nearmiss';
+    if (harmSection) harmSection.hidden = near;
+    const typeOther = byId('typeOther'); if (typeOther) typeOther.hidden = byId('type').value !== 'Other';
+    const contribOther = byId('contribOther');
+    if (contribOther) {
+      const otherOn = Array.from(document.querySelectorAll('[data-contrib] [aria-pressed="true"]')).some(c => c.textContent.trim() === 'Other');
+      contribOther.hidden = !otherOn;
+    }
+  }
+
+  // ---- live gate: mandatory fields, disabled submit, "N remaining" ----
+  const submitBtn = document.querySelector('[data-submit]');
+  const remaining = document.querySelector('[data-remaining]');
+  function gateItems(){
+    const m = [], near = kindOf() === 'nearmiss';
+    if (!byId('date').value) m.push('Date');
+    if (!byId('time').value) m.push('Time');
+    if (!document.querySelector('[data-age] [aria-pressed="true"]')) m.push('Age range');
+    if (!byId('gender').value) m.push('Gender');
+    if (!byId('route').value.trim()) m.push('Route');
+    const t = byId('type').value;
+    if (!t) m.push('Type of incident');
+    else if (t === 'Other' && !byId('typeOther').value.trim()) m.push('Describe the type');
+    if (!byId('discovered').value) m.push('Discovered by');
+    if (!byId('prescribed').value) m.push('Prescribed by');
+    if (!document.querySelector('[data-stages] [aria-pressed="true"]')) m.push('Stage');
+    if (!Array.from(document.querySelectorAll('[data-med-list] > div')).some(r => { const i = r.querySelector('input'); return i && i.value.trim(); })) m.push('Medication name');
+    if (!document.querySelector('[data-assoc] [aria-pressed="true"]')) m.push('Associated factors');
+    if (!near && !document.querySelector('[data-harm] [aria-checked="true"]')) m.push('Degree of harm');
+    if (!what.value.trim()) m.push('What happened');
+    const contribOn = Array.from(document.querySelectorAll('[data-contrib] [aria-pressed="true"]'));
+    if (!contribOn.length) m.push('Contributing factors');
+    else if (contribOn.some(c => c.textContent.trim() === 'Other') && !byId('contribOther').value.trim()) m.push('Describe the factor');
+    if (!byId('actions').value.trim()) m.push('Immediate actions');
+    if (idRe.test(what.value) || idRe.test(byId('actions').value)) m.push('Remove identifiers');
+    return m;
+  }
+  function updateGate(){
+    syncConditional();
+    const m = gateItems();
+    if (submitBtn) submitBtn.disabled = m.length > 0;
+    if (remaining){
+      if (m.length){
+        const shown = m.slice(0, 6), extra = m.length - shown.length;
+        remaining.hidden = false;
+        remaining.innerHTML = '<span><b>' + m.length + ' required ' + (m.length === 1 ? 'item' : 'items') + ' remaining</b> · ' + shown.join(' · ') + (extra > 0 ? ' · +' + extra + ' more' : '') + '</span>';
+      } else remaining.hidden = true;
+    }
+  }
+  form.addEventListener('input', updateGate);
+  form.addEventListener('change', () => { echoDate(); updateGate(); });
+  form.addEventListener('click', e => { if (e.target.closest('[data-chip],[data-seg-opt],[data-harm-opt],[data-add-med]')) setTimeout(updateGate, 0); });
+
+  // ---- AI "Tidy": restructure the (often dictated) description into labelled lines ----
+  const tidyBtn = document.querySelector('[data-tidy]');
+  const aiCap = document.querySelector('[data-ai-cap]');
+  if (tidyBtn) tidyBtn.addEventListener('click', () => {
+    const raw = what.value.trim();
+    if (!raw) { what.focus(); return; }
+    const actions = byId('actions').value.trim();
+    const parts = raw.replace(/\s+/g, ' ').split(/(?<=[.!?])\s+/).filter(Boolean);
+    const happened = parts.length ? parts[0] : raw;
+    const discovered = parts.length > 1 ? parts.slice(1).join(' ') : 'Noticed during a routine check before it reached the patient.';
+    let out = 'What happened: ' + happened + '\nDiscovered: ' + discovered;
+    if (actions) out += '\nImmediate action: ' + actions;
+    what.value = out;
+    what.classList.add('ai-field');
+    if (aiCap) aiCap.hidden = false;
+    what.dispatchEvent(new Event('input')); // re-run guard + gate
+    updateGate();
+  });
+
+  // ---- review checkpoint (all mandatory fields, before anonymous submission) ----
+  const esc2 = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const reviewModal = document.querySelector('[data-review-modal]');
+  const fmtWhen = () => {
+    const v = byId('date').value, tm = byId('time').value;
+    if (!v) return '—';
+    const p = v.split('-'), mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const d = (p.length === 3) ? (mo[(+p[1])-1] + ' ' + (+p[2]) + ', ' + p[0]) : v;
+    return d + (tm ? ' · ' + tm : '');
+  };
+  const typeValue = () => byId('type').value === 'Other' ? (byId('typeOther').value.trim() || 'Other') : byId('type').value;
+  const contribValues = () => Array.from(document.querySelectorAll('[data-contrib] [aria-pressed="true"]')).map(c => c.textContent.trim() === 'Other' ? (byId('contribOther').value.trim() || 'Other') : c.textContent.trim());
+  function openReview(){
+    const near = kindOf() === 'nearmiss';
+    const ageEl = document.querySelector('[data-age] [aria-pressed="true"]');
+    const meds = Array.from(document.querySelectorAll('[data-med-list] > div')).map(r => { const i = r.querySelectorAll('input'); return i[0].value.trim() + (i[1].value.trim() ? ' (' + i[1].value.trim() + ')' : ''); }).filter(s => s.trim()).join(', ') || '—';
+    const stages = Array.from(document.querySelectorAll('[data-stages] [aria-pressed="true"]')).map(c => c.textContent.trim()).join(', ') || '—';
+    const assoc = Array.from(document.querySelectorAll('[data-assoc] [aria-pressed="true"]')).map(c => c.textContent.trim()).join(', ') || '—';
+    const harmSel = document.querySelector('[data-harm-opt][aria-checked="true"]');
+    const rows = [
+      ['Kind', near ? 'Near miss' : 'Incident'],
+      ['When', fmtWhen()],
+      ['Patient', (ageEl ? ageEl.textContent.trim() : '—') + ' · ' + (byId('gender').value || '—')],
+      ['Type', typeValue()],
+      ['Route', byId('route').value.trim() || '—'],
+      ['Discovered by', byId('discovered').value || '—'],
+      ['Prescribed by', byId('prescribed').value || '—'],
+      ['Stage(s)', stages],
+      ['Medication(s)', meds],
+      ['Associated factors', assoc]
+    ];
+    if (!near) rows.push(['Degree of harm', harmSel ? harmSel.textContent.replace(/\s+/g,' ').trim() : '—']);
+    rows.push(['Contributing factors', contribValues().join(', ') || '—']);
+    rows.push(['Immediate actions', byId('actions').value.trim() || '—']);
+    rows.push(['What happened', byId('what').value.trim() || '—']);
+    document.querySelector('[data-review-body]').innerHTML = rows.map(r =>
+      '<div class="flex items-baseline justify-between gap-4 py-2.5"><dt class="shrink-0 text-[12px] font-medium text-muted">' + r[0] + '</dt><dd class="whitespace-pre-line text-right text-[13px] font-semibold text-ink">' + esc2(r[1]) + '</dd></div>'
+    ).join('');
+    reviewModal.hidden = false;
+  }
+  const closeReview = () => { reviewModal.hidden = true; };
+  document.querySelector('[data-review-close]').addEventListener('click', closeReview);
+  document.querySelector('[data-review-back]').addEventListener('click', closeReview);
+  reviewModal.addEventListener('click', e => { if (e.target === reviewModal) closeReview(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !reviewModal.hidden) closeReview(); });
+
+  // submit → open the review checkpoint (the gate already guarantees completeness)
   form.addEventListener('submit', (e) => {
     e.preventDefault();
-    const missing = [];
-    const mark = (el) => el && el.setAttribute('aria-invalid', 'true');
+    if (gateItems().length) { updateGate(); return; }
+    openReview();
+  });
 
-    const date = form.querySelector('[data-date]');
-    if (!date.value) { mark(date); missing.push('Date occurred'); }
-    const type = form.querySelector('[data-type]');
-    if (!type.value) { mark(type); missing.push('Type of incident'); }
-    const disc = form.querySelector('[data-discovered]');
-    if (!disc.value) { mark(disc); missing.push('Discovered by'); }
-
-    const stages = form.querySelector('[data-stages]');
-    const anyStage = stages.querySelector('[aria-pressed="true"]');
-    const errStages = document.querySelector('[data-err-stages]');
-    if (!anyStage) { if (errStages) errStages.hidden = false; missing.push('Medication system stage'); }
-
-    const harm = form.querySelector('[data-harm]');
-    const anyHarm = harm.querySelector('[aria-checked="true"]');
-    const errHarm = document.querySelector('[data-err-harm]');
-    if (!anyHarm) { if (errHarm) errHarm.hidden = false; missing.push('Degree of harm'); }
-
-    const errWhat = document.querySelector('[data-err-what]');
-    if (!what.value.trim()) { mark(what); if (errWhat) errWhat.hidden = false; missing.push('What happened'); }
-
-    const rem = document.querySelector('[data-remaining]');
-    if (missing.length) {
-      rem.hidden = false;
-      rem.innerHTML = '<span><b>' + missing.length + ' required ' + (missing.length === 1 ? 'item' : 'items') + ' remaining</b> · ' + missing.join(' · ') + '</span>';
-      const firstInvalid = form.querySelector('[aria-invalid="true"]') || (anyStage ? null : stages) || (anyHarm ? null : harm);
-      if (firstInvalid) firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      return;
-    }
-
-    // success
-    rem.hidden = true;
+  // confirm in the review modal → build the record, hand it off, redirect
+  document.querySelector('[data-review-confirm]').addEventListener('click', () => {
     if (window.__clearIncidentDraft) window.__clearIncidentDraft();
-
-    // hand the recorded event to the detail / workflow page
     try {
-      const seg = document.querySelector('[data-seg] [aria-pressed="true"]');
-      const ageChip = document.querySelector('[data-chip-group][data-single] [aria-pressed="true"]');
+      const near = kindOf() === 'nearmiss';
+      const ageChip = document.querySelector('[data-age] [aria-pressed="true"]');
       const harmSel = document.querySelector('[data-harm-opt][aria-checked="true"]');
+      const today = new Date().toISOString().slice(0, 10);
       const record = {
-        eventType: (seg && seg.dataset.segOpt === 'nearmiss') ? 'near_miss' : 'incident',
-        incidentType: document.getElementById('type').value,
-        date: document.getElementById('date').value,
-        time: document.getElementById('time').value,
+        eventType: near ? 'near_miss' : 'incident',
+        incidentType: typeValue(),
+        date: byId('date').value,
+        time: byId('time').value,
         ageRange: ageChip ? ageChip.textContent.trim() : '',
-        gender: document.getElementById('gender').value,
-        route: document.getElementById('route').value.trim(),
-        discovered: document.getElementById('discovered').value,
-        prescribed: document.getElementById('prescribed').value,
+        gender: byId('gender').value,
+        route: byId('route').value.trim(),
+        discovered: byId('discovered').value,
+        prescribed: byId('prescribed').value,
         stages: Array.from(document.querySelectorAll('[data-stages] [aria-pressed="true"]')).map(c => c.textContent.trim()),
         meds: Array.from(document.querySelectorAll('[data-med-list] > div')).map(r => { const i = r.querySelectorAll('input'); return { drug: i[0].value.trim(), din: i[1].value.trim() }; }).filter(m => m.drug || m.din),
         factorsAssoc: Array.from(document.querySelectorAll('[data-assoc] [aria-pressed="true"]')).map(c => c.textContent.trim()),
-        factors: Array.from(document.querySelectorAll('[data-contrib] [aria-pressed="true"]')).map(c => c.textContent.trim()),
-        harm: harmSel ? harmSel.textContent.replace(/\s+/g, ' ').trim() : '',
-        what: document.getElementById('what').value.trim(),
-        actions: document.getElementById('actions').value.trim()
+        factors: contribValues(),
+        harm: near ? '' : (harmSel ? harmSel.textContent.replace(/\s+/g, ' ').trim() : ''),
+        what: byId('what').value.trim(),
+        actions: byId('actions').value.trim(),
+        recordedBy: 'Lakeview Pharmacy',
+        reportedAt: today
       };
       localStorage.setItem('agilerx-incident-last', JSON.stringify(record));
       localStorage.removeItem('agilerx-incident-workflow'); // start a fresh workflow for the new event
     } catch (e) {}
 
-    const btn = document.querySelector('[data-submit]');
-    const spin = document.querySelector('[data-submit-spin]');
-    const label = document.querySelector('[data-submit-label]');
-    const ok = document.querySelector('[data-success]');
-    btn.disabled = true;
+    const cbtn = document.querySelector('[data-review-confirm]');
+    const spin = document.querySelector('[data-review-spin]');
+    const clabel = document.querySelector('[data-review-confirm-label]');
+    cbtn.disabled = true;
     if (spin) spin.hidden = false;
-    if (label) label.textContent = 'Recording anonymously…';
-    if (ok) { ok.hidden = false; ok.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
-    setTimeout(() => { window.location.href = 'incident-detail.html'; }, 1100);
+    if (clabel) clabel.textContent = 'Recording…';
+    const ok = document.querySelector('[data-success]');
+    if (ok) ok.hidden = false;
+    setTimeout(() => { window.location.href = 'incident-detail.html'; }, 900);
   });
+
+  // seg (Event type) toggles harm + gate
+  document.querySelectorAll('[data-seg] [data-seg-opt]').forEach(o => o.addEventListener('click', () => setTimeout(updateGate, 0)));
+
+  // initial paint
+  echoDate();
+  updateGate();
 
   // Reveal
   const io = new IntersectionObserver((entries) => {

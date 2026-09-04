@@ -110,6 +110,8 @@
   html.dark .bg-emerald-50      { background-color:rgba(52,211,153,.14); }
   html.dark .text-amber-600     { color:#FBBF24; }
   html.dark .bg-amber-50        { background-color:rgba(251,191,36,.11); }
+  html.dark .text-red-600       { color:#F87171; }
+  html.dark .bg-red-50          { background-color:rgba(248,113,113,.12); }
   html.dark .border-amber-400   { border-color:rgba(251,191,36,.55); }
   html.dark .ring-amber-400     { --tw-ring-color:rgba(251,191,36,.45); }
   html.dark .ring-amber-400\/40 { --tw-ring-color:rgba(251,191,36,.4); }
@@ -134,7 +136,7 @@
   <!-- ============ SIDEBAR (copied from Dashboard; Incidents marked active) ============ -->
   <aside data-side class="fixed inset-y-0 left-0 z-50 hidden w-64 shrink-0 overflow-y-auto border-r border-surface-line bg-white p-4 backdrop-blur-md lg:sticky lg:top-0 lg:block lg:h-screen">
     <div class="mb-5 flex items-center gap-2 px-1">
-      <span class="grid h-7 w-7 place-items-center rounded-lg brand-grad text-[11px] font-bold text-white">A</span>
+      <img src="brand.assets/Agilepharmalogo.png" alt="Agile Pharmas" class="h-7 w-7 shrink-0 object-contain" />
       <span class="text-sm font-bold text-ink">Agile Pharmas</span>
       <button data-side-close class="ml-auto grid h-8 w-8 place-items-center rounded-lg border border-surface-line text-muted lg:hidden" aria-label="Close menu">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
@@ -179,7 +181,7 @@
         <button data-side-btn class="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-surface-line text-ink lg:hidden" aria-label="Open menu">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
         </button>
-        <img src="brand.assets/aglie%20logo.png" alt="Agile Pharmas" class="hidden h-6 w-auto shrink-0 md:block" />
+        <img src="brand.assets/Agilepharmalogo.png" alt="Agile Pharmas" class="hidden h-6 w-auto shrink-0 md:block" />
         <div class="relative hidden min-w-0 flex-1 sm:block">
           <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
           <input type="search" class="topbar-search w-full rounded-xl border border-surface-line bg-surface-soft py-2 pl-9 pr-3 text-sm text-ink transition-colors placeholder:text-muted" placeholder="Search patients, claims..." aria-label="Search patients, claims" />
@@ -249,13 +251,28 @@
             <p class="mt-1 max-w-2xl text-sm text-muted">OCP AIMS program — anonymous recording, causal analysis &amp; de-identified NIDR submission <span class="text-muted/80">(simulated; pending ISMP API certification)</span></p>
           </div>
           <div class="flex shrink-0 flex-col items-stretch gap-2.5 sm:flex-row sm:items-center">
-            <a href="incident-record.html" class="btn brand-grad inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl px-5 py-3 text-base font-semibold text-white shadow-[0_10px_24px_-10px_rgba(37,99,235,.7)]">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-              Record incident
-            </a>
-            <button type="button" class="btn inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-surface-line bg-white px-5 py-3 text-base font-semibold text-ink shadow-soft hover:border-brand-blue/40">
+            <div class="relative" data-recdd>
+              <button type="button" data-recdd-btn aria-haspopup="menu" aria-expanded="false" class="btn brand-grad inline-flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-xl px-5 py-3 text-base font-semibold text-white shadow-[0_10px_24px_-10px_rgba(37,99,235,.7)] sm:w-auto">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                Record event
+                <svg class="h-4 w-4 opacity-80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+              </button>
+              <div data-recdd-menu class="absolute left-0 right-0 top-full z-40 mt-2 hidden origin-top overflow-hidden rounded-2xl border border-surface-line bg-white shadow-card sm:left-auto sm:w-72" role="menu" aria-label="Record">
+                <div class="p-1.5">
+                  <a href="incident-record.html?kind=incident" role="menuitem" class="side-item flex items-start gap-2.5 rounded-lg px-2.5 py-2.5 hover:bg-surface-soft">
+                    <span class="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-amber-50 text-amber-600"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h16.9a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></span>
+                    <span><span class="block text-[13px] font-semibold text-ink">Record incident</span><span class="block text-[11px] text-muted">Reached the patient</span></span>
+                  </a>
+                  <a href="incident-record.html?kind=nearmiss" role="menuitem" class="side-item flex items-start gap-2.5 rounded-lg px-2.5 py-2.5 hover:bg-surface-soft">
+                    <span class="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-brand-blue/10 text-brand-blue"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></span>
+                    <span><span class="block text-[13px] font-semibold text-ink">Record near miss</span><span class="block text-[11px] text-muted">Intercepted before the patient</span></span>
+                  </a>
+                </div>
+              </div>
+            </div>
+            <button type="button" data-sync-btn class="btn inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-surface-line bg-white px-5 py-3 text-base font-semibold text-ink shadow-soft hover:border-brand-blue/40">
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 13v8"/><path d="m8 17 4 4 4-4"/><path d="M20 16.6A5 5 0 0 0 18 7h-1.3A8 8 0 1 0 4 15.2"/></svg>
-              NIDR sync
+              <span data-sync-btn-label>Sync now</span>
             </button>
           </div>
         </div>
@@ -265,11 +282,11 @@
 
         <!-- stat cards — nested inside the banner (label · value · sub, matching Dashboard) -->
         <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <div class="card-lift rounded-xl border border-surface-line bg-white p-3.5 shadow-soft hover:shadow-cardhover">
+          <button type="button" data-jump-quarter class="card-lift rounded-xl border border-surface-line bg-white p-3.5 text-left shadow-soft hover:shadow-cardhover">
             <p class="text-[11px] font-medium text-muted">Events this quarter</p>
-            <p class="mt-1 text-xl font-extrabold text-ink" style="font-variant-numeric:tabular-nums;">4</p>
-            <p class="mt-0.5 text-[11px] font-semibold text-emerald-600">50% near misses</p>
-          </div>
+            <p class="mt-1 text-xl font-extrabold text-ink" style="font-variant-numeric:tabular-nums;" data-quarter-count>2</p>
+            <p class="mt-0.5 text-[11px] font-semibold text-emerald-600" data-quarter-sub>50% near misses</p>
+          </button>
           <!-- amber = needs action; clickable → filters the log to open items -->
           <button type="button" data-jump-open class="card-lift rounded-xl border border-amber-400 bg-amber-50 p-3.5 text-left shadow-soft ring-1 ring-amber-400 hover:shadow-cardhover">
             <p class="text-[11px] font-medium text-muted">Open workflow items</p>
@@ -292,9 +309,14 @@
       <!-- ---- EVENT LOG ---- -->
       <section class="reveal mt-3 rounded-2xl border border-surface-line bg-white p-4 shadow-card sm:p-5">
         <div class="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div>
+          <div class="min-w-0">
             <h2 class="text-base font-bold text-ink">Event log</h2>
-            <p class="mt-0.5 text-[12px] text-muted"><span data-count>5</span> events · all NIDR-submitted</p>
+            <p class="mt-0.5 text-[12px] text-muted"><span data-count>5</span><span data-count-of></span> events</p>
+            <p class="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[12px]">
+              <span data-sync-status class="text-muted">Last synced today, 6:00 AM</span>
+              <span data-sync-sep class="text-surface-line">·</span>
+              <button type="button" data-pending-jump class="font-semibold text-amber-600 hover:underline">2 not yet submitted to NIDR</button>
+            </p>
           </div>
           <div class="flex flex-wrap items-center gap-x-3 gap-y-2.5">
             <!-- search -->
@@ -306,7 +328,44 @@
             <div class="flex items-center gap-1.5" role="group" aria-label="Filter events">
               <button type="button" data-il-filter="all" aria-pressed="true" class="il-pill inline-flex items-center gap-1.5 rounded-full border border-transparent bg-brand-teal2 px-3 py-1 text-[12px] font-semibold text-white">All <span class="il-count rounded-full bg-white/25 px-1.5 text-[11px] font-semibold">5</span></button>
               <button type="button" data-il-filter="open" aria-pressed="false" class="il-pill inline-flex items-center gap-1.5 rounded-full border border-surface-line bg-white px-3 py-1 text-[12px] font-semibold text-ink">Needs action <span class="il-count text-[11px] font-semibold text-muted">2</span></button>
-              <button type="button" data-il-filter="complete" aria-pressed="false" class="il-pill inline-flex items-center gap-1.5 rounded-full border border-surface-line bg-white px-3 py-1 text-[12px] font-semibold text-ink">Complete <span class="il-count text-[11px] font-semibold text-muted">3</span></button>
+              <button type="button" data-il-filter="complete" aria-pressed="false" class="il-pill inline-flex items-center gap-1.5 rounded-full border border-surface-line bg-white px-3 py-1 text-[12px] font-semibold text-ink">Documented <span class="il-count text-[11px] font-semibold text-muted">3</span></button>
+            </div>
+            <!-- more filters: NIDR status + timing -->
+            <div class="relative" data-morefilter>
+              <button type="button" data-mf-btn aria-haspopup="menu" aria-expanded="false" class="sortdd-btn flex items-center gap-2 rounded-xl border border-surface-line bg-surface-soft py-1.5 pl-3 pr-2.5 text-[12px] font-semibold text-ink hover:border-brand-teal2">
+                <svg class="h-3.5 w-3.5 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+                More filters
+                <span data-mf-badge class="hidden rounded-full bg-brand-blue/10 px-1.5 text-[11px] font-semibold text-brand-blue">0</span>
+              </button>
+              <div data-mf-menu class="absolute right-0 top-full z-40 mt-2 hidden w-60 origin-top-right overflow-hidden rounded-2xl border border-surface-line bg-white shadow-card" role="menu" aria-label="More filters">
+                <div class="border-b border-surface-line p-1.5">
+                  <p class="px-2.5 pb-1 pt-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted/70">NIDR status</p>
+                  <button type="button" role="menuitemradio" data-mf-nidr="all" class="side-item flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium text-ink hover:bg-surface-soft">
+                    <svg data-mf-check class="h-4 w-4 text-brand-teal2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>All
+                  </button>
+                  <button type="button" role="menuitemradio" data-mf-nidr="pending" class="side-item flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium text-ink hover:bg-surface-soft">
+                    <svg data-mf-check class="invisible h-4 w-4 text-brand-teal2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Not yet submitted
+                  </button>
+                  <button type="button" role="menuitemradio" data-mf-nidr="synced" class="side-item flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium text-ink hover:bg-surface-soft">
+                    <svg data-mf-check class="invisible h-4 w-4 text-brand-teal2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Submitted
+                  </button>
+                </div>
+                <div class="p-1.5">
+                  <p class="px-2.5 pb-1 pt-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted/70">Timing</p>
+                  <button type="button" role="menuitemradio" data-mf-timing="all" class="side-item flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium text-ink hover:bg-surface-soft">
+                    <svg data-mf-check class="h-4 w-4 text-brand-teal2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>All time
+                  </button>
+                  <button type="button" role="menuitemradio" data-mf-timing="quarter" class="side-item flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium text-ink hover:bg-surface-soft">
+                    <svg data-mf-check class="invisible h-4 w-4 text-brand-teal2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>This quarter
+                  </button>
+                  <button type="button" role="menuitemradio" data-mf-timing="lastquarter" class="side-item flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium text-ink hover:bg-surface-soft">
+                    <svg data-mf-check class="invisible h-4 w-4 text-brand-teal2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Last quarter
+                  </button>
+                  <button type="button" role="menuitemradio" data-mf-timing="overdue" class="side-item flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium text-ink hover:bg-surface-soft">
+                    <svg data-mf-check class="invisible h-4 w-4 text-brand-teal2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Overdue (7+ days)
+                  </button>
+                </div>
+              </div>
             </div>
             <!-- sort -->
             <div class="flex items-center gap-2">
@@ -337,9 +396,12 @@
           </div>
         </div>
 
+        <!-- active secondary-filter chips -->
+        <div data-af-row class="mb-3 hidden flex-wrap items-center gap-2"></div>
+
         <div data-il-list class="divide-y divide-surface-line">
 
-          <div data-il-row data-status="open" data-date="2026-07-12" data-text="incorrect quantity incident preparation dispensing apixaban" class="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg px-1 py-3.5 transition-colors hover:bg-surface-soft">
+          <div data-il-row data-status="open" data-wf="needs" data-nidr="pending" data-kind="incident" data-date="2026-07-12" data-text="incorrect quantity incident preparation dispensing apixaban" class="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg px-1 py-3.5 transition-colors hover:bg-surface-soft">
             <p class="w-[92px] shrink-0 text-[12px] font-medium text-muted" style="font-variant-numeric:tabular-nums;">Jul 12, 2026</p>
             <div class="min-w-0 flex-1 basis-full sm:basis-0">
               <div class="flex flex-wrap items-center gap-2">
@@ -351,11 +413,11 @@
             </div>
             <div class="flex shrink-0 items-center gap-3">
               <span class="rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-semibold text-amber-600 ring-1 ring-amber-400/40">Needs analysis</span>
-              <span class="hidden items-center gap-1 text-[11px] font-medium text-muted sm:flex"><svg class="h-3.5 w-3.5 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>NIDR submitted</span>
+              <span data-nidr-badge class="hidden sm:inline-flex"></span>
             </div>
           </div>
 
-          <div data-il-row data-status="open" data-date="2026-07-08" data-text="incorrect concentration strength near miss rx order entry preparation dispensing amoxicillin suspension" class="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg px-1 py-3.5 transition-colors hover:bg-surface-soft">
+          <div data-il-row data-status="open" data-wf="share" data-nidr="pending" data-kind="near_miss" data-date="2026-07-08" data-text="incorrect concentration strength near miss rx order entry preparation dispensing amoxicillin suspension" class="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg px-1 py-3.5 transition-colors hover:bg-surface-soft">
             <p class="w-[92px] shrink-0 text-[12px] font-medium text-muted" style="font-variant-numeric:tabular-nums;">Jul 8, 2026</p>
             <div class="min-w-0 flex-1 basis-full sm:basis-0">
               <div class="flex flex-wrap items-center gap-2">
@@ -366,11 +428,11 @@
             </div>
             <div class="flex shrink-0 items-center gap-3">
               <span class="rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-semibold text-amber-600 ring-1 ring-amber-400/40">Share learnings</span>
-              <span class="hidden items-center gap-1 text-[11px] font-medium text-muted sm:flex"><svg class="h-3.5 w-3.5 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>NIDR submitted</span>
+              <span data-nidr-badge class="hidden sm:inline-flex"></span>
             </div>
           </div>
 
-          <div data-il-row data-status="complete" data-date="2026-06-24" data-text="incorrect patient near miss rx order entry sertraline" class="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg px-1 py-3.5 transition-colors hover:bg-surface-soft">
+          <div data-il-row data-status="complete" data-wf="documented" data-nidr="synced" data-kind="near_miss" data-date="2026-06-24" data-text="incorrect patient near miss rx order entry sertraline" class="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg px-1 py-3.5 transition-colors hover:bg-surface-soft">
             <p class="w-[92px] shrink-0 text-[12px] font-medium text-muted" style="font-variant-numeric:tabular-nums;">Jun 24, 2026</p>
             <div class="min-w-0 flex-1 basis-full sm:basis-0">
               <div class="flex flex-wrap items-center gap-2">
@@ -380,12 +442,12 @@
               <p class="mt-0.5 text-[12px] text-muted">Rx order entry · Sertraline</p>
             </div>
             <div class="flex shrink-0 items-center gap-3">
-              <span class="inline-flex items-center gap-1 rounded-full bg-brand-teal/10 px-2.5 py-1 text-[11px] font-semibold text-brand-teal2"><svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Complete</span>
-              <span class="hidden items-center gap-1 text-[11px] font-medium text-muted sm:flex"><svg class="h-3.5 w-3.5 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>NIDR submitted</span>
+              <span class="inline-flex items-center gap-1 rounded-full bg-brand-teal/10 px-2.5 py-1 text-[11px] font-semibold text-brand-teal2"><svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Documented</span>
+              <span data-nidr-badge class="hidden sm:inline-flex"></span>
             </div>
           </div>
 
-          <div data-il-row data-status="complete" data-date="2026-06-04" data-text="incorrect drug incident preparation dispensing hydralazine hydroxyzine" class="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg px-1 py-3.5 transition-colors hover:bg-surface-soft">
+          <div data-il-row data-status="complete" data-wf="documented" data-nidr="synced" data-kind="incident" data-date="2026-06-04" data-text="incorrect drug incident preparation dispensing hydralazine hydroxyzine" class="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg px-1 py-3.5 transition-colors hover:bg-surface-soft">
             <p class="w-[92px] shrink-0 text-[12px] font-medium text-muted" style="font-variant-numeric:tabular-nums;">Jun 4, 2026</p>
             <div class="min-w-0 flex-1 basis-full sm:basis-0">
               <div class="flex flex-wrap items-center gap-2">
@@ -396,12 +458,12 @@
               <p class="mt-0.5 text-[12px] text-muted">Preparation / dispensing · Hydralazine, Hydroxyzine</p>
             </div>
             <div class="flex shrink-0 items-center gap-3">
-              <span class="inline-flex items-center gap-1 rounded-full bg-brand-teal/10 px-2.5 py-1 text-[11px] font-semibold text-brand-teal2"><svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Complete</span>
-              <span class="hidden items-center gap-1 text-[11px] font-medium text-muted sm:flex"><svg class="h-3.5 w-3.5 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>NIDR submitted</span>
+              <span class="inline-flex items-center gap-1 rounded-full bg-brand-teal/10 px-2.5 py-1 text-[11px] font-semibold text-brand-teal2"><svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Documented</span>
+              <span data-nidr-badge class="hidden sm:inline-flex"></span>
             </div>
           </div>
 
-          <div data-il-row data-status="complete" data-date="2026-05-05" data-text="incorrect label incident preparation dispensing metformin" class="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg px-1 py-3.5 transition-colors hover:bg-surface-soft">
+          <div data-il-row data-status="complete" data-wf="documented" data-nidr="synced" data-kind="incident" data-date="2026-05-05" data-text="incorrect label incident preparation dispensing metformin" class="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg px-1 py-3.5 transition-colors hover:bg-surface-soft">
             <p class="w-[92px] shrink-0 text-[12px] font-medium text-muted" style="font-variant-numeric:tabular-nums;">May 5, 2026</p>
             <div class="min-w-0 flex-1 basis-full sm:basis-0">
               <div class="flex flex-wrap items-center gap-2">
@@ -412,8 +474,8 @@
               <p class="mt-0.5 text-[12px] text-muted">Preparation / dispensing · Metformin</p>
             </div>
             <div class="flex shrink-0 items-center gap-3">
-              <span class="inline-flex items-center gap-1 rounded-full bg-brand-teal/10 px-2.5 py-1 text-[11px] font-semibold text-brand-teal2"><svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Complete</span>
-              <span class="hidden items-center gap-1 text-[11px] font-medium text-muted sm:flex"><svg class="h-3.5 w-3.5 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>NIDR submitted</span>
+              <span class="inline-flex items-center gap-1 rounded-full bg-brand-teal/10 px-2.5 py-1 text-[11px] font-semibold text-brand-teal2"><svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Documented</span>
+              <span data-nidr-badge class="hidden sm:inline-flex"></span>
             </div>
           </div>
 
@@ -476,6 +538,17 @@
   document.addEventListener('click', (e) => { if (!profileMenu.contains(e.target) && !profileBtn.contains(e.target)) setProfile(false); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setProfile(false); });
 
+  // Record chooser (incident vs near miss)
+  (function () {
+    const dd = document.querySelector('[data-recdd]');
+    if (!dd) return;
+    const btn = dd.querySelector('[data-recdd-btn]'), menu = dd.querySelector('[data-recdd-menu]');
+    const open = o => { menu.classList.toggle('hidden', !o); btn.setAttribute('aria-expanded', String(o)); };
+    btn.addEventListener('click', e => { e.stopPropagation(); open(menu.classList.contains('hidden')); });
+    document.addEventListener('click', e => { if (!dd.contains(e.target)) open(false); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') open(false); });
+  })();
+
   // Custom sort dropdown — drives the hidden <select>
   (function () {
     document.querySelectorAll('[data-sortdd]').forEach(dd => {
@@ -517,24 +590,160 @@
     const countEl = document.querySelector('[data-count]');
     const empty = document.querySelector('[data-il-empty]');
     const sortSel = document.querySelector('[data-il-sort]');
-    let filter = 'all', q = '';
+    const countOf = document.querySelector('[data-count-of]');
+    let filter = 'all', q = '', nidr = 'all', timing = 'all';
 
+    // fixed "today" so the seeded 2026 dates age deterministically regardless of the viewer's clock
+    const TODAY = new Date('2026-09-04T09:00:00');
+    const DAY = 86400000;
+    const parseD = s => new Date(s + 'T00:00:00');
+    const daysAgo = s => Math.floor((TODAY - parseD(s)) / DAY);
+    const qStart = d => new Date(d.getFullYear(), Math.floor(d.getMonth() / 3) * 3, 1);
+    const qEnd   = d => { const s = qStart(d); return new Date(s.getFullYear(), s.getMonth() + 3, 0, 23, 59, 59); };
+    const curQS = qStart(TODAY), curQE = qEnd(TODAY);
+    const lastQE = new Date(curQS.getTime() - DAY), lastQS = qStart(lastQE);
+    const inRange = (s, a, b) => { const d = parseD(s); return d >= a && d <= b; };
+
+    // ---- per-row NIDR badge + aging note ----
+    rows.forEach(r => {
+      const slot = r.querySelector('[data-nidr-badge]');
+      r._renderBadge = () => {
+        if (!slot) return;
+        if (r.dataset.nidr === 'pending') {
+          slot.className = 'hidden sm:inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-600 ring-1 ring-amber-400/40';
+          slot.innerHTML = '<svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5l3 2"/></svg>NIDR pending';
+        } else {
+          slot.className = 'hidden sm:inline-flex items-center gap-1 rounded-full bg-surface-soft px-2 py-0.5 text-[11px] font-semibold text-muted';
+          slot.innerHTML = '<svg class="h-3 w-3 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Synced';
+        }
+      };
+      r._renderBadge();
+      if (r.dataset.status !== 'complete') {
+        const n = daysAgo(r.dataset.date), over = n >= 7;
+        const mid = r.querySelector('.min-w-0');
+        if (mid) {
+          const p = document.createElement('p');
+          p.className = 'mt-1 text-[11px] font-semibold ' + (over ? 'text-red-600' : 'text-amber-600');
+          p.textContent = (r.dataset.wf === 'share' ? 'Pending ' : 'Open ') + n + (n === 1 ? ' day' : ' days');
+          mid.appendChild(p);
+        }
+      }
+    });
+
+    // ---- predicates ----
+    const matchTiming = r => {
+      if (timing === 'all') return true;
+      if (timing === 'quarter') return inRange(r.dataset.date, curQS, curQE);
+      if (timing === 'lastquarter') return inRange(r.dataset.date, lastQS, lastQE);
+      if (timing === 'overdue') return r.dataset.status !== 'complete' && daysAgo(r.dataset.date) >= 7;
+      return true;
+    };
     const matches = (r) => {
       const okF = filter === 'all' || r.dataset.status === filter;
       const okQ = !q || r.dataset.text.indexOf(q) !== -1;
-      return okF && okQ;
+      const okN = nidr === 'all' || r.dataset.nidr === nidr;
+      return okF && okQ && okN && matchTiming(r);
     };
     const apply = () => {
       let n = 0;
       rows.forEach(r => { const m = matches(r); r.classList.toggle('hidden', !m); if (m) n++; });
+      const filtered = filter !== 'all' || q || nidr !== 'all' || timing !== 'all';
       if (countEl) countEl.textContent = n;
+      if (countOf) countOf.textContent = filtered ? (' of ' + rows.length) : '';
       if (empty) empty.hidden = n > 0;
+      renderChips();
     };
     const applySort = () => {
       const asc = sortSel && sortSel.value === 'oldest';
       [...rows].sort((a, b) => { const d = a.dataset.date.localeCompare(b.dataset.date); return asc ? d : -d; })
                .forEach(r => list.appendChild(r));
     };
+    const scrollLog = () => { const sec = list.closest('section'); if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+
+    // ---- active-filter chips ----
+    const afRow = document.querySelector('[data-af-row]');
+    const NIDR_LABEL = { pending: 'Not yet submitted', synced: 'Submitted' };
+    const TIMING_LABEL = { quarter: 'This quarter', lastquarter: 'Last quarter', overdue: 'Overdue (7+ days)' };
+    const makeChip = (label, onClear) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'inline-flex items-center gap-1.5 rounded-full border border-surface-line bg-surface-soft px-2.5 py-1 text-[12px] font-semibold text-ink hover:border-brand-blue/40';
+      b.innerHTML = label + '<svg class="h-3 w-3 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>';
+      b.addEventListener('click', onClear);
+      return b;
+    };
+    function renderChips() {
+      if (!afRow) return;
+      afRow.innerHTML = '';
+      let any = false;
+      if (nidr !== 'all')   { any = true; afRow.appendChild(makeChip(NIDR_LABEL[nidr], () => { nidr = 'all'; syncMenu(); apply(); })); }
+      if (timing !== 'all') { any = true; afRow.appendChild(makeChip(TIMING_LABEL[timing], () => { timing = 'all'; syncMenu(); apply(); })); }
+      if (any) {
+        const c = document.createElement('button');
+        c.type = 'button'; c.className = 'text-[12px] font-semibold text-muted hover:text-ink'; c.textContent = 'Clear all';
+        c.addEventListener('click', () => { nidr = 'all'; timing = 'all'; syncMenu(); apply(); });
+        afRow.appendChild(c);
+      }
+      afRow.classList.toggle('hidden', !any);
+      const badge = document.querySelector('[data-mf-badge]');
+      if (badge) { const cnt = (nidr !== 'all' ? 1 : 0) + (timing !== 'all' ? 1 : 0); badge.textContent = cnt; badge.classList.toggle('hidden', cnt === 0); }
+    }
+
+    // ---- more-filters menu (NIDR status · timing) ----
+    const mf = document.querySelector('[data-morefilter]');
+    function syncMenu() {
+      if (!mf) return;
+      mf.querySelectorAll('[data-mf-nidr]').forEach(o => { const c = o.querySelector('[data-mf-check]'); if (c) c.classList.toggle('invisible', o.dataset.mfNidr !== nidr); });
+      mf.querySelectorAll('[data-mf-timing]').forEach(o => { const c = o.querySelector('[data-mf-check]'); if (c) c.classList.toggle('invisible', o.dataset.mfTiming !== timing); });
+    }
+    if (mf) {
+      const mfBtn = mf.querySelector('[data-mf-btn]'), mfMenu = mf.querySelector('[data-mf-menu]');
+      const openMf = o => { mfMenu.classList.toggle('hidden', !o); mfBtn.setAttribute('aria-expanded', String(o)); };
+      mfBtn.addEventListener('click', e => { e.stopPropagation(); openMf(mfMenu.classList.contains('hidden')); });
+      mf.querySelectorAll('[data-mf-nidr]').forEach(o => o.addEventListener('click', () => { nidr = o.dataset.mfNidr; syncMenu(); apply(); }));
+      mf.querySelectorAll('[data-mf-timing]').forEach(o => o.addEventListener('click', () => { timing = o.dataset.mfTiming; syncMenu(); apply(); }));
+      document.addEventListener('click', e => { if (!mf.contains(e.target)) openMf(false); });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') openMf(false); });
+      syncMenu();
+    }
+
+    // ---- sync state + pending counter ----
+    const pendingJump = document.querySelector('[data-pending-jump]');
+    const syncStatus  = document.querySelector('[data-sync-status]');
+    const syncSep     = document.querySelector('[data-sync-sep]');
+    const syncBtn     = document.querySelector('[data-sync-btn]');
+    const syncBtnLbl  = document.querySelector('[data-sync-btn-label]');
+    let syncFailed = location.hash === '#incidents-syncfail';
+    const pendingCount = () => rows.filter(r => r.dataset.nidr === 'pending').length;
+    function renderSync() {
+      const p = pendingCount();
+      if (pendingJump) { pendingJump.textContent = p + ' not yet submitted to NIDR'; pendingJump.classList.toggle('hidden', p === 0); }
+      if (syncSep) syncSep.classList.toggle('hidden', p === 0);
+      if (syncStatus) {
+        if (syncFailed) { syncStatus.textContent = 'Last sync failed — Sep 4, 2026, 6:00 AM'; syncStatus.className = 'font-semibold text-red-600'; }
+        else { syncStatus.textContent = 'Last synced today, 6:00 AM'; syncStatus.className = 'text-muted'; }
+      }
+      if (syncBtnLbl) syncBtnLbl.textContent = syncFailed ? 'Retry sync' : 'Sync now';
+    }
+    function doSync() {
+      rows.forEach(r => { if (r.dataset.nidr === 'pending') { r.dataset.nidr = 'synced'; r._renderBadge(); } });
+      syncFailed = false;
+      renderSync();
+      if (syncStatus) { syncStatus.textContent = 'Last synced just now'; syncStatus.className = 'text-muted'; }
+      apply();
+    }
+    if (syncBtn) syncBtn.addEventListener('click', doSync);
+    if (pendingJump) pendingJump.addEventListener('click', () => { nidr = 'pending'; syncMenu(); apply(); scrollLog(); });
+    renderSync();
+
+    // ---- quarter stat tile stays in sync with the log ----
+    const qCount = rows.filter(r => inRange(r.dataset.date, curQS, curQE)).length;
+    const qNear  = rows.filter(r => inRange(r.dataset.date, curQS, curQE) && r.dataset.kind === 'near_miss').length;
+    const qcEl = document.querySelector('[data-quarter-count]'), qsEl = document.querySelector('[data-quarter-sub]');
+    if (qcEl) qcEl.textContent = qCount;
+    if (qsEl) qsEl.textContent = qCount ? (Math.round(qNear / qCount * 100) + '% near misses') : 'No events yet';
+    const jq = document.querySelector('[data-jump-quarter]');
+    if (jq) jq.addEventListener('click', () => { timing = 'quarter'; syncMenu(); apply(); scrollLog(); });
 
     if (search) search.addEventListener('input', e => { q = e.target.value.trim().toLowerCase(); apply(); });
     pills.forEach(p => p.addEventListener('click', () => {
@@ -557,10 +766,10 @@
 
     const jump = document.querySelector('[data-jump-open]');
     if (jump) jump.addEventListener('click', () => {
+      nidr = 'all'; timing = 'all'; syncMenu();
       const openPill = pills.find(p => p.dataset.ilFilter === 'open');
-      if (openPill) openPill.click();
-      const sec = list.closest('section');
-      if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (openPill) openPill.click(); else apply();
+      scrollLog();
     });
 
     // open an event's workflow — hand its data to incident-detail.html
@@ -570,18 +779,14 @@
       r.setAttribute('tabindex', '0');
       const go = () => {
         const pAll = Array.from(r.querySelectorAll('p'));
-        const spans = Array.from(r.querySelectorAll('span'));
         const title = r.querySelector('p.font-semibold') ? r.querySelector('p.font-semibold').textContent.trim() : 'Incident';
         const detailP = pAll.find(p => p.textContent.indexOf('·') !== -1);
         const detail = detailP ? detailP.textContent.trim() : '';
-        const typeSpan = spans.find(s => /^(incident|near miss)$/i.test(s.textContent.trim()));
-        const statusSpan = spans.find(s => /needs analysis|share learnings|complete/i.test(s.textContent));
-        const eventType = (typeSpan && /near/i.test(typeSpan.textContent)) ? 'near_miss' : 'incident';
+        const eventType = r.dataset.kind === 'near_miss' ? 'near_miss' : 'incident';
         const parts = detail.split('·').map(s => s.trim());
         const stages = parts[0] ? parts[0].split(',').map(s => s.trim()).filter(Boolean) : [];
         const drug = parts[1] || '';
-        const st = (statusSpan ? statusSpan.textContent : '').toLowerCase();
-        const wstage = st.indexOf('complete') !== -1 ? 'complete' : (st.indexOf('share') !== -1 ? 'share' : 'needs');
+        const wstage = r.dataset.wf === 'documented' ? 'complete' : (r.dataset.wf === 'share' ? 'share' : 'needs');
         const rec = {
           eventType: eventType, incidentType: title, date: r.dataset.date || '', time: '',
           ageRange: '65–84', gender: '', route: '', discovered: 'Pharmacist', prescribed: 'Physician',
